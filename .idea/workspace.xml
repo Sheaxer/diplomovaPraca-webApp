@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="" />
+    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.htaccess" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/DatabaseConfig.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/AuthorizationException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/Database.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/LoginInfo.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/Nomenklator.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/NomenklatorFolder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/NomenklatorImage.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/User.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/database_init.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/login.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/DigitalizedTranscription.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/LoginInfo.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/User.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/nomenklature.php" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,12 +31,25 @@
   <component name="ComposerSettings">
     <execution />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="ProjectId" id="1lQULGfVSd6wYfDLNRjA6MzCug9" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="mysql" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -24,6 +58,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\diplomovka\objects" />
       <recent name="C:\xampp\htdocs\diplomovka\config" />
     </key>
   </component>
@@ -35,11 +70,30 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1607528751683</updated>
-      <workItem from="1607528753334" duration="13136000" />
+      <workItem from="1607528753334" duration="14462000" />
+      <workItem from="1610465722801" duration="18674000" />
+      <workItem from="1610570176854" duration="1965000" />
+      <workItem from="1610987037370" duration="392000" />
+      <workItem from="1610987475066" duration="19315000" />
+      <workItem from="1611134854559" duration="11837000" />
+      <workItem from="1611218144252" duration="5191000" />
+      <workItem from="1611286490692" duration="25614000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
