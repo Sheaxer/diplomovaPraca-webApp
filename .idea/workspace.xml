@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.htaccess" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/DatabaseConfig.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/AuthorizationException.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/Database.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/LoginInfo.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/Nomenklator.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/NomenklatorFolder.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/NomenklatorImage.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/User.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
+    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="1st">
+      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/constants.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/functions.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/validators/nomenklatorValidator.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/database_init.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/Database.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/Database.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/LoginInfo.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/LoginInfo.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/NomenklatorImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenklatorImage.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images.php" beforeDir="false" afterPath="$PROJECT_DIR$/images.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/login.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/DigitalizedTranscription.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/LoginInfo.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/User.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/nomenklature.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/login.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nomenklatorREST.php" beforeDir="false" afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +25,13 @@
   </component>
   <component name="ComposerSettings">
     <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -49,9 +51,11 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="DatabaseDriversLRU" value="mysql" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="vue.rearranger.settings.migration" value="true" />
@@ -77,8 +81,23 @@
       <workItem from="1610987475066" duration="19315000" />
       <workItem from="1611134854559" duration="11837000" />
       <workItem from="1611218144252" duration="5191000" />
-      <workItem from="1611286490692" duration="25614000" />
+      <workItem from="1611286490692" duration="27685000" />
+      <workItem from="1611412830144" duration="6236000" />
+      <workItem from="1611507067425" duration="34000" />
+      <workItem from="1611824509589" duration="199000" />
+      <workItem from="1611937877863" duration="1338000" />
+      <workItem from="1613406673196" duration="632000" />
+      <workItem from="1613465193617" duration="7598000" />
+      <workItem from="1613551613170" duration="13343000" />
     </task>
+    <task id="LOCAL-00001" summary="1st">
+      <created>1611325217796</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1611325217796</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -95,5 +114,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="1st" />
+    <option name="LAST_COMMIT_MESSAGE" value="1st" />
   </component>
 </project>

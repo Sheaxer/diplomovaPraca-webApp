@@ -13,6 +13,11 @@ class LoginInfo
         return LoginInfo::$hour_number;
     }
 
+    public int $userId;
+    public string $hash;
+    public string $expiresAt;
+    public ?string $loginDate;
+
 
 
 

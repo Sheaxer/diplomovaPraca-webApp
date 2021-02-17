@@ -3,6 +3,7 @@ require_once("Nomenklator.php");
 require_once("NomenklatorImage.php");
 require_once("AuthorizationException.php");
 require_once ("LoginInfo.php");
+require_once ("User.php");
 class Database{
 
 	public ?PDO $conn;
@@ -255,33 +256,46 @@ class Database{
 
     public function createNomenklator(array $nomenklator): ?int
     {
-        $query = "INSERT INTO " . Nomenklator::$table_name . " (`simple`, homophonic, bigrams, trigrams, codeBook,
-         `nulls`, folder, structure) values (`:simple`, :homophonic, :bigrams, :trigrams, :codeBook, `:nulls`,
-        :folder, :structure)";
-        $stm = $this->conn->prepare($query);
-        /*$stm->bindParam(":s`",$simple);
-        $stm->bindParam(":homophonic",$homophonic);
-        $stm->bindParam(":bigrams",$bigrams);
-        $stm->bindParam(":trigrams",$trigrams);
-        $stm->bindParam(":codeBook",$codeBook);
-        $stm->bindParam(":n",$nulls);
-        $stm->bindParam(":folder",$folder);
-        $stm->bindParam(":structure",$structure);*/
-        $this->conn->beginTransaction();
         try {
-            var_dump( $nomenklator);
-            $ans = $stm->execute($nomenklator);
+            $query = "SELECT 1 from " . NomenklatorImage::$tableName . " WHERE url=:url";
+            $stm = $this->conn->prepare($query);
+            foreach ($nomenklator['images'] as $image)
+            {
+                $stm->bindParam(':url',$image);
+                $stm->execute();
+                $r = $stm->fetch();
+                if($r !== false )
+                {
+                    throw new Exception("Image already belongs to another nomenklator");
+                }
+            }
+            $query = "INSERT INTO " . Nomenklator::$table_name . " (`simple`, homophonic, bigrams, trigrams, codeBook,
+                `nulls`, folder, structure) values (:s, :homophonic, :bigrams, :trigrams, :codeBook, :n,
+                :folder, :structure)";
+            $stm = $this->conn->prepare($query);
+            $stm->bindParam(":s",$nomenklator['simple']);
+            $stm->bindParam(":homophonic",$nomenklator['homophonic']);
+            $stm->bindParam(":bigrams",$nomenklator['bigrams']);
+            $stm->bindParam(":trigrams",$nomenklator['trigrams']);
+            $stm->bindParam(":codeBook",$nomenklator['codeBook']);
+            $stm->bindParam(":n",$nomenklator['nulls']);
+            $stm->bindParam(":folder",$nomenklator['folder']);
+            $stm->bindParam(":structure",$nomenklator['structure']);
+            $this->conn->beginTransaction();
+
+            //var_dump( $nomenklator);
+            $ans = $stm->execute();
             //echo var_dump($ans);
             if ($ans)
             {
                 $id = $this->conn->lastInsertId();
                 $i = 1;
-                foreach ($nomenklator->images as $image)
+                foreach ($nomenklator['images'] as $image)
                 {
                     $q = "INSERT INTO " . NomenklatorImage::$tableName .
                         " (url,`order`,nomenklatorId) VALUES (:url,:ord,:nomenklatorId)";
                     $stm2 = $this->conn->prepare($q);
-                    $stm2->bindParam(':url', $image["url"]);
+                    $stm2->bindParam(':url', $image);
                     $stm2->bindParam(':ord', $i);
                     $stm2->bindParam(':nomenklatorId', $id);
                     $stm2->execute();
@@ -304,8 +318,6 @@ class Database{
         note, digitalizaionDate, createdBy) VALUES (:nomenklatorId, :digitalizaionVersion, :note, :digitalizationDate,
         :createdBy)";
         $stm = $this->conn->prepare($query);
-
-
 
         $this->conn->beginTransaction();
         try {
@@ -342,15 +354,17 @@ class Database{
         $data = $stm->fetchObject("User");
         if($data instanceof User)
         {
-            return $data->id;
-            /*if(password_verify($password,$data->passwordHash))
+
+            // HERE IS PASSWORD VERIFICATION
+            if(password_verify($password,$data->passwordHash))
             {
                 return $data->id;
             }
             else
             {
                 return null;
-            }*/
+            }
+            //return $data->id;
         }
         return null;
     }
@@ -401,29 +415,35 @@ class Database{
         }
         $tokenRightHashed = hash('sha256', $tokenRight);
 
-        $stmt = $this->conn->prepare("SELECT * FROM " . LoginInfo::$table_name . " WHERE selector = ?");
+        $stmt = $this->conn->prepare("SELECT userId,hash,expiresAt FROM " . LoginInfo::$table_name . " WHERE selector = ?");
+        $stmt->setFetchMode(PDO::FETCH_CLASS, 'LoginInfo');
         $stmt->execute([$tokenLeft]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $info = $stmt->fetch();
         //echo var_dump($row);
-        if(hash_equals($row['hash'],$tokenRightHashed))
+        if($info instanceof LoginInfo)
         {
-            try {
-                $expires_date = new DateTime($row['expiresAt']);
-                $current_date = new DateTime('now');
-                if($expires_date > $current_date)
-                {
-                    echo var_dump($row['userId']);
-                    return intval($row['userId']);
+            if(hash_equals($info->hash,$tokenRightHashed))
+            {
+                try {
+                    $expires_date = new DateTime($info->expiresAt);
+                    $current_date = new DateTime('now');
+                    if($expires_date > $current_date)
+                    {
+                        //echo var_dump($row['userId']);
+                        return $info->userId;
+                    }
+                } catch (Exception $e) {
+                    throw new AuthorizationException('Invalid authentication token 1');
                 }
-            } catch (Exception $e) {
-                throw new AuthorizationException('Invalid authentication token 1');
             }
+            else throw new AuthorizationException('Invalid authentication token 2');
+           // return null;
         }
-        else throw new AuthorizationException('Invalid authentication token 2');
+        else throw new AuthorizationException("Invalid authentication token 5");
         return null;
     }
 
-    public function createToken(int $user_id): ?string
+    public function createToken(int $userId): ?array
     {
         try {
             $tokenLeft = base64_encode(random_bytes(15));
@@ -438,9 +458,10 @@ class Database{
                 " (userId,selector,hash,loginDate,expiresAt) VALUES
             (?,?,?,?,?)");
 
-            $stmt->execute([$user_id,$tokenLeft,$tokenRightHashed,$date->format("Y-m-d"),$expire_date->format("Y-m-d")]);
-
-            return $tokenLeft.':'.$tokenRight;
+            $stmt->execute([$userId,$tokenLeft,$tokenRightHashed,$date->format("Y-m-d H:i:s"),$expire_date->format("Y-m-d H:i:s")]);
+            $res['token'] = $tokenLeft.':'.$tokenRight;
+            $res['expiresAt'] = $expire_date->format("Y-m-d H:i:s");
+            return $res;
 
         } catch (Exception $e) {
         }

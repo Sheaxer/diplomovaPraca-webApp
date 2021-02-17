@@ -1,20 +1,24 @@
 <?php
 $headers = apache_request_headers();
 $fileSizeLimit = 1000000;
-$uploadFolder = "/diplomovka/images/";
 require_once("entities/Database.php");
+require_once ("entities/NomenklatorImage.php");
 require_once ("config/DatabaseConfig.php");
+require_once ("config/constants.php");
 try {
     $id = null;
-    if(isset($headers['Authorization']))
+    if(isset($headers['authorization']))
     {
         $config = new DatabaseConfig();
         if($config !== null)
         {
             $database = new Database($config->getConnection());
-            $database->loginWithToken($headers['Authorization']);
+            $id = $database->loginWithToken($headers['authorization']);
             if($id === null)
-                throw new AuthorizationException("Invalid authorization token");
+            {
+                throw new AuthorizationException("Invalid authorization token 8");
+            }
+
         }
 
     }
@@ -51,21 +55,23 @@ try {
     // DO NOT TRUST $_FILES['upfile']['mime'] VALUE !!
     // Check MIME Type by yourself.
     $finfo = new finfo(FILEINFO_MIME_TYPE);
-    if (false === $ext = array_search(
-            $finfo->file($_FILES['nomenklatorImage']['tmp_name']),
-            array(
-                'jpg' => 'image/jpeg',
-                'png' => 'image/png'
-            ),
-            true
-        )) {
+    //var_dump($finfo->file($_FILES['nomenklatorImage']['tmp_name']));
+    $ext = array_search(
+        $finfo->file($_FILES['nomenklatorImage']['tmp_name']),
+        array(
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png'
+        ),
+        true
+    );
+    if (false === $ext ) {
         throw new RuntimeException('Invalid file format.');
     }
 
     if (!move_uploaded_file(
         $_FILES['nomenklatorImage']['tmp_name'],
-        sprintf('./images/%s.%s',
-            $_FILES['nomenklatorImage']['name'],
+        sprintf( NomenklatorImage::$uploadFolder . '%s.%s',
+            pathinfo($_FILES['nomenklatorImage']['name'])['filename'],
             $ext
         )
     )) {
@@ -73,9 +79,15 @@ try {
     }
     else
     {
-        $response['url'] =
-        substr($_SERVER['HTTP_HOST'] . $_SERVER["REQUEST_URI"],0,-4) . "/" . $_FILES['nomenklatorImage']['name'] ;
+        /*$response['url'] =
+        substr($_SERVER['HTTP_HOST'] . $_SERVER["REQUEST_URI"],0,-4) . "/" . $_FILES['nomenklatorImage']['name'] ;*/
+        $response['url'] = sprintf( SERVICEPATH. NomenklatorImage::$uploadFolder. '%s.%s',
+            pathinfo($_FILES['nomenklatorImage']['name'])['filename'],
+            $ext
+        );
+
         header('X-PHP-Response-Code: 200',true,200);
+        header('Content-type: application/json');
         echo json_encode($response);
     }
 

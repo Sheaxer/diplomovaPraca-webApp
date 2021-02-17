@@ -194,7 +194,36 @@ try {
             $headers = apache_request_headers();
             header('X-PHP-Response-Code: 200',true,200);
             header('Content-type: text/plain');
+
+            $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+            if (stripos($content_type, 'application/json') === false) {
+                throw new RuntimeException('Content-Type must be application/json');
+            }
+            $body = file_get_contents("php://input");
+            $object = json_decode($body, true);
+
             $id = null;
+            if(strcmp($elements[0],"login") == 0)
+            {
+
+                //var_dump($body);
+
+                $validUser = $database->checkUser($object['username'],$object["password"]);
+                if($validUser !== null)
+                {
+                    $result = $database->createToken($validUser);
+                    header('X-PHP-Response-Code: 200',true,200);
+                    header('Content-type: application/json');
+                    echo (json_encode($result));
+                    die();
+                }
+                else
+                {
+                    throw new RuntimeException("Invalid credentials");
+
+                }
+            }
+
             if(isset($headers['authorization']))
             {
                 $config = new DatabaseConfig();
@@ -212,18 +241,12 @@ try {
             }
             else throw new AuthorizationException("No Authorization token");
 
-            $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
-            if (stripos($content_type, 'application/json') === false) {
-                throw new RuntimeException('Content-Type must be application/json');
-            }
-            $body = file_get_contents("php://input");
-            $object = json_decode($body, true);
+
             if(strcmp($elements[0],"nomenklators") === 0)
             {
                 //echo "Elements";
                if(sizeof($elements) === 1)
                {
-
                    if(!array_key_exists('signature',$object))
                     $object['signature']=null;
                    if(!array_key_exists('nulls',$object))
@@ -238,6 +261,8 @@ try {
                        $object['folder']=null;
                    if(!array_key_exists('images',$object))
                        $object['images']=null;
+                   if(!array_key_exists('homophonic',$object))
+                       $object['homophonic']=null;
 
                    $addedId = $database->createNomenklator($object);
                    if($addedId === null)
@@ -278,7 +303,7 @@ try {
                }
                else throw new RuntimeException("Invalid URL 2");
             }
-            else if (strcmp($elements[0],"users"))
+            else if (strcmp($elements[0],"users") == 0)
             {
                 if($object['username'] !== null && $object['password'] !== null)
                 {
@@ -293,6 +318,7 @@ try {
                     }
                 }
             }
+
             break;
         default:
             throw new RuntimeException("Invalid URL 3");
