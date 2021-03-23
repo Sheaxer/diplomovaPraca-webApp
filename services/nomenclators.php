@@ -1,32 +1,40 @@
 <?php
+
 $headers = apache_request_headers();
 $fileSizeLimit = 1000000;
 require_once("entities/Database.php");
-require_once ("entities/NomenklatorImage.php");
-require_once ("config/DatabaseConfig.php");
-require_once ("config/constants.php");
+require_once("entities/NomenclatorImage.php");
+require_once("config/DatabaseConfig.php");
+require_once("config/constants.php");
+require_once("helpers.php");
+
+function uploadNomenclator(Database  $database, int $id, $nomenclator)
+{
+
+}
+
 try {
-    $id = null;
-    if(isset($headers['authorization']))
-    {
-        $config = new DatabaseConfig();
-        if($config !== null)
-        {
-            $database = new Database($config->getConnection());
-            $id = $database->loginWithToken($headers['authorization']);
-            if($id === null)
-            {
-                throw new AuthorizationException("Invalid authorization token 8");
-            }
 
-        }
-
+    $config = new POSTDatabaseConfig();
+    if ($config->getConnection() === null) {
+        throw new Exception("Server error");
     }
-    else throw new AuthorizationException("No Authorization token");
+    $database = new Database($config->getConnection());
+    if ($database === null) {
+        throw new Exception("Server error");
+    }
 
+    if($_SERVER['REQUEST_METHOD'] === "GET")
+    {
 
+        header('X-PHP-Response-Code: 200',true,200);
+        header('Content-type: application/json');
+         echo(json_encode($database->getUnasignedImages()));
+        die();
+    }
+
+    $id = authorize($database);
     // Undefined | Multiple Files | $_FILES Corruption Attack
-    // If this request falls under any of them, treat it invalid.
     if (
         !isset($_FILES['nomenklatorImage']['error']) ||
         is_array($_FILES['nomenklatorImage']['error'])
@@ -70,7 +78,7 @@ try {
 
     if (!move_uploaded_file(
         $_FILES['nomenklatorImage']['tmp_name'],
-        sprintf( NomenklatorImage::$uploadFolder . '%s.%s',
+        sprintf( NomenclatorImage::$uploadFolder . '%s.%s',
             pathinfo($_FILES['nomenklatorImage']['name'])['filename'],
             $ext
         )
@@ -81,10 +89,11 @@ try {
     {
         /*$response['url'] =
         substr($_SERVER['HTTP_HOST'] . $_SERVER["REQUEST_URI"],0,-4) . "/" . $_FILES['nomenklatorImage']['name'] ;*/
-        $response['url'] = sprintf( SERVICEPATH. NomenklatorImage::$uploadFolder. '%s.%s',
+        $response['url'] = sprintf( SERVICEPATH. NomenclatorImage::$uploadFolder. '%s.%s',
             pathinfo($_FILES['nomenklatorImage']['name'])['filename'],
             $ext
         );
+        $database->addOrModifyImage($response['url'],null,null,true,null);
 
         header('X-PHP-Response-Code: 200',true,200);
         header('Content-type: application/json');
@@ -95,20 +104,5 @@ try {
 }
 catch (Exception $exception)
 {
-    $errors['error'] = $exception->getMessage();
-    if($exception instanceof AuthorizationException)
-    {
-        header('X-PHP-Response-Code: 401',true,401);
-        echo (json_encode($errors));
-    }
-    else if($exception instanceof RuntimeException)
-    {
-        header('X-PHP-Response-Code: 400',true,400);
-        echo (json_encode($errors));
-    }
-    else
-    {
-        header('X-PHP-Response-Code: 500',true,500);
-        echo (json_encode($errors));
-    }
+    throwException($exception);
 }

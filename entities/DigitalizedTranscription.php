@@ -4,11 +4,11 @@
 class DigitalizedTranscription
 {
     public ?int $id;
-    public ?int $nomenklatorId;
+    public ?int $nomenclatorKeyId;
     public ?string $digitalizationVersion;
     public ?string $note;
     public ?DateTime $digitalizationDate;
-    public ?int $createdBy;
+    public int $createdBy;
     public ?array $encryptionPairs;
 
     public static string $tableName = "digitalizedTranscriptions";

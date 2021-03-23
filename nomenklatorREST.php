@@ -1,24 +1,47 @@
 <?php
+require_once (__DIR__ . "/controllers/DigitalizedTranscriptionController.php");
+require_once (__DIR__ . "/controllers/NomenclatorKeysController.php");
+require_once (__DIR__ . "/controllers/UserController.php");
+require_once (__DIR__. "/controllers/helpers.php");
+require_once (__DIR__ . "/controllers/FolderController.php");
+require_once (__DIR__ . "/controllers/KeyUsersController.php");
+$path = getPathElements();
+if (strcmp(substr($path[0], 0, 15), "nomenclatorKeys") === 0)
+    nomenclatorKeyController();
+else if (strcmp($path[0], "digitalizedTranscriptions") === 0)
+    digitalizedTranscriptionController();
+else if( (strcmp($path[0],"login") === 0) || (strcmp($path[0],"users") === 0) || (strcmp($path[0], "changePassword") === 0))
+    userController();
+else if (strcmp($path[0],"folders") === 0)
+    folderController();
+else if(strcmp(substr($path[0],0,8),"keyUsers") === 0)
+    keyUsersController();
+else
+    echo "TODO";
 // required headers
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-$pathRemove = 1;
-$path = ltrim($_SERVER['REQUEST_URI'], '/');    // Trim leading slash(es)
-$elements = explode('/', $path);                // Split path on slashes
+//header("Access-Control-Allow-Origin: *");
+//header("Content-Type: application/json; charset=UTF-8");
+//$pathRemove = 1;
+//$path = ltrim($_SERVER['REQUEST_URI'], '/');    // Trim leading slash(es)
+//$elements = explode('/', $path);                // Split path on slashes
 
-for($i=0;$i<$pathRemove;$i++)
-    array_shift($elements);
-if(strcmp($elements[0],"images")===0)
+//for($i=0;$i<$pathRemove;$i++)
+  //  array_shift($elements);
+/*if(strcmp($elements[0],"images")===0)
 {
-    header("Location: ./images.php");
+    header("Location: ./nomenclators.php");
     die();
-}
+}*/
 //var_dump($elements);
-require_once ("entities/Database.php");
-require_once ("config/DatabaseConfig.php");
-try {
+//require_once ("entities/Database.php");
+//require_once("config/DatabaseConfig.php");
+//require_once ("config/constants.php");
+//require_once("controllers/helpers.php");
+//$id=null;
 
-    $config = new DatabaseConfig();
+/*try {
+
+    $config = new POSTDatabaseConfig();
     if ($config->getConnection() === null) {
        throw new Exception("Server error");
     }
@@ -26,18 +49,22 @@ try {
     if ($database === null) {
         throw new Exception("Server error");
     }
+
+    //var_dump($database->getUnasignedImages());
+
     switch ($_SERVER['REQUEST_METHOD'])
     {
         case "GET" :
-            if (strcmp($elements[0], "nomenklators") === 0)
+
+            if (strcmp($elements[0], "nomenklatorKeys") === 0)
             {
                 if (sizeof($elements) === 2)  // get nomenklators/{id}
                 {
-                    $nomenklator = $database->getNomenklatorById(intval($elements[1]));
-                    if ($nomenklator === null)
+                    $nomenklatorKey = $database->getNomenklatorById(intval($elements[1]));
+                    if ($nomenklatorKey === null)
                         throw new RuntimeException("Invalid nomenklator Id");
                     header('X-PHP-Response-Code: 200', true, 200);
-                    echo json_encode($nomenklator);
+                    echo json_encode($nomenklatorKey);
                     die();
                 } else if (sizeof($elements) === 1)  //get nomenklators
                 {
@@ -59,12 +86,6 @@ try {
                     throw new RuntimeException("Invalid URL 4");
                 $arguments = explode(substr($elements[0],13),"&");
                 $structure = null;
-                $simple = null;
-                $homophonic = null;
-                $bigrams = null;
-                $trigrams = null;
-                $codeBook = null;
-                $nulls = null;
                 $folder = null;
                 foreach ($arguments as $argument)
                 {
@@ -78,42 +99,7 @@ try {
                                 $structure = array();
                             $structure[] = urldecode($tmp[1]);
                             break;
-                        case "simple" :
-                            if($simple === null)
-                                $simple = filter_var($tmp[1],FILTER_VALIDATE_BOOLEAN);
-                            else
-                                throw new RuntimeException("Argument specified too many times");
-                            break;
-                        case "homophonic" :
-                            if($homophonic === null)
-                                $homophonic = filter_var($tmp[1],FILTER_VALIDATE_BOOLEAN);
-                            else
-                                throw new RuntimeException("Argument specified too many times");
-                            break;
-                        case "bigrams" :
-                            if($bigrams === null)
-                                $bigrams = filter_var($tmp[1],FILTER_VALIDATE_BOOLEAN);
-                            else
-                                throw new RuntimeException("Argument specified too many times");
-                            break;
-                        case "trigrams" :
-                            if($trigrams === null)
-                                $trigrams = filter_var($tmp[1],FILTER_VALIDATE_BOOLEAN);
-                            else
-                                throw new RuntimeException("Argument specified too many times");
-                            break;
-                        case "codeBook" :
-                            if($codeBook === null)
-                                $codeBook = filter_var($tmp[1],FILTER_VALIDATE_BOOLEAN);
-                            else
-                                throw new RuntimeException("Argument specified too many times");
-                            break;
-                        case "nulls" :
-                            if($nulls === null)
-                                $nulls = filter_var($tmp[1],FILTER_VALIDATE_BOOLEAN);
-                            else
-                                throw new RuntimeException("Argument specified too many times");
-                            break;
+
                         case "folder":
                             if($folder === null)
                                 $folder = array();
@@ -123,8 +109,7 @@ try {
                             throw new RuntimeException("Invalid argument");
                     }
                 }
-                $nomenklators = $database->getNomenklators($structure,$simple,$homophonic,$bigrams,$trigrams,
-                $codeBook,$nulls,$folder);
+                $nomenklators = $database->getNomenklators($structure,$folder);
                 if($nomenklators === null)
                 {
                     header('X-PHP-Response-Code: 204',true,204);
@@ -196,14 +181,19 @@ try {
             header('Content-type: text/plain');
 
             $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
-            if (stripos($content_type, 'application/json') === false) {
-                throw new RuntimeException('Content-Type must be application/json');
-            }
-            $body = file_get_contents("php://input");
-            $object = json_decode($body, true);
+            $object = null;
 
+            if (stripos($content_type, 'application/json') !== false) {
+                $object = json_decode(file_get_contents("php://input"), true);
+            }
+            else if (stripos($content_type,'multipart/form-data') !== false)
+            {
+                $object = json_decode($_POST['data'],true);
+            }
+            else
+                throw new RuntimeException('Invalid request content type');
             $id = null;
-            if(strcmp($elements[0],"login") == 0)
+            if(strcmp($elements[0],"login") === 0)
             {
 
                 //var_dump($body);
@@ -224,64 +214,39 @@ try {
                 }
             }
 
-            if(isset($headers['authorization']))
-            {
-                $config = new DatabaseConfig();
-                if($config !== null)
-                {
-                    $database = new Database($config->getConnection());
-                    $id = $database->loginWithToken($headers['authorization']);
-                    if($id === null)
-                    {
-                        throw new AuthorizationException("Invalid authorization token 8");
-                    }
-
-                }
-
-            }
-            else throw new AuthorizationException("No Authorization token");
+            $id=authorize($database);
 
 
-            if(strcmp($elements[0],"nomenklators") === 0)
+            if(strcmp($elements[0],"nomenklatorKeys") === 0)
             {
                 //echo "Elements";
                if(sizeof($elements) === 1)
                {
                    if(!array_key_exists('signature',$object))
-                    $object['signature']=null;
-                   if(!array_key_exists('nulls',$object))
-                       $object['nulls']=null;
-                   if(!array_key_exists('codeBook',$object))
-                       $object['codeBook']=null;
-                   if(!array_key_exists('trigrams',$object))
-                       $object['trigrams']=null;
-                   if(!array_key_exists('bigrams',$object))
-                       $object['bigrams']=null;
-                   if(!array_key_exists('folder',$object))
-                       $object['folder']=null;
-                   if(!array_key_exists('images',$object))
-                       $object['images']=null;
-                   if(!array_key_exists('homophonic',$object))
-                       $object['homophonic']=null;
+                       throw new RunTimeException('Incorrect nomenklatorKey');
 
-                   $addedId = $database->createNomenklator($object);
+                   $object['uploadedBy'] = $id;
+                   $addedId = $database->createNomenclator($object);
                    if($addedId === null)
                     throw new RuntimeException("Invalid body");
                    else
                    {
                        header('X-PHP-Response-Code: 200',true,200);
-                       //header('Content-type: application/json');
+                       header('Content-type: application/json');
                        $result['id'] = $addedId;
                        echo (json_encode($result));
                        die();
                    }
+
+
+
                }
                else if(sizeof($elements) === 3)
                {
                    if(strcmp($elements[2],"digitalTranscriptions") == 0)
                    {
                         $digitalizedTranscription = new DigitalizedTranscription();
-                        $digitalizedTranscription->nomenklatorId = intval($elements[1]);
+                        $digitalizedTranscription->nomenclatorKeyId = intval($elements[1]);
                         $digitalizedTranscription->createdBy = $id;
                         $digitalizedTranscription->digitalizationDate = new DateTime();
                         $digitalizedTranscription->note = $object['note'];
@@ -293,7 +258,7 @@ try {
                        else
                        {
                            header('X-PHP-Response-Code: 200',true,200);
-                           //header('Content-type: application/json');
+                           header('Content-type: application/json');
                            $result['id'] = $addedId;
                            echo (json_encode($result));
                            die();
@@ -309,7 +274,7 @@ try {
                 {
                     if($database->addUser($object['username'],$object['password']) === null)
                     {
-                        throw new Exception("Cannot Add new User");
+                        throw new Exception("Cannot Add new SystemUser");
                     }
                     else
                     {
@@ -326,20 +291,6 @@ try {
 }
 catch (Exception $exception)
 {
-    $errors['error'] = $exception->getMessage();
-    if($exception instanceof AuthorizationException)
-    {
-        header('X-PHP-Response-Code: 401',true,401);
-        echo (json_encode($errors));
-    }
-    else if($exception instanceof RuntimeException)
-    {
-        header('X-PHP-Response-Code: 400',true,400);
-        echo (json_encode($errors));
-    }
-    else
-    {
-        header('X-PHP-Response-Code: 500',true,500);
-        echo (json_encode($errors));
-    }
+    throwException($exception);
 }
+*/

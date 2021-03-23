@@ -1,21 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="1st">
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/constants.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/functions.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/validators/nomenklatorValidator.php" afterDir="false" />
+    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="added support to upload images">
+      <change afterPath="$PROJECT_DIR$/aa.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/serviceConfig.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/FolderController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/KeyUsersController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/UserController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/helpers.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/EncryptionPair.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/KeyUser.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/entities/NomenclatorFolder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/DigitalizedTranscriptionService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/KeyUserService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/NomenclatorFolderService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/NomenclatorImageService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/NomenclatorKeyService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/SystemUserService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/mysql/KeyUserServiceImpl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/mysql/NomenclatorFolderServiceImpl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/mysql/NomenclatorImageServiceImpl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/DatabaseConfig.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/DatabaseConfig.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/constants.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/constants.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entities/Database.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/Database.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/LoginInfo.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/LoginInfo.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenklatorImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenklatorImage.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images.php" beforeDir="false" afterPath="$PROJECT_DIR$/images.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/Nomenklator.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorKey.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/NomenklatorFolder.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/NomenklatorImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorImage.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/SystemUser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/nomenclators.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/nomenklatorREST.php" beforeDir="false" afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,6 +74,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="DatabaseDriversLRU" value="mysql" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
@@ -58,13 +82,26 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="php.override.implement.member.chooser.php.doc" value="NONE" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\diplomovka\controllers" />
+      <recent name="C:\xampp\htdocs\diplomovka\functions" />
       <recent name="C:\xampp\htdocs\diplomovka\objects" />
       <recent name="C:\xampp\htdocs\diplomovka\config" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="test.php" type="PhpLocalRunConfigurationType" factoryName="PHP Console" temporary="true" path="$PROJECT_DIR$/test.php">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="PHP Script.test.php" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -88,7 +125,25 @@
       <workItem from="1611937877863" duration="1338000" />
       <workItem from="1613406673196" duration="632000" />
       <workItem from="1613465193617" duration="7598000" />
-      <workItem from="1613551613170" duration="13343000" />
+      <workItem from="1613551613170" duration="21164000" />
+      <workItem from="1613991667802" duration="964000" />
+      <workItem from="1614089302382" duration="3924000" />
+      <workItem from="1614154283109" duration="30230000" />
+      <workItem from="1614794595746" duration="8479000" />
+      <workItem from="1614838459346" duration="3426000" />
+      <workItem from="1615280892890" duration="14942000" />
+      <workItem from="1615322728908" duration="11336000" />
+      <workItem from="1615367427919" duration="20154000" />
+      <workItem from="1615981650384" duration="13927000" />
+      <workItem from="1616003833960" duration="18616000" />
+      <workItem from="1616058052166" duration="9410000" />
+      <workItem from="1616145818638" duration="5693000" />
+      <workItem from="1616166920616" duration="1625000" />
+      <workItem from="1616396530825" duration="13491000" />
+      <workItem from="1616482640206" duration="411000" />
+      <workItem from="1616489502320" duration="523000" />
+      <workItem from="1616491735042" duration="5500000" />
+      <workItem from="1616503617023" duration="9329000" />
     </task>
     <task id="LOCAL-00001" summary="1st">
       <created>1611325217796</created>
@@ -97,11 +152,28 @@
       <option name="project" value="LOCAL" />
       <updated>1611325217796</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="added support to upload images">
+      <created>1613583999459</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1613583999459</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -117,6 +189,23 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="1st" />
-    <option name="LAST_COMMIT_MESSAGE" value="1st" />
+    <MESSAGE value="added support to upload images" />
+    <option name="LAST_COMMIT_MESSAGE" value="added support to upload images" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/test.php</url>
+          <line>1</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/functions.js</url>
+          <line>134</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

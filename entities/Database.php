@@ -1,9 +1,12 @@
 <?php
-require_once("Nomenklator.php");
-require_once("NomenklatorImage.php");
+require_once("NomenclatorKey.php");
+require_once("NomenclatorImage.php");
 require_once("AuthorizationException.php");
 require_once ("LoginInfo.php");
-require_once ("User.php");
+require_once("SystemUser.php");
+require_once("NomenclatorFolder.php");
+require_once ("EncryptionPair.php");
+require_once("controllers/helpers.php");
 class Database{
 
 	public ?PDO $conn;
@@ -13,11 +16,50 @@ class Database{
         $this->conn = $conn;
     }
 
+    function getUnasignedImages(): array
+    {
+        $query = "SELECT url FROM " . NomenclatorImage::$tableName . " WHERE nomenklatorId IS NULL";
+        $stm = $this->conn->prepare($query);
+        $stm->execute();
+        $res= $stm->fetchAll();
+        $ret = [];
+        foreach ($res as $i)
+        {
+            array_push($ret,$i['url']);
+        }
+        return $ret;
+    }
 
+    function addOrModifyImage(string $url, ?int $nomenklatorKeyId, ?int $order, bool $isLocal, ?string $structure)
+    {
+        $query = "SELECT 1 FROM " . NomenclatorImage::$tableName . " WHERE url=:url";
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':url',$url);
+        $stm->execute();
+        if ($stm->fetch() === false)
+        {
+            $query2 = "INSERT INTO " . NomenclatorImage::$tableName . "(url, nomenklatorKeyId, `order`, isLocal, structure)
+            VALUES (:url,:nomenklatorKeyId,:ord,:isLocal,:structure)";
+        }
+        else
+        {
+            $query2 = "UPDATE " . NomenclatorImage::$tableName . " SET nomenklatorKeyId = :nomenklatorKeyId, `order`= :ord, 
+            isLocal = :isLocal, structure = :structure WHERE url=:url";
+        }
+        $stm2 = $this->conn->prepare($query2);
+        $stm2->bindParam(':url',$url);
+        $stm2->bindParam(':nomenklatorKeyId',$nomenklatorKeyId);
+        $stm2->bindParam(':ord',$order);
+        $stm2->bindParam(':isLocal',$isLocal);
+        $stm2->bindParam(':structure',$structure);
+        $stm2->execute();
+
+    }
 
     function getEncryptionPairsByTranscriptionId(int $id): ?array
     {
-        $query = "SELECT openText, cipherText FROM encryptionPairs WHERE digitalizedTranscriptionId = :id";
+        $query = "SELECT plainTextUnit, cipherTextUnit FROM " . EncryptionPair::$tableName .
+            " WHERE digitalizedTranscriptionId = :id";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id', $id);
         $stm->execute();
@@ -35,11 +77,11 @@ class Database{
         $result = array();
         foreach ($data as $d)
         {
-            if(!array_key_exists($d["openText"],$result))
+            if(!array_key_exists($d["plainTextUnit"],$result))
             {
-               $result[$d["openText"]] = array();
+               $result[$d["plainTextUnit"]] = array();
             }
-            array_push($result[$d["openText"]], $d["cipherText"]);
+            array_push($result[$d["plainTextUnit"]], $d["cipherTextUnit"]);
         }
         return $result;
     }
@@ -52,119 +94,40 @@ class Database{
         $result = array();
         foreach ($data as $d)
         {
-            $result[$d["cipherText"]] = $d["openText"];
+            $result[$d["cipherTextUnit"]] = $d["plainTextUnit"];
         }
         return $result;
     }
 
-    function getNomenklators(?array $structure = null,
-                             ?bool $simple = null, ?bool $homophonic = null, ?bool $bigrams = null, ?bool $trigrams = null,
-                             ?bool $codeBook = null, ?bool $nulls = null, ?array $folders = null): array
+    function getNomenklators(?array $completeStructure = null,
+                              ?array $folders = null): array
     {
         $query = "SELECT * FROM "
-            . Nomenklator::$table_name;
+            . NomenclatorKey::$table_name;
         $parameters = array();
-        if($structure !== null)
+        if($completeStructure !== null)
         {
 
             $query = $query . "WHERE ";
-            if(count($structure) === 1)
+            if(count($completeStructure) === 1)
             {
-                $parameters["structure"] = $structure[1];
-                $query = $query . "structure=:structure";
+                $parameters["completeStructure"] = $completeStructure[1];
+                $query = $query . "completeStructure=:completeStructure";
             }
             else
             {
                 $s="";
                 $i = 0;
-                foreach ($structure as $item)
+                foreach ($completeStructure as $item)
                 {
                     $key = ":s".$i++;
                     $s .= "$key,";
                     $parameters[$key] = $item;
                 }
                 $s = rtrim($s,",");
-                $query = $query . "structure IN ($s)";
+                $query = $query . "completeStructure IN ($s)";
             }
 
-        }
-        if($simple !== null)
-        {
-            if(empty($parameters))
-            {
-                $query = $query . "WHERE ";
-            }
-            else
-            {
-                $query = $query ." AND ";
-            }
-            $parameters["simple"] = $simple;
-            $query = $query . "`simple`=`:simple`";
-        }
-        if($homophonic !== null)
-        {
-            if(empty($parameters))
-            {
-                $query = $query . "WHERE ";
-            }
-            else
-            {
-                $query = $query ." AND ";
-            }
-            $parameters["homophonic"] = $homophonic;
-            $query = $query . "homophonic=:homophonic";
-        }
-        if($bigrams !== null)
-        {
-            if(empty($parameters))
-            {
-                $query = $query . "WHERE ";
-            }
-            else
-            {
-                $query = $query ." AND ";
-            }
-            $parameters["bigrams"] = $bigrams;
-            $query = $query . "bigrams=:bigrams";
-        }
-        if($trigrams !== null)
-        {
-            if(empty($parameters))
-            {
-                $query = $query . "WHERE ";
-            }
-            else
-            {
-                $query = $query ." AND ";
-            }
-            $parameters["trigrams"] = $trigrams;
-            $query = $query . "trigrams=:trigrams";
-        }
-        if($codeBook !== null)
-        {
-            if(empty($parameters))
-            {
-                $query = $query . "WHERE ";
-            }
-            else
-            {
-                $query = $query ." AND ";
-            }
-            $parameters["codeBook"] = $codeBook;
-            $query = $query . "codeBook=:codeBook";
-        }
-        if($nulls !== null)
-        {
-            if(empty($parameters))
-            {
-                $query = $query . "WHERE ";
-            }
-            else
-            {
-                $query = $query ." AND ";
-            }
-            $parameters["nulls"] = $nulls;
-            $query = $query . "`nulls`=`:nulls`";
         }
         if($folders !== null)
         {
@@ -200,18 +163,18 @@ class Database{
 
         foreach ($data as $n)
         {
-            if($n instanceof Nomenklator)
+            if($n instanceof NomenclatorKey)
             {
                 $q = "SELECT id, digitalizationVersion, note, digitalizationDate, createdBy FROM " .
-                    DigitalizedTranscription::$tableName . " WHERE nomenklatorId =:nomenklatorId";// fetch digitalized transcriptions
+                    DigitalizedTranscription::$tableName . " WHERE nomenklatorKeyId =:nomenklatorKeyId";// fetch digitalized transcriptions
                 $stm2 = $this->conn->prepare($q);
-                $stm2->bindParam(':nomenklatorId',$n->id);
+                $stm2->bindParam(':nomenklatorKeyId',$n->id);
                 $stm2->execute();
                 $n->digitalizedTranscriptions = $stm2->fetchAll(PDO::FETCH_CLASS,"DigitalizedTranscription");
 
-                $q2 = "SELECT url from ". NomenklatorImage::$tableName . " ORDER BY `order` ASC WHERE nomenklatorId=:nomenklatorId";
+                $q2 = "SELECT url from ". NomenclatorImage::$tableName . "WHERE nomenklatorKeyId=:nomenklatorKeyId";
                 $stm3 = $this->conn->prepare($q2);
-                $stm3->bindParam(':nomenklatorId',$n->id);
+                $stm3->bindParam(':nomenklatorKeyId',$n->id);
                 $stm3->execute();
                 $n->images = $stm3->fetchAll(PDO::FETCH_COLUMN);
             }
@@ -220,19 +183,19 @@ class Database{
         return $data;
     }
 
-    public function getNomenklatorById(int $id) : ?Nomenklator
+    public function getNomenklatorById(int $id) : ?NomenclatorKey
     {
         $query = "SELECT * FROM "
-            . Nomenklator::$table_name . " WHERE id=:id";
+            . NomenclatorKey::$table_name . " WHERE id=:id";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id',$id,PDO::PARAM_INT);
         $stm->execute();
-        $data = $stm->fetchObject("Nomenklator");
-        if($data instanceof Nomenklator)
+        $data = $stm->fetchObject("NomenclatorKey");
+        if($data instanceof NomenclatorKey)
         {
-            $q = "SELECT url from ". NomenklatorImage::$tableName . " ORDER BY `order` ASC WHERE nomenklatorId=:nomenklatorId";
+            $q = "SELECT url, structure from ". NomenclatorImage::$tableName . " ORDER BY `order` ASC WHERE nomenklatorKeyId=:nomenklatorKeyId";
             $stm2 = $this->conn->prepare($q);
-            $stm2->bindParam(':nomenklatorId',$id);
+            $stm2->bindParam(':nomenklatorKeyId',$id);
             $stm2->execute();
             $images = $stm2->fetchAll(PDO::FETCH_COLUMN);
             if($images !== false) {
@@ -254,12 +217,12 @@ class Database{
         return null;
     }
 
-    public function createNomenklator(array $nomenklator): ?int
+    public function createNomenclator(array $nomenclator): ?int
     {
         try {
-            $query = "SELECT 1 from " . NomenklatorImage::$tableName . " WHERE url=:url";
+            $query = "SELECT 1 from " . NomenclatorImage::$tableName . " WHERE url=:url";
             $stm = $this->conn->prepare($query);
-            foreach ($nomenklator['images'] as $image)
+            foreach ($nomenclator['images'] as $image)
             {
                 $stm->bindParam(':url',$image);
                 $stm->execute();
@@ -269,18 +232,10 @@ class Database{
                     throw new Exception("Image already belongs to another nomenklator");
                 }
             }
-            $query = "INSERT INTO " . Nomenklator::$table_name . " (`simple`, homophonic, bigrams, trigrams, codeBook,
-                `nulls`, folder, structure) values (:s, :homophonic, :bigrams, :trigrams, :codeBook, :n,
-                :folder, :structure)";
+            $query = "INSERT INTO " . NomenclatorKey::$table_name . " ( folder, finalStructure) values (:folder, :finalStructure)";
             $stm = $this->conn->prepare($query);
-            $stm->bindParam(":s",$nomenklator['simple']);
-            $stm->bindParam(":homophonic",$nomenklator['homophonic']);
-            $stm->bindParam(":bigrams",$nomenklator['bigrams']);
-            $stm->bindParam(":trigrams",$nomenklator['trigrams']);
-            $stm->bindParam(":codeBook",$nomenklator['codeBook']);
-            $stm->bindParam(":n",$nomenklator['nulls']);
-            $stm->bindParam(":folder",$nomenklator['folder']);
-            $stm->bindParam(":structure",$nomenklator['structure']);
+            $stm->bindParam(":folder",$nomenclator['folder']);
+            $stm->bindParam(":finalStructure",$nomenclator['structure']);
             $this->conn->beginTransaction();
 
             //var_dump( $nomenklator);
@@ -290,9 +245,9 @@ class Database{
             {
                 $id = $this->conn->lastInsertId();
                 $i = 1;
-                foreach ($nomenklator['images'] as $image)
+                foreach ($nomenclator['images'] as $image)
                 {
-                    $q = "INSERT INTO " . NomenklatorImage::$tableName .
+                    $q = "INSERT INTO " . NomenclatorImage::$tableName .
                         " (url,`order`,nomenklatorId) VALUES (:url,:ord,:nomenklatorId)";
                     $stm2 = $this->conn->prepare($q);
                     $stm2->bindParam(':url', $image);
@@ -347,12 +302,12 @@ class Database{
 
     public function checkUser(string $username, string $password): ?int
     {
-        $query = "SELECT id,username, passwordHash from " . User::$tableName . " WHERE username=:username";
+        $query = "SELECT id,username, passwordHash from " . SystemUser::$tableName . " WHERE username=:username";
         $stm=$this->conn->prepare($query);
         $stm->bindParam(':username',$username);
         $stm->execute();
-        $data = $stm->fetchObject("User");
-        if($data instanceof User)
+        $data = $stm->fetchObject("SystemUser");
+        if($data instanceof SystemUser)
         {
 
             // HERE IS PASSWORD VERIFICATION
@@ -371,10 +326,10 @@ class Database{
 
     public function getFolders(): ?array
     {
-        $query = "SELECT `name`,fond FROM " . NomenklatorFolder::$tableName;
+        $query = "SELECT `name`,fond FROM " . NomenclatorFolder::$tableName;
         $stm = $this->conn->prepare($query);
         $stm->execute();
-        $data = $stm->fetchAll(PDO::FETCH_CLASS,"NomenklatorFolder");
+        $data = $stm->fetchAll(PDO::FETCH_CLASS,"NomenclatorFolder");
         if($data)
             return $data;
         return null;
@@ -382,14 +337,14 @@ class Database{
 
     public function addUser(string $username, string $password): ?int
     {
-        $query = "SELECT 1 from " . User::$tableName . " WHERE username=:username";
+        $query = "SELECT 1 from " . SystemUser::$tableName . " WHERE username=:username";
         $stm=$this->conn->prepare($query);
         $stm->bindParam(':username',$username);
         $stm->execute();
         $data = $stm->fetch(PDO::FETCH_ASSOC);
         if(!$data)
         {
-            $q = "INSERT INTO " . User::$tableName . "(username, passwordHash) VALUES (:username,:passwordHash)";
+            $q = "INSERT INTO " . SystemUser::$tableName . "(username, passwordHash) VALUES (:username,:passwordHash)";
             $stm2=$this->conn->prepare($q);
             $stm2->bindParam(':username',$username);
             $hash  = password_hash($password,PASSWORD_DEFAULT);
@@ -464,6 +419,7 @@ class Database{
             return $res;
 
         } catch (Exception $e) {
+
         }
         return null;
     }

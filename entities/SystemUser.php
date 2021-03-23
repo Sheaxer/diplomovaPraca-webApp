@@ -1,7 +1,7 @@
 <?php
 
 
-class User
+class SystemUser
 {
     public string $username;
     public string $passwordHash;

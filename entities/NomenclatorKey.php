@@ -1,24 +1,24 @@
 <?php
 
 
-class Nomenklator {
+class NomenclatorKey {
 
     public ?int $id;
     public ?string $signature;
     public ?array $images;
-    public ?string $structure;
-    public ?bool $simple;
-    public ?bool $homophonic;
-    public ?bool $bigrams;
-    public ?bool $trigrams;
-    public ?bool $codeBook;
-    public ?bool $nulls;
+    public ?string $completeStructure;
     public ?array $digitalizedTranscriptions;
 
     public ?string $folder;
 
+    public int $uploadedBy;
 
-    public static string $table_name = "nomenklators";
+    public ?string $date;
+
+    public ?array $keyUsers;
+
+
+    public static string $table_name = "nomenclatorKeys";
 
     /*public function  __construct(?int $id = null, ?string $signature = null, ?string $structure = null,
                                  ?array $images = null, ?bool $simple = null, ?bool $homophonic = null,
