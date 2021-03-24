@@ -3,13 +3,13 @@
 
 class NomenclatorFolder
 {
-    public ?string $name;
-    public ?string $fond;
-    public ?string $startDate;
-    public ?string $endDate;
+    public  $name;
+    public  $fond;
+    public  $startDate;
+    public  $endDate;
 
-    public ?array $regions;
+    public  $regions;
 
-    public static string $tableName = "folders";
+    public static  $tableName = "folders";
 
 }

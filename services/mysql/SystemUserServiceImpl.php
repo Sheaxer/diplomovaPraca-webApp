@@ -7,7 +7,7 @@ require_once (__DIR__ . "/../../entities/LoginInfo.php");
 
 class SystemUserServiceImpl implements SystemUserService
 {
-    private PDO $conn;
+    private $conn;
     function __construct(PDO $PDO)
     {
         $this->conn = $PDO;

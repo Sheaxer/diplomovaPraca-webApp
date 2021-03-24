@@ -4,7 +4,7 @@ require_once (__DIR__ ."/../NomenclatorFolderService.php");
 
 class NomenclatorFolderServiceImpl implements NomenclatorFolderService
 {
-    private PDO $conn;
+    private  $conn;
 
     function __construct(PDO $PDO)
     {

@@ -6,7 +6,7 @@ require_once ("entities/NomenclatorImage.php");
 class NomenclatorImageServiceImpl implements NomenclatorImageService
 {
 
-    private PDO $conn;
+    private $conn;
 
     function __construct(PDO $PDO)
     {

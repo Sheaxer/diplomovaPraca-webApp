@@ -3,9 +3,9 @@
 
 class EncryptionPair
 {
-    public static string $tableName = "encryptionPairs";
+    public static  $tableName = "encryptionPairs";
 
-    public string $plainTextUnit;
-    public string $cipherTextUnit;
+    public $plainTextUnit;
+    public  $cipherTextUnit;
 
 }

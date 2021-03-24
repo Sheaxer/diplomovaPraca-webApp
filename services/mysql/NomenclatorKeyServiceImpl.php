@@ -6,7 +6,7 @@ require_once ("KeyUserServiceImpl.php");
 require_once (__DIR__ . "/../../controllers/helpers.php");
 class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 {
-    private PDO $conn;
+    private  $conn;
 
     function  __construct(PDO $conn)
     {
@@ -15,12 +15,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?int
     {
-
+        if($nomenclator->signature === null)
+            $nomenclator->signature = generateRandomString(6);
         while($this->nomenclatorKeyExistsBySignature($nomenclator->signature))
         {
             $nomenclator->signature .= generateRandomString(1);
         }
-
         $query = "INSERT INTO nomenclatorkeys (folder, signature, completeStructure, uploadedBy, date, language) VALUES 
 (:folder,:signature,:completeStructure,:uploadedBy,:date,:language)";
 

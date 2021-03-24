@@ -3,6 +3,6 @@
 
 class KeyUser
 {
-    public int $id;
-    public string $name;
+    public $id;
+    public  $name;
 }

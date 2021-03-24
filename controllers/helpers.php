@@ -40,7 +40,6 @@ function getPathElements(): array
 {
     $path = ltrim($_SERVER['REQUEST_URI'], '/');    // Trim leading slash(es)
     $elements = explode('/', $path);                // Split path on slashes
-
     for($i=0;$i<PATHREMOVE;$i++)
         array_shift($elements);
     return $elements;

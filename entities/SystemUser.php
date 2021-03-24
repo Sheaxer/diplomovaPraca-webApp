@@ -3,11 +3,11 @@
 
 class SystemUser
 {
-    public string $username;
-    public string $passwordHash;
-    public int $id;
+    public  $username;
+    public  $passwordHash;
+    public  $id;
 
-    public static string $tableName = "users";
+    public static  $tableName = "users";
 
 
 }

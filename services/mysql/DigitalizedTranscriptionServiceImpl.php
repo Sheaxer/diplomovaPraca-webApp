@@ -6,7 +6,7 @@ require_once ("entities/EncryptionPair.php");
 class DigitalizedTranscriptionServiceImpl implements DigitalizedTranscriptionService
 {
 
-    private PDO $conn;
+    private  $conn;
 
     function __construct(PDO $PDO)
     {

@@ -3,9 +3,9 @@
 
 class LoginInfo
 {
-    public static string $table_name = "logins";
+    public static  $table_name = "logins";
 
-    private static int $hour_number = 48;
+    private static  $hour_number = 48;
 
 
     public static function getHoursToExpire():int
@@ -13,10 +13,10 @@ class LoginInfo
         return LoginInfo::$hour_number;
     }
 
-    public int $userId;
-    public string $hash;
-    public string $expiresAt;
-    public ?string $loginDate;
+    public  $userId;
+    public $hash;
+    public $expiresAt;
+    public  $loginDate;
 
 
 

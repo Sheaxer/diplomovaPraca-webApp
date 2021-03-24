@@ -3,24 +3,24 @@
 
 class NomenclatorKey {
 
-    public ?int $id;
-    public ?string $signature;
-    public ?array $images;
-    public ?string $completeStructure;
-    public ?array $digitalizedTranscriptions;
+    public  $id;
+    public  $signature;
+    public $images;
+    public  $completeStructure;
+    public  $digitalizedTranscriptions;
 
-    public ?string $folder;
+    public  $folder;
 
-    public int $uploadedBy;
+    public  $uploadedBy;
 
-    public ?string $date;
+    public  $date;
 
-    public ?array $keyUsers;
+    public  $keyUsers;
 
-    public ?string $language;
+    public  $language;
 
 
-    public static string $table_name = "nomenclatorKeys";
+    public static $table_name = "nomenclatorKeys";
 
     /*public function  __construct(?int $id = null, ?string $signature = null, ?string $structure = null,
                                  ?array $images = null, ?bool $simple = null, ?bool $homophonic = null,

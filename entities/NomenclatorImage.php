@@ -3,15 +3,15 @@
 
 class NomenclatorImage
 {
-    public static string $tableName = "images";
+    public static  $tableName = "images";
 
-    public static string $uploadFolder = "images/";
+    public static  $uploadFolder = "images/";
 
-    public string $url;
+    public  $url;
 
-    public bool $isLocal = true;
+    public  $isLocal = true;
 
-    public ?string $structure;
+    public  $structure;
 
 
 }

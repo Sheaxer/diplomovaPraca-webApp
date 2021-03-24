@@ -380,6 +380,7 @@ function deleteFiles(array $urls)
         return;
     foreach($urls as $url)
     {
-        unlink($url);
+        $u = substr($url,strlen(SERVICEPATH));
+        unlink(__DIR__ . "/../" .$u);
     }
 }

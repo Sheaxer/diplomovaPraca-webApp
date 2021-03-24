@@ -232,6 +232,10 @@ function cipherCreatorController()
                 }
                 //var_dump($transcription->note);
                 //echo "END OF NOTE";
+
+                //var_dump($nomenclatorKey);
+                //var_dump($transcription);
+
                 $nomenclatorKeyService = POSTNomenclatorKeyService();
                 $newId = $nomenclatorKeyService->createNomenclatorKey($userId,$nomenclatorKey);
                 $digitalizedTranscriptionService = POSTDigitalizedTranscriptionService();

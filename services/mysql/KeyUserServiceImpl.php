@@ -7,7 +7,7 @@ require_once (__DIR__ . "/../../entities/KeyUser.php");
 class KeyUserServiceImpl implements KeyUserService
 {
 
-    private PDO $conn;
+    private  $conn;
 
     function __construct(PDO $PDO)
     {
