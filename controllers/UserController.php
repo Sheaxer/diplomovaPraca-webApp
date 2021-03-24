@@ -3,6 +3,8 @@ require_once("helpers.php");
 require_once (__DIR__. "/../config/serviceConfig.php");
 require_once (__DIR__ ."/../entities/SystemUser.php");
 require_once (__DIR__ ."/../services/SystemUserService.php");
+require_once (__DIR__ ."/../entities/AuthorizationException.php");
+
 function userController()
 {
 
@@ -38,7 +40,7 @@ function userController()
                     post_result($data);
 
                 } else if (strcmp($pathElements[0], "changePassword") === 0) {
-                    if (sizeof($pathElements) !== 0)
+                    if (sizeof($pathElements) !== 1)
                         throw new RuntimeException("Incorrect URL 2");
 
                     $systemUserService = POSTSystemUserService();
@@ -54,7 +56,7 @@ function userController()
                     post_result($data);
 
 
-                } else if (strcmp($pathElements[0], "users")) {
+                } else if (strcmp($pathElements[0], "users") === 0) {
                     // ADD USER
                     $userId = authorize();
                     $systemUserService = POSTSystemUserService();

@@ -5,6 +5,7 @@ require_once (__DIR__ . "/controllers/UserController.php");
 require_once (__DIR__. "/controllers/helpers.php");
 require_once (__DIR__ . "/controllers/FolderController.php");
 require_once (__DIR__ . "/controllers/KeyUsersController.php");
+require_once (__DIR__ . "/controllers/CipherCreatorController.php");
 $path = getPathElements();
 if (strcmp(substr($path[0], 0, 15), "nomenclatorKeys") === 0)
     nomenclatorKeyController();
@@ -17,6 +18,8 @@ else if (strcmp($path[0],"folders") === 0)
 else if(strcmp(substr($path[0],0,8),"keyUsers") === 0)
     keyUsersController();
 else
+    if(strcmp($path[0],"cipherCreator") === 0)
+        cipherCreatorController();
     echo "TODO";
 // required headers
 //header("Access-Control-Allow-Origin: *");

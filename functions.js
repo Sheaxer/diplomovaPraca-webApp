@@ -139,7 +139,8 @@ $(document).ready(function()
         let selectedFolder = $("#addNomenklatorFolderSelect option:selected").val();
         if(selectedFolder !== "")
             nomenklator.folder = selectedFolder;
-
+        nomenklator.language = $("#addNomenklatorLanguage").val();
+        console.log(nomenklator.language);
         let nomenclatorKeyUsers = [];
 
         nomenklator.completeStructure = $("#addNomenklatorCompleteStructure").val();

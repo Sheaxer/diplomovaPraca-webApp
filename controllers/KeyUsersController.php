@@ -3,6 +3,7 @@
 require_once ("helpers.php");
 require_once (__DIR__ ."/../config/serviceConfig.php");
 require_once (__DIR__ . "/../services/KeyUserService.php");
+require_once (__DIR__ ."/../entities/AuthorizationException.php");
 
 function keyUsersController()
 {

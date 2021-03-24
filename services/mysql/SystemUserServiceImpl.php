@@ -19,11 +19,10 @@ class SystemUserServiceImpl implements SystemUserService
         $stm = $this->conn->prepare($query);
 
         $stm->bindParam(':username',$userName);
-        $password_hash = password_hash($password);
+        $password_hash = password_hash($password,PASSWORD_DEFAULT);
         $stm->bindParam(':passwordHash', $password_hash);
         $this->conn->beginTransaction();
         $stm->execute();
-
         $addedId = intval($this->conn->lastInsertId());
         $this->conn->commit();
         return $addedId;

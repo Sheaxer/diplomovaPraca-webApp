@@ -3,6 +3,7 @@
 require_once (__DIR__ ."/../NomenclatorImageService.php");
 require_once ("NomenclatorImageServiceImpl.php");
 require_once ("KeyUserServiceImpl.php");
+require_once (__DIR__ . "/../../controllers/helpers.php");
 class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 {
     private PDO $conn;
@@ -14,8 +15,14 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?int
     {
-        $query = "INSERT INTO nomenclatorkeys (folder, signature, completeStructure, uploadedBy, date) VALUES 
-(:folder,:signature,:completeStructure,:uploadedBy,:date)";
+
+        while($this->nomenclatorKeyExistsBySignature($nomenclator->signature))
+        {
+            $nomenclator->signature .= generateRandomString(1);
+        }
+
+        $query = "INSERT INTO nomenclatorkeys (folder, signature, completeStructure, uploadedBy, date, language) VALUES 
+(:folder,:signature,:completeStructure,:uploadedBy,:date,:language)";
 
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':folder',$nomenclator->folder);
@@ -24,6 +31,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':uploadedBy',$userId);
         $date = date("Y-m-d H:i:s");
         $stm->bindParam(':date', $date);
+        $stm->bindParam(":language",$nomenclator->language);
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
 
@@ -31,12 +39,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->execute();
         $addedId = intval($this->conn->lastInsertId());
         $i=1;
-        foreach ($nomenclator->images as $image)
-        {
-            if($image instanceof NomenclatorImage)
-            {
-                $imageService->createNomenclatorImage($image,$addedId,$i);
-                $i++;
+        if($nomenclator->images !== null) {
+            foreach ($nomenclator->images as $image) {
+                if ($image instanceof NomenclatorImage) {
+                    $imageService->createNomenclatorImage($image, $addedId, $i);
+                    $i++;
+                }
             }
         }
         $keyUserService = new KeyUserServiceImpl($this->conn);
@@ -144,7 +152,6 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             array_push($keys,$this->fillNomenclator($key));
         }
         return $keys;
-        // TODO: Implement getNomenklatorsByAttributes() method.
     }
 
     public function nomenclatorKeyExistsById($keyId) :bool
@@ -154,6 +161,18 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':id',$keyId);
         $stm->execute();
         $ans = $stm->fetchColumn(0);
+        if($ans === false)
+            return false;
+        return true;
+    }
+
+    public function nomenclatorKeyExistsBySignature($signature): bool
+    {
+        $query = "SELECT 1 FROM nomenclatorkeys where signature=:signature";
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(":signature",$signature);
+        $stm->execute();
+        $ans  = $stm->fetchColumn(0);
         if($ans === false)
             return false;
         return true;

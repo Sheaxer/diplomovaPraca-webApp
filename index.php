@@ -95,7 +95,11 @@
         <select name="keyUsers" id="addNomenklatorKeyUserSelect" multiple class="form-control"> </select>
     </div>
     <label for="addNomenklatorCompleteStructure">Complete Structure</label>
-    <textarea name='completeStructure' id="addNomenklatorCompleteStructure"></textarea> <br> <br>
+    <textarea name='completeStructure' id="addNomenklatorCompleteStructure"></textarea> <br>
+
+    <label>Language</label>
+    <input type="text" name="language", id="addNomenklatorLanguage">
+    <br>
     <label> Images</label> <br>
     <button id="addNomenklatorAddUrl">New image</button>
     <div class="form-group" id="addNomenklatorImages">

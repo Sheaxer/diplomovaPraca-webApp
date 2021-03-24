@@ -4,6 +4,7 @@ require_once (__DIR__ ."/../config/serviceConfig.php");
 require_once (__DIR__ ."/../entities/DigitalizedTranscription.php");
 require_once (__DIR__. "/../services/DigitalizedTranscriptionService.php");
 require_once (__DIR__ ."/../entities/EncryptionPair.php");
+require_once (__DIR__ ."/../entities/AuthorizationException.php");
 function digitalizedTranscriptionController()
 {
     $pathElements = getPathElements();
@@ -27,7 +28,10 @@ function digitalizedTranscriptionController()
                                 $data = $transcriptionService->getDecryptionKeyByTranscriptionId($transcriptionId);
                                 post_result($data);
                             } else if (strcmp($pathElements[2], "cipherCreator") === 0) {
-                                // TODO
+                                {
+                                    $data= digitalizedTranscriptionToCipherCreator($transcriptionId);
+                                    post_result($data);
+                                }
                             } else throw new RuntimeException("Incorrect URL");
                         }
                     } else
@@ -41,4 +45,191 @@ function digitalizedTranscriptionController()
     } catch (Exception $exception) {
         throwException($exception);
     }
+}
+
+function digitalizedTranscriptionToCipherCreator(int $transcriptionId) : ?array
+{
+    require_once (__DIR__ . "/../services/NomenclatorKeyService.php");
+    require_once (__DIR__ . "/../entities/NomenclatorKey.php");
+
+    $transcriptionService = GETDigitalizedTranscriptionService();
+    $transcription = $transcriptionService->getDigitalizedTranscriptionById($transcriptionId);
+    if($transcription === null)
+        return null;
+
+    $nomenclatorKeyService = GETNomenclatorKeyService();
+    $nomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($transcription->nomenclatorKeyId);
+
+    $data = array();
+
+    if($nomenclatorKey->language !== null)
+        $data['alphabet'] = $nomenclatorKey->language;
+    else
+        $data['alphabet'] = "ENG";
+
+    $data['substitution'] = array();
+    $data['bigrams'] = array();
+    $data['trigrams'] = array();
+    $data['codewords'] = array();
+    $data['nulls'] = array();
+    $data['order'] = array();
+    $data['specialChars'] = array();
+    if($nomenclatorKey->completeStructure !== null)
+        $strucResult = preg_split('/[\n\r\s]+/',$nomenclatorKey->completeStructure);
+    else $strucResult = false;
+
+    $isSubstitution = false;
+    $isBigram = false;
+    $isTrigram = false;
+    $isNulls = false;
+
+    if($strucResult !== false)
+    {
+        foreach ($strucResult as $item)
+        {
+            if(strpos($item, "0") !== false)
+                $isNulls = true;
+            if(strpos($item,"1") !== false)
+            {
+                $isSubstitution = true;
+            }
+
+            if(strpos($item,"2") !== false)
+            {
+                $isBigram = true;
+            }
+
+            if(strpos($item,"3") !== false)
+            {
+                $isTrigram = true;
+            }
+        }
+    }
+    $encKey = $transcriptionService->getEncryptionKeyByTranscriptionId($transcriptionId);
+    foreach ($encKey as $p => $c)
+    {
+       if(strlen($p) === 0)
+       {
+           if($isNulls)
+           {
+               $data['nulls'] = array_merge($data['nulls'], $c);
+           }
+           else
+           {
+               $data['codewords'] = array_merge($data['codewords'], $c);
+           }
+       }
+       else if(strlen($p) === 1)
+       {
+           if($isSubstitution)
+           {
+                $data['substitution'][$p] = $c;
+           }
+           else
+           {
+               if(sizeof($c) === 1)
+                   $data['codewords'][$p] = $c[0];
+               else
+                   $data['codewords'][$p] = $c;
+           }
+       }
+       else if(strlen($p) === 2)
+       {
+           if($isBigram)
+           {
+               if(sizeof($c) === 1)
+               {
+                   $data['bigrams'][$p] = $c[0];
+               }
+               else
+                   $data['bigrams'][$p] = $c;
+           }
+           else
+           {
+               if(sizeof($c) === 1)
+               {
+                   $data['codewords'][$p] = $c[0];
+               }
+               else
+                   $data['codewords'][$p] = $c;
+           }
+       }
+       else if(strlen($p) === 3)
+       {
+           if($isTrigram)
+           {
+               if(sizeof($c) === 1)
+               {
+                   $data['trigrams'][$p] = $c[0];
+               }
+               else
+                   $data['trigrams'][$p]= $c;
+           }
+           else
+           {
+               if(sizeof($c) === 1)
+               {
+                   $data['codewords'][$p] = $c[0];
+               }
+               else
+                   $data['codewords'][$p] = $c;
+           }
+       }
+       else
+       {
+           if(sizeof($c) === 1)
+           {
+               $data['codewords'][$p] = $c[0];
+           }
+           else
+               $data['codewords'][$p] = $c;
+       }
+    }
+
+
+    $ordIndex = strpos($transcription->note,"order=");
+    if($ordIndex !== false)
+    {
+        $ordEndIndex = strpos( substr($transcription->note,$ordIndex+6),";");
+        if($ordEndIndex === false)
+            $ordEndIndex = strlen(substr($transcription->note,$ordIndex+6));
+        $ordSubstr = substr($transcription->note,$ordIndex+6,$ordEndIndex);
+        $ord = explode(",",$ordSubstr);
+        $data['order'] = $ord;
+    }
+
+    $specialCharsIndex = strpos($transcription->note,"specialChars=");
+    if($specialCharsIndex !== false)
+    {
+        $specialCharsEndIndex = strpos(substr($transcription->note,$specialCharsIndex+13),";");
+        if($specialCharsEndIndex === false)
+            $specialCharsEndIndex = strlen(substr($transcription->note,$specialCharsIndex+13));
+        $specialCharsSubstr = substr($transcription->note,$specialCharsIndex+13,$specialCharsEndIndex);
+        $isSymbol = false;
+        $specialCharSymbol = "";
+        for($i = 0; $i< strlen($specialCharsSubstr); $i++)
+        {
+
+            if ($specialCharsSubstr[$i] === "\"")
+            {
+                if($isSymbol)
+                {
+                    $isSymbol = false;
+                    array_push($data['specialChars'],$specialCharSymbol);
+                    $specialCharSymbol = "";
+                }
+                else
+                {
+                    $isSymbol = true;
+                    $specialCharSymbol = "";
+                }
+            }
+            else
+            {
+                $specialCharSymbol .= $specialCharsSubstr[$i];
+            }
+        }
+    }
+
+    return $data;
 }

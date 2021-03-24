@@ -1,15 +1,16 @@
 <?php
 
-require_once ("services/NomenclatorKeyService.php");
+require_once (__DIR__ . "/../services/NomenclatorKeyService.php");
 require_once("helpers.php");
-require_once ("config/serviceConfig.php");
-require_once ("entities/NomenclatorKey.php");
-require_once ("services/NomenclatorFolderService.php");
-require_once ("entities/NomenclatorImage.php");
-require_once ("entities/NomenclatorFolder.php");
-require_once ("entities/DigitalizedTranscription.php");
-require_once ("services/DigitalizedTranscriptionService.php");
-require_once ("entities/EncryptionPair.php");
+require_once (__DIR__ . "/../config/serviceConfig.php");
+require_once (__DIR__ ."/../entities/NomenclatorKey.php");
+require_once (__DIR__ ."/../services/NomenclatorFolderService.php");
+require_once (__DIR__ ."/../entities/NomenclatorImage.php");
+require_once (__DIR__ ."/../entities/NomenclatorFolder.php");
+require_once (__DIR__ ."/../entities/DigitalizedTranscription.php");
+require_once (__DIR__ . "/../services/DigitalizedTranscriptionService.php");
+require_once (__DIR__ . "/../entities/EncryptionPair.php");
+require_once (__DIR__ ."/../entities/AuthorizationException.php");
 function nomenclatorKeyController()
 {
     $pathElements = getPathElements();
@@ -95,10 +96,16 @@ function nomenclatorKeyController()
                         if (array_key_exists("signature", $object)) {
                             $nomenclatorKey->signature = $object["signature"];
                         } else
-                            throw new Exception("Signature is missing");
+                            $nomenclatorKey->signature = generateRandomString(6);
 
                         if (array_key_exists("completeStructure", $object))
                             $nomenclatorKey->completeStructure = $object["completeStructure"];
+                        else $nomenclatorKey->completeStructure = null;
+
+                        if(array_key_exists("language",$object))
+                            $nomenclatorKey->language = $object['language'];
+                        else
+                            $nomenclatorKey->language = null;
 
                         if (array_key_exists("nomenclatorImages", $object)) {
                             $nomenclatorKey->images = array();
@@ -133,6 +140,8 @@ function nomenclatorKeyController()
                                 throw new RuntimeException("Incorrect number of images uploaded");
                             }
                         }
+                        else
+                            $nomenclatorKey->images = null;
                         if(array_key_exists("keyUsers",$object))
                         {
                             $nomenclatorKey->keyUsers = array();
@@ -209,13 +218,11 @@ function nomenclatorKeyController()
 
 function uploadImages() :array
 {
-    echo "Uploading Images";
     $urls = array();
     if (!isset($_FILES['nomenclatorImage']['error'])) {
         return $urls;
     }
     if(is_array($_FILES['nomenclatorImage']['error'])) {
-        echo "IT IS AN ARRAY";
         foreach ($_FILES['nomenclatorImage']['error'] as $err) {
             switch ($err) {
                 case UPLOAD_ERR_OK:
@@ -232,7 +239,6 @@ function uploadImages() :array
     }
     else
     {
-        echo "IT IS NOT AN ARRAY";
         switch ($_FILES['nomenclatorImage']['error'])
         {
             case UPLOAD_ERR_OK:
@@ -304,11 +310,21 @@ function uploadImages() :array
     {
         foreach ($_FILES['nomenclatorImage']['tmp_name'] as $tmpName)
         {
+            $j = 0;
+            $fileName =  pathinfo($_FILES['nomenclatorImage']['name'][$i])['filename'];
+
+            while (file_exists(sprintf(IMAGEUPLOADPATH . '%s.%s',
+                $fileName,
+                $ext[$i])))
+            {
+                $fileName = pathinfo($_FILES['nomenclatorImage']['name'][$i])['filename'] . "_" . strval($j);
+                $j++;
+            }
 
             if(!move_uploaded_file(
                 $tmpName,
                 sprintf(IMAGEUPLOADPATH . '%s.%s',
-                    pathinfo($_FILES['nomenclatorImage']['name'][$i])['filename'],
+                    $fileName,
                     $ext[$i])
             ))
             {
@@ -318,7 +334,7 @@ function uploadImages() :array
             else
             {
                 array_push($urls, sprintf(SERVICEPATH .IMAGEUPLOADPATH . '%s.%s',
-                    pathinfo($_FILES['nomenclatorImage']['name'][$i])['filename'],
+                    $fileName,
                     $ext[$i]));
 
                 $i++;
@@ -327,10 +343,21 @@ function uploadImages() :array
     }
     else
     {
+        $fileName = pathinfo($_FILES['nomenclatorImage']['name'])['filename'];
+        $j = 0;
+
+        while(file_exists(sprintf( IMAGEUPLOADPATH . '%s.%s',
+            $fileName,
+            $ext)))
+        {
+            $fileName = pathinfo($_FILES['nomenclatorImage']['name'])['filename'] . "_" . strval($j);
+            $j++;
+        }
+
         if (!move_uploaded_file(
             $_FILES['nomenclatorImage']['tmp_name'],
             sprintf( IMAGEUPLOADPATH . '%s.%s',
-                pathinfo($_FILES['nomenclatorImage']['name'])['filename'],
+                $fileName,
                 $ext
             )
         )) {
@@ -339,7 +366,7 @@ function uploadImages() :array
         else
         {
             array_push($urls, sprintf( SERVICEPATH . IMAGEUPLOADPATH . '%s.%s',
-                pathinfo($_FILES['nomenclatorImage']['name'])['filename'],
+               $fileName,
                 $ext
             ));
         }

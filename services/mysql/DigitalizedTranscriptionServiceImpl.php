@@ -20,7 +20,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':nomenclatorKeyId',$nomenclatorId);
-        $stm->bindParam(':digitalizationVersion',$transcription->digitalizationDate);
+        $stm->bindParam(':digitalizationVersion',$transcription->digitalizationVersion);
         $stm->bindParam(':note',$transcription->note);
         $date = date("Y-m-d H:i:s");
         $stm->bindParam(':digitalizationDate', $date);
@@ -38,6 +38,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
         foreach ($transcription->encryptionPairs as $pair)
         {
+            //var_dump($pair);
             if($pair instanceof EncryptionPair)
             {
                 $stm2->bindParam(':plainTextUnit',$pair->plainTextUnit);

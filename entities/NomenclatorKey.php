@@ -17,6 +17,8 @@ class NomenclatorKey {
 
     public ?array $keyUsers;
 
+    public ?string $language;
+
 
     public static string $table_name = "nomenclatorKeys";
 

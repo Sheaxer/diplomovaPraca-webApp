@@ -7,7 +7,7 @@ class DigitalizedTranscription
     public ?int $nomenclatorKeyId;
     public ?string $digitalizationVersion;
     public ?string $note;
-    public ?DateTime $digitalizationDate;
+    public ?string $digitalizationDate;
     public int $createdBy;
     public ?array $encryptionPairs;
 

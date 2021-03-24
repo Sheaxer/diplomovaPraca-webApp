@@ -13,5 +13,7 @@ interface NomenclatorKeyService
 
     public function nomenclatorKeyExistsById($keyId) :bool;
 
+    public function nomenclatorKeyExistsBySignature($signature):bool;
+
 
 }

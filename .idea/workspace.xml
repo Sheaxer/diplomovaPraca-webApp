@@ -1,45 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="added support to upload images">
-      <change afterPath="$PROJECT_DIR$/aa.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/serviceConfig.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/FolderController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/KeyUsersController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/UserController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/helpers.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/EncryptionPair.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/KeyUser.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/entities/NomenclatorFolder.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/DigitalizedTranscriptionService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/KeyUserService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/NomenclatorFolderService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/NomenclatorImageService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/NomenclatorKeyService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/SystemUserService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/mysql/KeyUserServiceImpl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/mysql/NomenclatorFolderServiceImpl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/mysql/NomenclatorImageServiceImpl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="rework for nomenclators">
+      <change afterPath="$PROJECT_DIR$/controllers/CipherCreatorController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/DatabaseConfig.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/DatabaseConfig.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/constants.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/constants.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/Database.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/Database.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/FolderController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/FolderController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/KeyUsersController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/KeyUsersController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/UserController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/helpers.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/helpers.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/Nomenklator.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorKey.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenklatorFolder.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenklatorImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorImage.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/SystemUser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entities/NomenclatorKey.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorKey.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/nomenclators.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nomenklatorREST.php" beforeDir="false" afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/NomenclatorKeyService.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/NomenclatorKeyService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +122,8 @@
       <workItem from="1616482640206" duration="411000" />
       <workItem from="1616489502320" duration="523000" />
       <workItem from="1616491735042" duration="5500000" />
-      <workItem from="1616503617023" duration="9329000" />
+      <workItem from="1616503617023" duration="22859000" />
+      <workItem from="1616562810165" duration="11744000" />
     </task>
     <task id="LOCAL-00001" summary="1st">
       <created>1611325217796</created>
@@ -159,7 +139,14 @@
       <option name="project" value="LOCAL" />
       <updated>1613583999459</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="rework for nomenclators">
+      <created>1616516111895</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1616516111895</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -190,16 +177,12 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="1st" />
     <MESSAGE value="added support to upload images" />
-    <option name="LAST_COMMIT_MESSAGE" value="added support to upload images" />
+    <MESSAGE value="rework for nomenclators" />
+    <option name="LAST_COMMIT_MESSAGE" value="rework for nomenclators" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/test.php</url>
-          <line>1</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/functions.js</url>
           <line>134</line>
