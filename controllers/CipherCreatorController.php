@@ -25,7 +25,7 @@ function cipherCreatorController()
                 if ($object === null)
                     throw new RuntimeException("No data");
 
-                $userId = 1; // AUTHORIZE
+                $userId = authorize(); // AUTHORIZE
 
                 //var_dump($object);
                 $nomenclatorKey = new NomenclatorKey();

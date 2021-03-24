@@ -1,24 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="rework for nomenclators">
-      <change afterPath="$PROJECT_DIR$/controllers/CipherCreatorController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/FolderController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/FolderController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/KeyUsersController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/KeyUsersController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/UserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/helpers.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/helpers.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenclatorKey.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorKey.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nomenklatorREST.php" beforeDir="false" afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/NomenclatorKeyService.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/NomenclatorKeyService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" afterDir="false" />
+    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="added cipherCreator functionality">
+      <change beforePath="$PROJECT_DIR$/controllers/CipherCreatorController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/CipherCreatorController.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +107,7 @@
       <workItem from="1616489502320" duration="523000" />
       <workItem from="1616491735042" duration="5500000" />
       <workItem from="1616503617023" duration="22859000" />
-      <workItem from="1616562810165" duration="11744000" />
+      <workItem from="1616562810165" duration="11845000" />
     </task>
     <task id="LOCAL-00001" summary="1st">
       <created>1611325217796</created>
@@ -146,7 +130,14 @@
       <option name="project" value="LOCAL" />
       <updated>1616516111895</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="added cipherCreator functionality">
+      <created>1616577566064</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1616577566064</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -178,7 +169,8 @@
     <MESSAGE value="1st" />
     <MESSAGE value="added support to upload images" />
     <MESSAGE value="rework for nomenclators" />
-    <option name="LAST_COMMIT_MESSAGE" value="rework for nomenclators" />
+    <MESSAGE value="added cipherCreator functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="added cipherCreator functionality" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
