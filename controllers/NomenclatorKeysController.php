@@ -168,9 +168,13 @@ function nomenclatorKeyController()
                         post_result($addedId);
                         // post to nomenclator
                     } else if (sizeof($pathElements) === 3) {
+
                         if (is_numeric($pathElements[1])) {
+
                             $keyId = intval($pathElements[1]);
-                            if (strcmp($pathElements[2], "digitalizedTranscriptions")) {
+                            if (strcmp($pathElements[2], "digitalizedTranscriptions") === 0) {
+
+
                                 $nomenclatorKeyService = GETNomenclatorKeyService();
                                 if ($nomenclatorKeyService->nomenclatorKeyExistsById($keyId) === false)
                                     throw new RuntimeException("Nomenclator Key with supplied id does not exist");

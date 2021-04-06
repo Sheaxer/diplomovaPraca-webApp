@@ -98,7 +98,7 @@
     <textarea name='completeStructure' id="addNomenklatorCompleteStructure"></textarea> <br>
 
     <label>Language</label>
-    <input type="text" name="language", id="addNomenklatorLanguage">
+    <input type="text" name="language" id="addNomenklatorLanguage">
     <br>
     <label> Images</label> <br>
     <button id="addNomenklatorAddUrl">New image</button>

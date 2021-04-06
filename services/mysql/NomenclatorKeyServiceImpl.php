@@ -88,7 +88,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $d = new DigitalizedTranscriptionServiceImpl($this->conn);
         $nomenclatorKey->digitalizedTranscriptions = $d->getDigitalizedTranscriptionsOfNomenclator($nomenclatorKey->id);
+
+        $u = new KeyUserServiceImpl($this->conn);
+        $nomenclatorKey->keyUsers = $u->getKeyUsersByNomenclatorKeyId($nomenclatorKey->id);
+
         return $nomenclatorKey;
+
     }
 
     public function getNomenclatorKeyById(int $id): ?NomenclatorKey

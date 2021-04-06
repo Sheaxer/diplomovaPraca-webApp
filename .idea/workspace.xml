@@ -1,33 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="autorization for cipherCreator POST">
-      <change afterPath="$PROJECT_DIR$/xar.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+    <list default="true" id="5320228f-cc56-4bec-9364-bcd03102464b" name="Default Changelist" comment="reverted to PHP 7.2, fixed deleting images">
+      <change afterPath="$PROJECT_DIR$/f2.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/DatabaseConfig.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/DatabaseConfig.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/constants.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/constants.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/CipherCreatorController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/CipherCreatorController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/DigitalizedTranscriptionController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/NomenclatorKeysController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/helpers.php" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/helpers.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/Database.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/DigitalizedTranscription.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/EncryptionPair.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/EncryptionPair.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/KeyUser.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/KeyUser.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/LoginInfo.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/LoginInfo.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenclatorFolder.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorFolder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenclatorImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorImage.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/NomenclatorKey.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/NomenclatorKey.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entities/SystemUser.php" beforeDir="false" afterPath="$PROJECT_DIR$/entities/SystemUser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nomenklatorREST.php" beforeDir="false" afterPath="$PROJECT_DIR$/nomenklatorREST.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/DigitalizedTranscriptionService.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/DigitalizedTranscriptionService.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/DigitalizedTranscriptionServiceImpl.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/mysql/KeyUserServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/KeyUserServiceImpl.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/mysql/NomenclatorFolderServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/NomenclatorFolderServiceImpl.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/mysql/NomenclatorImageServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/NomenclatorImageServiceImpl.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/NomenclatorKeyServiceImpl.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/services/mysql/SystemUserServiceImpl.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/nomenclators.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/xar.php" beforeDir="false" afterPath="$PROJECT_DIR$/xar.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +120,13 @@
       <workItem from="1616503617023" duration="22859000" />
       <workItem from="1616562810165" duration="14993000" />
       <workItem from="1616581319015" duration="1116000" />
-      <workItem from="1616584811985" duration="1259000" />
+      <workItem from="1616584811985" duration="2503000" />
+      <workItem from="1617117390662" duration="5871000" />
+      <workItem from="1617123848290" duration="1222000" />
+      <workItem from="1617126421433" duration="490000" />
+      <workItem from="1617293652629" duration="736000" />
+      <workItem from="1617365631882" duration="889000" />
+      <workItem from="1617708673695" duration="4919000" />
     </task>
     <task id="LOCAL-00001" summary="1st">
       <created>1611325217796</created>
@@ -171,7 +163,14 @@
       <option name="project" value="LOCAL" />
       <updated>1616577615576</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="reverted to PHP 7.2, fixed deleting images">
+      <created>1616586132017</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1616586132018</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -205,7 +204,8 @@
     <MESSAGE value="rework for nomenclators" />
     <MESSAGE value="added cipherCreator functionality" />
     <MESSAGE value="autorization for cipherCreator POST" />
-    <option name="LAST_COMMIT_MESSAGE" value="autorization for cipherCreator POST" />
+    <MESSAGE value="reverted to PHP 7.2, fixed deleting images" />
+    <option name="LAST_COMMIT_MESSAGE" value="reverted to PHP 7.2, fixed deleting images" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -14,4 +14,6 @@ interface DigitalizedTranscriptionService
     public function getEncryptionKeyByTranscriptionId(int $id): ?array;
 
     public function getDecryptionKeyByTranscriptionId(int $id): ?array;
+
+    public function getAllTranscriptions() : ?array;
 }

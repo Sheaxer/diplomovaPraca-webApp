@@ -64,6 +64,7 @@ class KeyUserServiceImpl implements KeyUserService
         $q = "SELECT userId FROM nomenclatorkeyusers WHERE nomenclatorKeyId=:nomenclatorKeyId";
         $stm = $this->conn->prepare($q);
         $stm->bindParam(':nomenclatorKeyId',$id);
+        $stm->execute();
         $r = $stm->fetchAll(PDO::FETCH_COLUMN);
         if($r === false)
             return null;

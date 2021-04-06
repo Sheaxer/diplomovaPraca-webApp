@@ -36,7 +36,12 @@ function digitalizedTranscriptionController()
                         }
                     } else
                         throw new RuntimeException("Incorrect Transcription ID");
-                } else throw new RuntimeException("Incorrect URL");
+                } else if(sizeof($pathElements) === 1)
+                {
+                    $transcriptionService = GETDigitalizedTranscriptionService();
+                    $data = $transcriptionService->getAllTranscriptions();
+                    post_result($data);
+                }
 
                 break;
             default:

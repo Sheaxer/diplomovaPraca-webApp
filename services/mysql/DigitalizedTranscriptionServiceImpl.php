@@ -126,4 +126,38 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
         }
         return $result;
     }
+
+    public function getAllTranscriptions(): ?array
+    {
+        $query1 = "SELECT id, digitalizationDate, digitalizationVersion, nomenclatorKeyId FROM digitalizedtranscriptions";
+        $stm1 = $this->conn->prepare($query1);
+        $stm1->execute();
+        $data = $stm1->fetchAll(PDO::FETCH_ASSOC);
+        $query2 = "SELECT id,folder,signature,completeStructure FROM nomenclatorkeys WHERE id=:id";
+
+        $stm2 = $this->conn->prepare($query2);
+        $query3 = "SELECT name from keyusers join nomenclatorkeyusers n on keyusers.id = n.userId where n.nomenclatorKeyId=:keyId";
+        $stm3 = $this->conn->prepare($query3);
+        $result = array();
+        foreach ($data as $d)
+        {
+            if($d['nomenclatorKeyId'] !== null)
+            {
+                $stm2->bindParam(":id",$d['nomenclatorKeyId']);
+                $stm2->execute();
+                $d['nomenclatorKey'] = $stm2->fetch(PDO::FETCH_ASSOC);
+            }
+
+            $stm3->bindParam(":keyId",$d['nomenclatorKeyId']);
+            $stm3->execute();
+            $keyUsers =$stm3->fetchAll(PDO::FETCH_ASSOC);
+            if($keyUsers !== false)
+                $d['nomenclatorKey']['keyUsers'] = $keyUsers;
+            unset($d['nomenclatorKeyId']);
+            array_push($result,$d);
+        }
+        if(empty($result))
+            return null;
+        return $result;
+    }
 }

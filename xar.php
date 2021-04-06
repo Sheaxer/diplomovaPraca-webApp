@@ -1,4 +1,16 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="f2.js"></script>
+</head>
+<body>
+    <h1>Test </h1>
+<form id="cipherCreatorForm">
+   <label>Cipher Creator Cipher </label> <input type="file" name="cipherCreatorJson" id="cipherCreatorJson"> <br>
 
-$connection = new PDO("mysql:host=mysql80.websupport.sk;port=3314;dbname=894x1mnz", "gonodp", "Tz0gCEEzCn");
-var_dump($connection);
+    <label> Cipher Creator PDF </label> <input type="file" name="nomenclatorImage" id="nomenclatorImage"> <br>
+
+    <input type="submit" value="Cipher Creator">
+</form>
+</body>

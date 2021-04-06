@@ -22,6 +22,7 @@ function cipherCreatorController()
             case "POST":
                 $object = getData();
                 //var_dump($object);
+            //var_dump($_SERVER['CONTENT_TYPE']);
                 if ($object === null)
                     throw new RuntimeException("No data");
 
