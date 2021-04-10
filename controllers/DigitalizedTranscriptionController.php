@@ -132,62 +132,68 @@ function digitalizedTranscriptionToCipherCreator(int $transcriptionId) : ?array
            }
            else
            {
-               if(sizeof($c) === 1)
+               $data['codewords'][$p] = $c;
+               /*if(sizeof($c) === 1)
                    $data['codewords'][$p] = $c[0];
                else
-                   $data['codewords'][$p] = $c;
+                   $data['codewords'][$p] = $c;*/
            }
        }
        else if(strlen($p) === 2)
        {
            if($isBigram)
            {
-               if(sizeof($c) === 1)
+               $data['bigrams'][$p] = $c;
+               /*if(sizeof($c) === 1)
                {
                    $data['bigrams'][$p] = $c[0];
                }
                else
-                   $data['bigrams'][$p] = $c;
+                   $data['bigrams'][$p] = $c;*/
            }
            else
            {
-               if(sizeof($c) === 1)
+               $data['codewords'][$p] = $c;
+               /*if(sizeof($c) === 1)
                {
                    $data['codewords'][$p] = $c[0];
                }
                else
-                   $data['codewords'][$p] = $c;
+                   $data['codewords'][$p] = $c;*/
            }
        }
        else if(strlen($p) === 3)
        {
            if($isTrigram)
            {
-               if(sizeof($c) === 1)
+               $data['trigrams'][$p]= $c;
+               /*if(sizeof($c) === 1)
                {
                    $data['trigrams'][$p] = $c[0];
                }
                else
-                   $data['trigrams'][$p]= $c;
+                   $data['trigrams'][$p]= $c;*/
            }
            else
            {
-               if(sizeof($c) === 1)
+               $data['codewords'][$p] = $c;
+               /*if(sizeof($c) === 1)
                {
                    $data['codewords'][$p] = $c[0];
                }
                else
-                   $data['codewords'][$p] = $c;
+                   $data['codewords'][$p] = $c;*/
            }
        }
        else
        {
-           if(sizeof($c) === 1)
+           $data['codewords'][$p] = $c;
+           /*if(sizeof($c) === 1)
            {
                $data['codewords'][$p] = $c[0];
            }
            else
-               $data['codewords'][$p] = $c;
+               $data['codewords'][$p] = $c;*/
        }
     }
 
