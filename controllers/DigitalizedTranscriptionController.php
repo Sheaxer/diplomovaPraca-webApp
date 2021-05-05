@@ -67,6 +67,8 @@ function digitalizedTranscriptionToCipherCreator(int $transcriptionId) : ?array
 
     $data = array();
 
+    $data['signature'] = $nomenclatorKey->signature;
+
     if($nomenclatorKey->language !== null)
         $data['alphabet'] = $nomenclatorKey->language;
     else
