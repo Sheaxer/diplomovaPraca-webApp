@@ -23,21 +23,29 @@ function nomenclatorKeyController()
                 if (strcmp(substr($pathElements[0], 0, 15), "nomenclatorKeys") === 0) {
                     $nomenclatorKeyService = GETNomenclatorKeyService();
                     if (sizeof($pathElements) === 1) {
-                        $pathParams = explode("&", substr($pathElements[0], 15));
+                        $pathParams = array();
+                        if(strlen($pathElements[0]) > 16)
+                        {
+                            if($pathElements[0][15]== '?')
+                                $pathParams = explode("&", substr($pathElements[0], 16));
+                        }
+
+                        //var_dump($pathParams);
                         $folders = array();
                         $structures = array();
                         $signatures = array();
                         //var_dump($_GET['folder']);
                         foreach ($pathParams as $param) {
-                            if (substr_compare($param, "folder=", 0) === 0)
+                            if (substr_compare($param, "folder=", 0,7) === 0)
                                 array_push($folders, urldecode(substr($param, 7)));
-                            else if (substr_compare($param, "structure=", 0) === 0)
-                                array_push($structures, urldecode(substr($param, 10)));
-                            else if (substr_compare($param, "signature=", 0) === 0)
+                            else if (substr_compare($param, "completeStructure=", 0,18) === 0)
+                                array_push($structures, urldecode(substr($param, 18)));
+                            else if (substr_compare($param, "signature=", 0,10) === 0)
                                 array_push($signatures , urldecode(substr($param, 10)));
                         }
-
-
+                        //var_dump($folders);
+                        //var_dump($structures);
+                        //var_dump($signatures);
                         if (empty($folders))
                             $folders = null;
                         if (empty($structures))
@@ -200,7 +208,9 @@ function nomenclatorKeyController()
                                     if (!array_key_exists("cipherTextUnit", $pair))
                                         throw new RuntimeException("Incorrect Encryption Pair format");
 
-                                    $encPair->cipherTextUnit = $pair['cipherTextUnit'];
+                                    $newStr = checkForLongUnicode($pair['cipherTextUnit']);
+                                    $encPair->cipherTextUnit = $newStr;
+
                                     $encPair->plainTextUnit = $pair['plainTextUnit'];
                                     array_push($transcription->encryptionPairs, $encPair);
                                 }

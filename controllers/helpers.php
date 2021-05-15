@@ -90,3 +90,32 @@ $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     }
     return $randomString;
 }
+
+function checkForLongUnicode($string)
+{
+    $tmp_str = $string;
+    $tmp_str_left = "";
+    while(strlen($tmp_str ) > 0)
+    {
+        if (mb_ord($tmp_str) > 65535)
+        {
+
+            $s = mb_ord($tmp_str);
+            $u = intval(floor(($s - 0x10000) / 0x400) + 0xD800);
+            $l = (($s - 0x10000) % 0x400) + 0xDC00;
+            //$uc = json_decode('"\u' . dechex($u). '"');
+            //var_dump($uc);
+            $uc = "\u" . dechex($u) . "\u" . dechex($l);
+            $tmp_str_left .= $uc;
+            $tmp_str = substr($tmp_str,4);
+        }
+        else
+        {
+            $tmp_str_left .= substr($tmp_str,0,1);
+            $tmp_str = substr($tmp_str,1);
+        }
+    }
+
+    return $tmp_str_left;
+}
+

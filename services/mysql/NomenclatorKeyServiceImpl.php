@@ -130,22 +130,91 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
     public function getNomenklatorKeysByAttributes(?array $folders = null, ?array $structures = null): ?array
     {
         $query = "SELECT * FROM nomenclatorkeys";
+        $wasNullFolder = false;
+        $folderParams = 0;
+        $removedNullFolders = array();
         if($folders !== null)
         {
-            // TODO: add things
+            foreach ($folders as $folder)
+            {
+                if ($folder === '')
+                {
+                    $wasNullFolder = true;
+                }
+                else
+                {
+                    array_push($removedNullFolders,$folder);
+                    if($folderParams > 0)
+                    {
+                        $query .= ", :folder" . strval($folderParams);
+                        $folderParams+= 1;
+                    }
+                    else
+                    {
+                        $query .= " WHERE (folder IN ( :folder" . strval($folderParams);
+                        $folderParams+=1;
+                    }
+
+
+                }
+
+            }
+
         }
+        if ($folderParams > 0)
+        {
+            $query .= ")";
+            if ($wasNullFolder)
+            {
+                $query .= " OR folder IS NULL";
+            }
+            $query .= ")";
+        }
+        else
+        {
+            if ($wasNullFolder)
+            {
+                $query .= " WHERE (folder is NULL)";
+            }
+        }
+        $structureParameter = 0;
         if($structures !== null)
         {
-            // TODO: implement filtration
+            if($folderParams > 0)
+                $query .= " AND ( completeStructure IN (";
+            else
+                $query .= " WHERE ( completeStructure IN (";
+            foreach ($structures as $structure)
+            {
+                if($structureParameter === 0)
+                {
+                    $query.= " :structure0";
+                }
+                else
+                    $query .= ", :structure" . strval($structureParameter);
+
+                $structureParameter+= 1;
+            }
+
+            $query .= "))";
+
         }
+        //var_dump($query);
         $stm = $this->conn->prepare($query);
-        if($folders !== null)
+        if(!empty($removedNullFolders))
         {
-            // TODO: add things
+            for ($i =0; $i<$folderParams; $i++)
+            {
+                $stm->bindParam(":folder" . strval($i), $removedNullFolders[$i]);
+            }
+
         }
         if($structures !== null)
         {
-            // TODO: implement filtration
+            for ($i = 0; $i < $structureParameter; $i++)
+            {
+                $stm->bindParam(":structure" . strval($i), $structures[$i]);
+            }
         }
         $stm->execute();
         $nomenclatorKeys = $stm->fetchAll(PDO::FETCH_CLASS,'NomenclatorKey');

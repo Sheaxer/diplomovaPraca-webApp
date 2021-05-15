@@ -60,7 +60,8 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
     public function getDigitalizedTranscriptionsOfNomenclator(int $nomenclatorId): ?array
     {
-        $query = "SELECT id, digitalizationVersion, note, digitalizationDate, createdBy FROM digitalizedtranscriptions WHERE nomenclatorKeyId=:nomenclatorKeyId";
+        $query = "SELECT n.id as id, n.digitalizationVersion as digitalizationVersions, n.note as note, n.digitalizationDate as digitalizationDate, u.username as uploadedBy 
+         FROM digitalizedtranscriptions n inner join systemusers u on n.createdBy = u.id WHERE nomenclatorKeyId=:nomenclatorKeyId";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':nomenclatorKeyId',$nomenclatorId);
         $stm->execute();
