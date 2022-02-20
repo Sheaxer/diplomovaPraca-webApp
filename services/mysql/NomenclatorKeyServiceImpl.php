@@ -4,6 +4,9 @@ require_once (__DIR__ ."/../NomenclatorImageService.php");
 require_once ("NomenclatorImageServiceImpl.php");
 require_once ("KeyUserServiceImpl.php");
 require_once (__DIR__ . "/../../controllers/helpers.php");
+require_once (__DIR__ . "/../../entities/NomenclatorKeyState.php");
+require_once ("NomenclatorKeyStateServiceImpl.php");
+
 class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 {
     private  $conn;
@@ -21,21 +24,48 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         {
             $nomenclator->signature .= generateRandomString(1);
         }
-        $query = "INSERT INTO nomenclatorkeys (folder, signature, completeStructure, uploadedBy, date, language) VALUES 
-(:folder,:signature,:completeStructure,:uploadedBy,:date,:language)";
+
+        $stateQuery = "INSERT INTO nomenclatorKeyState (`state`, createdBy, createdAt, updatedAt, note) VALUES (:stateString, :createdBy, :createdAt, :updatedAt, :note)";
+        $stateStm = $this->conn->prepare($stateQuery);
+        $stateStm->bindParam(':stateString', NomenclatorKeyState::STATE_NEW);
+        $now = new DateTime();
+        $stateStm->bindParam(':createdBy', $userId);
+        $stateStm->bindValue(':createdAt', $now->format('Y-m-d H:i:s'));
+        $stateStm->bindValue(':updatedAt',  $now->format('Y-m-d H:i:s'));
+        $stateStm->bindValue(':note', '');
+
+        $this->conn->beginTransaction();
+        
+        $stateStm->execute();
+        $stateId = intval($this->conn->lastInsertId());
+        
+        $query = "INSERT INTO nomenclatorkeys (folder, `signature`, completeStructure, `language`, 
+            stateId, usedChars,  cipherType, keyType, usedFrom, usedTo, usedAround, 
+            placeOfCreation, groupId) 
+        VALUES 
+            (:folder, :signatureStr, :completeStructure, :lang ,:stateId, :usedChars, :cipherType, :keyType, 
+            :usedFrom, :usedTo, :usedAround, :placeOfCreation, :groupId)";
 
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':folder',$nomenclator->folder);
-        $stm->bindParam(':signature',$nomenclator->signature);
+        $stm->bindParam(':signatureStr',$nomenclator->signature);
         $stm->bindParam(':completeStructure',$nomenclator->completeStructure);
-        $stm->bindParam(':uploadedBy',$userId);
-        $date = date("Y-m-d H:i:s");
-        $stm->bindParam(':date', $date);
-        $stm->bindParam(":language",$nomenclator->language);
+        //$date = date("Y-m-d H:i:s");
+        //$stm->bindParam(':date', $date);
+        $stm->bindParam(":lang",$nomenclator->language);
+        $stm->bindParam(':stateId', $stateId);
+        $stm->bindParam(':usedChars', $nomenclator->usedChars);
+        $stm->bindParam(':cipherType', $nomenclator->cipherType);
+        $stm->bindParam(':keyType', $nomenclator->keyType);
+        $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
+        $stm->bindValue(':usedTo', $nomenclator->usedFrom ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
+        $stm->bindValue(':usedTo', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
+        $stm->bindParam(':keyType', $nomenclator->placeOfCreation);
+        $stm->bindParam(':groupId', $nomenclator->groupId);
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
 
-        $this->conn->beginTransaction();
+        
         $stm->execute();
         $addedId = intval($this->conn->lastInsertId());
         $i=1;
@@ -68,7 +98,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
 
                     if($userId !== null)
-                        $keyUserService->assignKeyUserToNomenclatorKey($userId,$addedId);
+                        $keyUserService->assignKeyUserToNomenclatorKey($userId, $addedId, $user->isMainUser);
                 }
 
             }
@@ -78,7 +108,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         return $addedId;
     }
 
-    private function fillNomenclator(NomenclatorKey $nomenclatorKey): NomenclatorKey
+    private function fillNomenclator(?array $userInfo, NomenclatorKey $nomenclatorKey): NomenclatorKey
     {
         $s = new NomenclatorImageServiceImpl($this->conn);
         $nomenclatorKey->images = $s->getNomenclatorImagesOfNomenclatorKey($nomenclatorKey->id);
@@ -87,52 +117,89 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $nomenclatorKey->keyUsers = $k->getKeyUsersByNomenclatorKeyId($nomenclatorKey->id);
 
         $d = new DigitalizedTranscriptionServiceImpl($this->conn);
-        $nomenclatorKey->digitalizedTranscriptions = $d->getDigitalizedTranscriptionsOfNomenclator($nomenclatorKey->id);
+        $nomenclatorKey->digitalizedTranscriptions = $d->getDigitalizedTranscriptionsOfNomenclator($userInfo, $nomenclatorKey->id);
 
-        $u = new KeyUserServiceImpl($this->conn);
-        $nomenclatorKey->keyUsers = $u->getKeyUsersByNomenclatorKeyId($nomenclatorKey->id);
+        if ($nomenclatorKey->state && $nomenclatorKey->state->createdById) {
+            $u = new SystemUserServiceImpl($this->conn);
+            $nomenclatorKey->state->createdBy = $u->getUsernameById($nomenclatorKey->state->createdById);
+        }
+       
+        
+        /* TODO fill in folder and used where? */
+        /*$u = new KeyUserServiceImpl($this->conn);
+        $nomenclatorKey->keyUsers = $u->getKeyUsersByNomenclatorKeyId($nomenclatorKey->id);*/
 
         return $nomenclatorKey;
 
     }
 
-    public function getNomenclatorKeyById(int $id): ?NomenclatorKey
+    public function getNomenclatorKeyById(?array $userInfo, int $id): ?NomenclatorKey
     {
-        $query = "SELECT * FROM nomenclatorkeys WHERE id=:id";
+        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.uploadedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id=:id";
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
+            }
+        } else {
+            $query .= " AND (s.state=:approvedState)";
+        }
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id',$id);
-        $stm->execute();
-        $nomenclatorKey = $stm->fetchObject('NomenclatorKey');
-        if($nomenclatorKey instanceof NomenclatorKey)
-        {
-           $nomenclatorKey = $this->fillNomenclator($nomenclatorKey);
-            return $nomenclatorKey;
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createById', $userInfo['id']);
+                $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
         }
-        return null;
-
+        $stm->execute();
+        $nomenclatorKeyData = $stm->fetch(PDO::FETCH_ASSOC);
+       
+        $nomenclatorKey = NomenclatorKey::createFromArray($nomenclatorKeyData);
+        $nomenclatorKey = $this->fillNomenclator($userInfo, $nomenclatorKey);
+        return $nomenclatorKey;
     }
 
-    public function getNomenclatorKeyBySignature(string $signature): ?NomenclatorKey
+    public function getNomenclatorKeyBySignature(?array $userInfo, string $signature): ?NomenclatorKey
     {
-        $query = "SELECT * FROM nomenclatorkeys WHERE signature=:signature";
+        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.uploadedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE signature=:signature";
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
+            }
+        } else {
+            $query .= " AND (s.state=:approvedState)";
+        }
+        
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':signature',$signature);
-        $stm->execute();
-        $nomenclatorKey = $stm->fetchObject('NomenclatorKey');
-        if($nomenclatorKey instanceof NomenclatorKey)
-        {
-            $nomenclatorKey = $this->fillNomenclator($nomenclatorKey);
-            return $nomenclatorKey;
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createById', $userInfo['id']);
+                $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
         }
-        return null;
+        
+        $stm->execute();
+        $nomenclatorKeyData = $stm->fetch(PDO::FETCH_ASSOC);
+       
+        $nomenclatorKey = NomenclatorKey::createFromArray($nomenclatorKeyData);
+        $nomenclatorKey = $this->fillNomenclator($userInfo, $nomenclatorKey);
+        return $nomenclatorKey;
     }
 
-    public function getNomenklatorKeysByAttributes(?array $folders = null, ?array $structures = null): ?array
+    public function getNomenklatorKeysByAttributes(?array $userInfo, ?array $folders = null, ?array $structures = null): ?array
     {
-        $query = "SELECT * FROM nomenclatorkeys";
+        $query = "SELECT k.* FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
         $wasNullFolder = false;
         $folderParams = 0;
         $removedNullFolders = array();
+
+        $isWhereAlready = false;
+
         if($folders !== null)
         {
             foreach ($folders as $folder)
@@ -151,7 +218,8 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                     }
                     else
                     {
-                        $query .= " WHERE (folder IN ( :folder" . strval($folderParams);
+                        $query .= " WHERE (k.folder IN ( :folder" . strval($folderParams);
+                        $isWhereAlready = true;
                         $folderParams+=1;
                     }
 
@@ -166,7 +234,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $query .= ")";
             if ($wasNullFolder)
             {
-                $query .= " OR folder IS NULL";
+                $query .= " OR k.folder IS NULL";
             }
             $query .= ")";
         }
@@ -174,16 +242,17 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         {
             if ($wasNullFolder)
             {
-                $query .= " WHERE (folder is NULL)";
+                $query .= " WHERE (k.folder is NULL)";
+                $isWhereAlready = true;
             }
         }
         $structureParameter = 0;
         if($structures !== null)
         {
             if($folderParams > 0)
-                $query .= " AND ( completeStructure IN (";
+                $query .= " AND ( k.completeStructure IN (";
             else
-                $query .= " WHERE ( completeStructure IN (";
+                $query .= " WHERE ( k.completeStructure IN (";
             foreach ($structures as $structure)
             {
                 if($structureParameter === 0)
@@ -198,6 +267,23 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
             $query .= "))";
 
+        }
+
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                if ($isWhereAlready) {
+                    $query .= ' AND ((s.createdBy = :createdById)';
+                } else {
+                    $query .= ' WHERE ((s.createdBy = :createdById)';
+                }
+                $query .= ' OR ( s.state = :approvedState))';
+            }
+        } else {
+            if ($isWhereAlready) {
+                $query .= ' AND ( s.state = :approvedState)';
+            } else {
+                $query .= ' WHERE ( s.state = :approvedState)';
+            }
         }
         //var_dump($query);
         $stm = $this->conn->prepare($query);
@@ -216,14 +302,24 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $stm->bindParam(":structure" . strval($i), $structures[$i]);
             }
         }
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(":createdById", $userInfo['id']);
+                $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
+        }
         $stm->execute();
-        $nomenclatorKeys = $stm->fetchAll(PDO::FETCH_CLASS,'NomenclatorKey');
-        if($nomenclatorKeys === false)
+        $nomenclatorKeysData = $stm->fetchAll(PDO::FETCH_ASSOC);
+        if($nomenclatorKeysData === false)
             return null;
         $keys = array();
-        foreach ($nomenclatorKeys as $key)
+        foreach ($nomenclatorKeysData as $nomenclatorKeyData)
         {
-            array_push($keys,$this->fillNomenclator($key));
+            $nomenclatorKey = NomenclatorKey::createFromArray($nomenclatorKeyData);
+            //$nomKey = NomenclatorKey::createFromArray($key);
+            array_push($keys,$this->fillNomenclator($userInfo, $nomenclatorKey));
         }
         return $keys;
     }
@@ -250,5 +346,74 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         if($ans === false)
             return false;
         return true;
+    }
+
+    public function updateNomenclatorKeyState(array $userInfo,  $state, $note, ?int $nomenclatorId, ?int $stateId): bool
+    {
+        if (! $userInfo || ! isset($userInfo['isAdmin']) || ! $userInfo['isAdmin'])
+            return false;
+        $nomeclatorStateId = null;
+        if ($nomenclatorId) {
+            $query = "SELECT s.id FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState ON k.stateId = s.id WHERE k.id = :nomeclatorKeyId";
+            $stm = $this->conn->prepare($query);
+            $stm->bindParam(':nomeclatorKeyId', $nomenclatorId);
+            $stm->execute();
+            $nomeclatorStateId = $stm->fetch(PDO::FETCH_COLUMN); 
+            if ($nomeclatorStateId) {
+                $stateId = $nomeclatorStateId;
+            }
+        }
+        if ($stateId) {
+            $query2 = "UPDATE nomenclatorKeyState SET `state`=:stateString, note= :note, uploadedAt = :updatedAt";
+            $stm2 = $this->conn->prepare($query2);
+            $stm2->bindParam(':stateString', $state);
+            $stm2->bindParam(':note', $note);
+            $stm2->bindValue(':updatedAt', (new DateTime())->format('Y-m-d H:i:s'));
+            $res = $stm2->execute();
+            return $res;
+
+        }
+        return false;
+
+    }
+
+    public function getNomenclatorKeyState(?array $userInfo, $nomenclatorId, $stateId): ?NomenclatorKeyState
+    {
+        $query = "SELECT s.* FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState ON k.stateId = s.id WHERE ";
+        if ($nomenclatorId) {
+            $query .= "k.id = :nomenclatorKeyId";
+        } else if ($stateId) {
+            $query .= " s.id = :stateId";
+        } else {
+            return null;
+        }
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createdBy OR s.state = :approvedState)";
+            }
+        } else {
+            $query .= " AND s.state = :approvedState";
+        }
+
+        $stm = $this->conn->prepare($query);
+
+        if ($nomenclatorId) {
+            $stm->bindParam(':nomenclatorKeyId', $nomenclatorId);
+        } else {
+            $stm->bindParam(':stateId', $stateId);
+        }
+
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createdBy', $userInfo['id']);
+                $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+        }
+
+        $stm->execute();
+
+        return $stm->fetchObject('NomenclatorKeyState');
     }
 }

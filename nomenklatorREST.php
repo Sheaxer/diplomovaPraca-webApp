@@ -21,7 +21,7 @@ if (strcmp(substr($path[0], 0, 15), "nomenclatorKeys") === 0)
     nomenclatorKeyController();
 else if (strcmp($path[0], "digitalizedTranscriptions") === 0)
     digitalizedTranscriptionController();
-else if( (strcmp($path[0],"login") === 0) || (strcmp($path[0],"users") === 0) || (strcmp($path[0], "changePassword") === 0))
+else if( (strcmp($path[0],"login") === 0) || (strcmp($path[0],"users") === 0) || (strcmp($path[0], "changePassword") === 0) || (strcmp($path[0],"register") === 0))
     userController();
 else if (strcmp($path[0],"folders") === 0)
     folderController();

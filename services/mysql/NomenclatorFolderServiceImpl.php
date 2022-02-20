@@ -51,4 +51,9 @@ WHERE folderName=:folderName";
             return true;
         // TODO: Implement folderExists() method.
     }
+
+    public function getFolderById()
+    {
+        
+    }
 }

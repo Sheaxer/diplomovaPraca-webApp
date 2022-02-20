@@ -1,8 +1,9 @@
 <?php
 
-require_once ("entities/DigitalizedTranscription.php");
+require_once (__DIR__ . "/../../entities/DigitalizedTranscription.php");
 require_once (__DIR__ . "/../DigitalizedTranscriptionService.php");
-require_once ("entities/EncryptionPair.php");
+require_once (__DIR__ . "/../../entities/EncryptionPair.php");
+require_once (__DIR__ . "/../../entities/NomenclatorKeyState.php");
 class DigitalizedTranscriptionServiceImpl implements DigitalizedTranscriptionService
 {
 
@@ -58,12 +59,28 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
     }
 
-    public function getDigitalizedTranscriptionsOfNomenclator(int $nomenclatorId): ?array
+    public function getDigitalizedTranscriptionsOfNomenclator(?array $userInfo, int $nomenclatorId): ?array
     {
         $query = "SELECT n.id as id, n.digitalizationVersion as digitalizationVersions, n.note as note, n.digitalizationDate as digitalizationDate, u.username as uploadedBy 
-         FROM digitalizedtranscriptions n inner join systemusers u on n.createdBy = u.id WHERE nomenclatorKeyId=:nomenclatorKeyId";
+         FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id inner join systemusers u on s.createdBy = u.id WHERE nomenclatorKeyId=:nomenclatorKeyId";
+        
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createdBy OR s.`state` = :approvedState)";
+            }
+        } else {
+            $query .= " AND s.`state` = :approvedState";
+        }
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':nomenclatorKeyId',$nomenclatorId);
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createdBy', $userInfo['id']);
+                $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+        }
         $stm->execute();
         $result = $stm->fetchAll(PDO::FETCH_ASSOC);
         if($result === false)

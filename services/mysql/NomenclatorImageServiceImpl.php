@@ -15,20 +15,21 @@ class NomenclatorImageServiceImpl implements NomenclatorImageService
 
     public function createNomenclatorImage(NomenclatorImage $nomenclatorImage,int $nomenclatorKeyId, int $ord)
     {
-        $query = "INSERT INTO nomenclatorimages (url,nomenclatorKeyId,isLocal,structure,ord) VALUES 
-(:url,:nomenclatorKeyId,:isLocal,:structure,:ord)";
+        $query = "INSERT INTO nomenclatorimages (url,nomenclatorKeyId,isLocal,structure,ord, hasInstructions) VALUES 
+(:url,:nomenclatorKeyId,:isLocal,:structure,:ord, :hasInstructions)";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':url',$nomenclatorImage->url);
         $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId);
         $stm->bindParam(':isLocal',$nomenclatorImage->isLocal);
         $stm->bindParam(':structure',$nomenclatorImage->structure);
         $stm->bindParam(':ord',$ord);
+        $stm->bindParam(':ord',$nomenclatorImage->hasInstructions);
         $stm->execute();
     }
 
     public function getNomenclatorImagesOfNomenclatorKey(int $nomenclatorKeyId): ?array
     {
-        $stm = $this->conn->prepare("SELECT url, structure FROM nomenclatorimages WHERE nomenclatorKeyId=:nomenklatorKeyId ORDER BY ord");
+        $stm = $this->conn->prepare("SELECT `url`, structure, hasInstructions FROM nomenclatorimages WHERE nomenclatorKeyId=:nomenklatorKeyId ORDER BY ord");
         $stm->bindParam(':nomenklatorKeyId',$nomenclatorKeyId);
         $stm->execute();
         $images = $stm->fetchAll(PDO::FETCH_ASSOC);

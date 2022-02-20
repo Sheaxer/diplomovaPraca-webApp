@@ -14,7 +14,7 @@ require_once (__DIR__ . "/../services/mysql/NomenclatorImageServiceImpl.php");
 require_once (__DIR__ ."/../services/NomenclatorKeyService.php");
 require_once (__DIR__ ."/../services/mysql/NomenclatorKeyServiceImpl.php");
 
-require_once ("DatabaseConfig.php");
+require_once (__DIR__ . "/DatabaseConfig.php");
 
 require_once (__DIR__ . "/../services/SystemUserService.php");
 require_once (__DIR__ . "/../services/mysql/SystemUserServiceImpl.php");

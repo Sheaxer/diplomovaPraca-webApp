@@ -1,7 +1,7 @@
 <?php
 
 require_once (__DIR__ . "/../services/NomenclatorKeyService.php");
-require_once("helpers.php");
+require_once(__DIR__ ."/helpers.php");
 require_once (__DIR__ . "/../config/serviceConfig.php");
 require_once (__DIR__ ."/../entities/NomenclatorKey.php");
 require_once (__DIR__ ."/../services/NomenclatorFolderService.php");
@@ -17,6 +17,7 @@ function nomenclatorKeyController()
     $headers = apache_request_headers();
     try {
 
+        $userInfo = authorize();
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
@@ -51,7 +52,7 @@ function nomenclatorKeyController()
                         if (empty($structures))
                             $structures = null;
 
-                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($folders, $structures);
+                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $folders, $structures);
                         post_result($keys);
 
                     } else if (sizeof($pathElements) === 2 || sizeof($pathElements) === 3) {
@@ -59,7 +60,7 @@ function nomenclatorKeyController()
                             $keyId = intval($pathElements[1]);
 
                             if (sizeof($pathElements) === 2) {
-                                $key = $nomenclatorKeyService->getNomenclatorKeyById(intval($pathElements[1]));
+                                $key = $nomenclatorKeyService->getNomenclatorKeyById($userInfo, intval($pathElements[1]));
                                 post_result($key);
                             } else {
                                 if (strcmp($pathElements[2], "digitalizedTranscriptions")) {
@@ -68,7 +69,7 @@ function nomenclatorKeyController()
                                         throw new Exception("System Error");
                                     }
                                     /// print all digitalized Transcriptions
-                                    $data = $digitalizedTranscriptionService->getDigitalizedTranscriptionsOfNomenclator($keyId);
+                                    $data = $digitalizedTranscriptionService->getDigitalizedTranscriptionsOfNomenclator($userInfo, $keyId);
                                     post_result($data);
                                 }
                             }
@@ -85,7 +86,7 @@ function nomenclatorKeyController()
                     if($object === null)
                         throw new Exception("No data");
 
-                    $userId = authorize();
+                    $userInfo = authorize();
 
                     if (sizeof($pathElements) === 1) {
                         $nomenclatorKey = new NomenclatorKey();
@@ -172,7 +173,7 @@ function nomenclatorKeyController()
                         $nomenclatorKeyService = POSTNomenclatorKeyService();
                         if ($nomenclatorKeyService === null)
                             throw new Exception("System Error");
-                        $addedId['id'] = $nomenclatorKeyService->createNomenclatorKey($userId, $nomenclatorKey);
+                        $addedId['id'] = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
                         post_result($addedId);
                         // post to nomenclator
                     } else if (sizeof($pathElements) === 3) {
@@ -215,7 +216,7 @@ function nomenclatorKeyController()
                                     array_push($transcription->encryptionPairs, $encPair);
                                 }
 
-                                $data['id'] = $digitalizedTranscriptionService->createDigitalizedTranscription($transcription, $keyId, $userId);
+                                $data['id'] = $digitalizedTranscriptionService->createDigitalizedTranscription($transcription, $keyId, $userInfo['id']);
                                 post_result($data);
                                 // post new transcription
                             }

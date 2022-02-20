@@ -13,5 +13,7 @@ class NomenclatorImage
 
     public  $structure;
 
+    public $hasInstructions = false;
+
 
 }

@@ -13,14 +13,15 @@ class SystemUserServiceImpl implements SystemUserService
         $this->conn = $PDO;
     }
 
-    public function createSystemUser(string $userName, string $password): int
+    public function createSystemUser(string $userName, string $password, bool $isAdmin): int
     {
-        $query = "INSERT INTO systemusers (username, passwordHash) VALUES (:username,:passwordHash)";
+        $query = "INSERT INTO systemusers (username, passwordHash, `isAdmin`) VALUES (:username,:passwordHash, :isAdmin)";
         $stm = $this->conn->prepare($query);
 
         $stm->bindParam(':username',$userName);
         $password_hash = password_hash($password,PASSWORD_DEFAULT);
         $stm->bindParam(':passwordHash', $password_hash);
+        $stm->bindParam(':isAdmin', $isAdmin);
         $this->conn->beginTransaction();
         $stm->execute();
         $addedId = intval($this->conn->lastInsertId());
@@ -28,7 +29,7 @@ class SystemUserServiceImpl implements SystemUserService
         return $addedId;
     }
 
-    public function logIn(string $userName, string $password): ?int
+    public function logIn(string $userName, string $password): ?array
     {
         $query= "SELECT id,passwordHash FROM systemusers WHERE username=:username";
         $stm = $this->conn->prepare($query);
@@ -40,7 +41,10 @@ class SystemUserServiceImpl implements SystemUserService
         if($res instanceof SystemUser)
         {
             if(password_verify($password,$res->passwordHash))
-                return $res->id;
+                return [
+                    'id' => $res->id,
+                    'isAdmin' => $res->isAdmin,
+                ];
         }
         return null;
     }
@@ -84,18 +88,18 @@ class SystemUserServiceImpl implements SystemUserService
         return null;
     }
 
-    public function loginWithToken(string $tokenString) : ?int
+    public function loginWithToken(string $tokenString) : ?array
     {
         //echo $tokenString;
         //echo $tokenString;
         //$a= strpos($tokenString,":" );
         //var_dump($a);
         if (strpos($tokenString,":" ) === false) {
-            throw new AuthorizationException('Invalid authentication token 4');
+            return null;
         }
         list($tokenLeft, $tokenRight) = explode(':', $tokenString);
         if ((strlen($tokenLeft) !== 20) || (strlen($tokenRight) !== 44)) {
-            throw new AuthorizationException('Invalid authentication token 3');
+           return null;
         }
         $tokenRightHashed = hash('sha256', $tokenRight);
         $query = "SELECT userId, hash, expiresAt FROM logins WHERE selector=:selector";
@@ -116,17 +120,36 @@ class SystemUserServiceImpl implements SystemUserService
                     if($expires_date > $current_date)
                     {
                         //echo var_dump($row['userId']);
-                        return $info->userId;
+                        $query2 = "SELECT isAdmin FROM users WHERE id = :userId";
+                        $stmt2 = $this->conn->prepare($query2);
+                        $stmt2->setFetchMode(PDO::FETCH_ASSOC);
+                        $stmt2->bindParam(':userId', $info->userId);
+                        $stmt2->execute();
+                        $usr = $stmt2->fetch();
+                        if ($usr) {
+                            $isAdmin = $usr['isAdmin'];
+                            return [
+                                'id' => $info->userId,
+                                'isAdmin' => $isAdmin
+                            ];
+                        }
                     }
                 } catch (Exception $e) {
-                    throw new AuthorizationException('Invalid authentication token 1');
+                    return null;
                 }
             }
-            else throw new AuthorizationException('Invalid authentication token 2');
             // return null;
         }
-        else throw new AuthorizationException("Invalid authentication token 5");
-
         return null;
+    }
+
+    public function getUsernameById($id): ?string
+    {
+        $query = "SELECT username FROM users WHERE id = :id LIMIT 1";
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':id', $id);
+        $stm->execute();
+        $username = $stm->fetch(PDO::FETCH_COLUMN);
+        return $username;
     }
 }

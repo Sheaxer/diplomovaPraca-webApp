@@ -1,6 +1,6 @@
 <?php
 
-require_once ("helpers.php");
+require_once (__DIR__ ."/helpers.php");
 require_once (__DIR__ ."/../config/serviceConfig.php");
 require_once (__DIR__ . "/../services/KeyUserService.php");
 require_once (__DIR__ ."/../entities/AuthorizationException.php");
@@ -42,7 +42,7 @@ function keyUsersController()
 
                 break;
             case "POST":
-                $userId = authorize();
+                $userInfo = authorize();
                 $object = getData();
                 if($object === null)
                     throw new RuntimeException("No data provided");

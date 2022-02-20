@@ -1,5 +1,5 @@
 <?php
-require_once("helpers.php");
+require_once(__DIR__ ."/helpers.php");
 require_once (__DIR__ ."/../config/serviceConfig.php");
 require_once (__DIR__ ."/../entities/DigitalizedTranscription.php");
 require_once (__DIR__. "/../services/DigitalizedTranscriptionService.php");
@@ -10,6 +10,7 @@ function digitalizedTranscriptionController()
     $pathElements = getPathElements();
     $headers = apache_request_headers();
     try {
+        $userInfo = authorize();
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
                 if ((sizeof($pathElements) === 2) || (sizeof($pathElements) == 3)) {
@@ -29,7 +30,7 @@ function digitalizedTranscriptionController()
                                 post_result($data);
                             } else if (strcmp($pathElements[2], "cipherCreator") === 0) {
                                 {
-                                    $data= digitalizedTranscriptionToCipherCreator($transcriptionId);
+                                    $data= digitalizedTranscriptionToCipherCreator($userInfo, $transcriptionId);
                                     post_result($data);
                                 }
                             } else throw new RuntimeException("Incorrect URL");
@@ -52,7 +53,7 @@ function digitalizedTranscriptionController()
     }
 }
 
-function digitalizedTranscriptionToCipherCreator(int $transcriptionId) : ?array
+function digitalizedTranscriptionToCipherCreator(?array $userInfo, int $transcriptionId) : ?array
 {
     require_once (__DIR__ . "/../services/NomenclatorKeyService.php");
     require_once (__DIR__ . "/../entities/NomenclatorKey.php");
@@ -63,7 +64,7 @@ function digitalizedTranscriptionToCipherCreator(int $transcriptionId) : ?array
         return null;
 
     $nomenclatorKeyService = GETNomenclatorKeyService();
-    $nomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($transcription->nomenclatorKeyId);
+    $nomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($userInfo, $transcription->nomenclatorKeyId);
 
     $data = array();
 

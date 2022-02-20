@@ -1,6 +1,6 @@
 <?php
 
-require_once ("helpers.php");
+require_once (__DIR__ ."/helpers.php");
 require_once (__DIR__ ."/../config/serviceConfig.php");
 require_once (__DIR__ . "/../services/NomenclatorFolderService.php");
 require_once (__DIR__ ."/../entities/AuthorizationException.php");

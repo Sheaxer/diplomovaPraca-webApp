@@ -2,7 +2,7 @@
 require_once (__DIR__ . "/../config/constants.php");
 require_once (__DIR__ . "/../config/serviceConfig.php");
 
-function authorize() :?int
+function authorize() : ?array
 {
     $headers = apache_request_headers();
     if(isset($headers['authorization']))
@@ -12,15 +12,18 @@ function authorize() :?int
         {
             throw new Exception("System Error");
         }
-        $id = $systemUserService->loginWithToken($headers['authorization']);
-        if($id === null)
-        {
-            throw new AuthorizationException("Invalid authorization token 8");
-        }
-        return $id;
+        if ($headers['authorization']) {
+            $userInfo = $systemUserService->loginWithToken($headers['authorization']);
+            if($userInfo === null)
+            {
+                throw new AuthorizationException("Invalid authorization token 8");
+            }
+            return $userInfo;
+         } else return null;   
+        
 
     }
-    else throw new AuthorizationException("No Authorization token");
+    else return null;
 }
 
 function getData(): ?array

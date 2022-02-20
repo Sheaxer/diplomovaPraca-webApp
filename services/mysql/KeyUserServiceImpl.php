@@ -26,12 +26,13 @@ class KeyUserServiceImpl implements KeyUserService
         return $id;
     }
 
-    public function assignKeyUserToNomenclatorKey(int $id, int $nomenclatorKeyId)
+    public function assignKeyUserToNomenclatorKey(int $id, int $nomenclatorKeyId, $isMainUser)
     {
-        $query = "INSERT INTO nomenclatorkeyusers (userId, nomenclatorKeyId) VALUES (:userId, :nomenclatorKeyId)";
+        $query = "INSERT INTO nomenclatorkeyusers (userId, nomenclatorKeyId, isMainUser) VALUES (:userId, :nomenclatorKeyId, :isMainUser)";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':userId',$id);
         $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId);
+        $stm->bindParam(':isMainUser', $isMainUser);
         $stm->execute();
     }
 
@@ -61,20 +62,23 @@ class KeyUserServiceImpl implements KeyUserService
 
     public function getKeyUsersByNomenclatorKeyId(int $id): ?array
     {
-        $q = "SELECT userId FROM nomenclatorkeyusers WHERE nomenclatorKeyId=:nomenclatorKeyId";
+        $q = "SELECT userId, isMainUser FROM nomenclatorkeyusers WHERE nomenclatorKeyId=:nomenclatorKeyId";
         $stm = $this->conn->prepare($q);
         $stm->bindParam(':nomenclatorKeyId',$id);
         $stm->execute();
-        $r = $stm->fetchAll(PDO::FETCH_COLUMN);
+        $r = $stm->fetchAll(PDO::FETCH_ASSOC);
         if($r === false)
             return null;
 
         $users = [];
         foreach ($r as $i)
         {
-            $tmp = $this->getKeyUserById($i);
-            if($tmp !== null)
+            $tmp = $this->getKeyUserById($i['userId']);
+            if($tmp !== null) {
+                $tmp->isMainUser = $i['isMainUser'];
                 array_push($users,$tmp);
+            }
+               
         }
         return $users;
     }

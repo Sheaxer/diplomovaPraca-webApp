@@ -1,5 +1,5 @@
 <?php
-require_once("helpers.php");
+require_once(__DIR__ ."/helpers.php");
 require_once (__DIR__. "/../config/serviceConfig.php");
 require_once (__DIR__ ."/../entities/SystemUser.php");
 require_once (__DIR__ ."/../services/SystemUserService.php");
@@ -33,10 +33,10 @@ function userController()
 
                     $systemUserService = POSTSystemUserService();
 
-                    $id = $systemUserService->logIn($object['username'], $object['password']);
-                    if ($id === null)
+                    $userInfo = $systemUserService->logIn($object['username'], $object['password']);
+                    if ($userInfo === null)
                         throw new RuntimeException("Incorrect credentials");
-                    $data= $systemUserService->createToken($id);
+                    $data= $systemUserService->createToken($userInfo['id']);
                     post_result($data);
 
                 } else if (strcmp($pathElements[0], "changePassword") === 0) {
@@ -48,26 +48,38 @@ function userController()
                     // CHANGE PASSWORD
                     if (!array_key_exists("newPassword", $object))
                         throw  new RuntimeException("No new password specified");
-                    $id = $systemUserService->logIn($object['username'], $object['password']);
-                    if ($id === null)
+                    $userInfo = $systemUserService->logIn($object['username'], $object['password']);
+                    if ($userInfo === null)
                         throw new RuntimeException("Incorrect credentials");
-                    $systemUserService->changePassword($id, $object['newPassword']);
+                    $systemUserService->changePassword($userInfo['id'], $object['newPassword']);
                     $data['message'] = "Password Changed";
                     post_result($data);
 
 
                 } else if (strcmp($pathElements[0], "users") === 0) {
                     // ADD USER
-                    $userId = authorize();
+                    $userInfo = authorize();
+                    if (! $userInfo || ! $userInfo['isAdmin']) {
+                        throw new AuthorizationException('Only admin can create new users');
+                    }
                     $systemUserService = POSTSystemUserService();
-
-                    $addedId = $systemUserService->createSystemUser($object['username'], $object['password']);
+                    $addedId = $systemUserService->createSystemUser($object['username'], $object['password'], $object['isAdmin'] ?? false);
                     if ($addedId !== null) {
                         $data['id'] = $addedId;
                         post_result($data);
                     } else
                         throw new Exception("System Error");
-                } else throw new RuntimeException("Incorrect URL 1");
+                } else if (strcmp($pathElements[0], "register") === 0) {
+                    //$userInfo = authorize();
+                    $systemUserService = POSTSystemUserService();
+                    $addedId = $systemUserService->createSystemUser($object['username'], $object['password'], false);
+                    if ($addedId !== null) {
+                        $data['id'] = $addedId;
+                        post_result($data);
+                    } else
+                        throw new Exception("System Error");
+                } 
+                else throw new RuntimeException("Incorrect URL 1");
         }
     } catch (Exception $exception) {
         throwException($exception);

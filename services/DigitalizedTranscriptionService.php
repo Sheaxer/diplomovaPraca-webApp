@@ -1,11 +1,11 @@
 <?php
 
-require_once ("entities/DigitalizedTranscription.php");
+require_once (__DIR__ . "/../entities/DigitalizedTranscription.php");
 interface DigitalizedTranscriptionService
 {
     public function createDigitalizedTranscription(DigitalizedTranscription $transcription, int $nomenclatorId, int $createdBy): int;
 
-    public function getDigitalizedTranscriptionsOfNomenclator (int $nomenclatorId): ?array;
+    public function getDigitalizedTranscriptionsOfNomenclator (?array $userInfo, int $nomenclatorId): ?array;
 
     public function getDigitalizedTranscriptionById($id): ?DigitalizedTranscription;
 

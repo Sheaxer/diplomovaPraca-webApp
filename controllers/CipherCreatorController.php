@@ -1,6 +1,6 @@
 <?php
 
-require_once ("helpers.php");
+require_once (__DIR__ ."/helpers.php");
 require_once (__DIR__ . "/../config/serviceConfig.php");
 require_once (__DIR__ . "/../services/NomenclatorKeyService.php");
 require_once (__DIR__ . "/NomenclatorKeysController.php");
@@ -26,10 +26,11 @@ function cipherCreatorController()
                 if ($object === null)
                     throw new RuntimeException("No data");
 
-                $userId = authorize(); // AUTHORIZE
+                $userInfo = authorize(); // AUTHORIZE
 
                 //var_dump($object);
                 $nomenclatorKey = new NomenclatorKey();
+                
                 $transcription = new DigitalizedTranscription();
                 $transcription->encryptionPairs = array();
                 $isSubstitution = false;
@@ -89,12 +90,12 @@ function cipherCreatorController()
                     if(sizeof($object['codewords']) > 0)
                     {
                         $isCodeWords = true;
-                       $codeWordsData = parseCipherCreatorType($object['codewords']);
+                        $codeWordsData = parseCipherCreatorType($object['codewords']);
                         $isCodeWordsLetters = $codeWordsData['letters'];
                         $isCodeWordsNumbers = $codeWordsData['numbers'];
                         $isCodeWordsSymbols = $codeWordsData['symbols'];
                         $isCodeWordsDouble = $codeWordsData['double'];
-                       $transcription->encryptionPairs = array_merge($transcription->encryptionPairs,$codeWordsData['data']);
+                        $transcription->encryptionPairs = array_merge($transcription->encryptionPairs,$codeWordsData['data']);
 
                     }
                 }
@@ -281,21 +282,27 @@ function cipherCreatorController()
 
                 $nomenclatorKeyService = POSTNomenclatorKeyService();
 
-                $newId = $nomenclatorKeyService->createNomenclatorKey($userId,$nomenclatorKey);
+               
                 $digitalizedTranscriptionService = POSTDigitalizedTranscriptionService();
+                /** @var EncryptionPair $pair */
+                $usedChars = [];
                 foreach ($transcription->encryptionPairs as $pair)
                 {
                     $newStr = checkForLongUnicode($pair->cipherTextUnit);
                     $pair->cipherTextUnit = $newStr;
-
+                    $usedChars[]= $pair->plainTextUnit;
                 }
+                /** use unique symbols only, ; sepparated */
+                $nomenclatorKey->usedChars = implode(';', array_unique($usedChars));
+                $nomenclatorKey->cipherType='ed';
+                $newId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
                 //var_dump($transcription);
                 /*foreach ($transcription->encryptionPairs as $pair)
                 {
                     var_dump(mb_ord($pair['cipherTextUnit']));
                 }
                 var_dump($transcription->encryptionPairs);*/
-                $digId = $digitalizedTranscriptionService->createDigitalizedTranscription($transcription,$newId,$userId);
+                $digId = $digitalizedTranscriptionService->createDigitalizedTranscription($transcription, $newId, $userInfo['id']);
 
                 $retData['nomenclatorKeyId'] = $newId;
                 $retData['digitalizedTranscriptionId'] = $digId;

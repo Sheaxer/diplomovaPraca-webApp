@@ -5,19 +5,40 @@ class NomenclatorKey {
 
     public  $id;
     public  $signature;
-    public $images;
+    public  $images;
     public  $completeStructure;
     public  $digitalizedTranscriptions;
 
     public  $folder;
 
-    public  $uploadedBy;
+    //public  $uploadedBy;
 
-    public  $date;
+    //public  $date;
+
+    public $usedChars;
+
+    public $cipherType;
+
+    public $keyType;
+
+    public $usedFrom;
+
+    public $usedTo;
+
+    public $usedAround;
+
+    public $groupId;
 
     public  $keyUsers;
 
     public  $language;
+
+    public $stateId;
+
+    public $placeOfCreation = null;
+
+    /**  @var NomenclatorKeyState|null */
+    public $state = null;
 
 
     public static $table_name = "nomenclatorKeys";
@@ -40,6 +61,37 @@ class NomenclatorKey {
         $this->digitalizedTranscriptions = $digitalizedTranscriptions;
         $this->folder = $folder;
     }*/
+
+    public static function createFromArray(array $data)
+    {
+        $key = new static();
+        $key->cipherType = $data['cipherType'] ?? null;
+        $key->completeStructure = $data['completeStructure'] ?? null;
+        $key->groupId = $data['groupId'] ?? null;
+        $key->id = $data['id'] ?? null;
+        $key->keyType = $data['keyType'] ?? null;
+        $key->language = $data['language'] ?? null;
+        $key->signature = $data['signature'] ?? '';
+       
+        $key->usedAround = $data['usedAround'] ?? null;
+        $key->usedChars = $data['usedChars'];
+        $key->usedFrom = $data['usedFrom'] ?? null;
+        $key->usedTo = $data['usedTo'] ?? null;
+
+        $key->stateId = $data['stateId'] ?? null;
+        if ($key->stateId) {
+            $key->state = new NomenclatorKeyState();
+            $key->state->id = $data['stateId'] ?? null;
+            $key->state->createdAt = $data['createdAt'] ?? null;
+            $key->state->createdById = $data['createdBy'] ?? null;
+            $key->state->note = $data['note'] ?? null;
+            $key->state->uploadedAt = $data['uploadedAt'] ?? null;
+            $key->state->state = $data['state'] ?? null;
+            $key->state->nomenclatorKeyId = $data['id'] ?? null;
+        }
+        return $key;
+
+    }
 
 
 }
