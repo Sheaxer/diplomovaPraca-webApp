@@ -5,8 +5,8 @@ class POSTDatabaseConfig
 {
     private  $host = "localhost";
     private  $db_name = "nomenclators";
-    private  $username = "test";
-    private  $password = "test";
+    private  $username = "root";
+    private  $password = "";
     private $port = "3306";
     public  $conn;
 
@@ -28,8 +28,8 @@ class GETDatabaseConfig
 {
     private  $host = "localhost";
     private  $db_name = "nomenclators";
-    private  $username = "test";
-    private  $password = "test";
+    private  $username = "root";
+    private  $password = "";
     private $port = "3306";
     public  $conn;
 

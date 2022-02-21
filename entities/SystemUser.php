@@ -8,7 +8,7 @@ class SystemUser
     public  $id;
     public  $isAdmin;
 
-    public static  $tableName = "users";
+    public static  $tableName = "systemusers";
 
 
 }

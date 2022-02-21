@@ -5,7 +5,6 @@ require_once (__DIR__ ."/NomenclatorImageServiceImpl.php");
 require_once (__DIR__ ."/KeyUserServiceImpl.php");
 require_once (__DIR__ . "/../../controllers/helpers.php");
 require_once (__DIR__ . "/../../entities/NomenclatorKeyState.php");
-require_once (__DIR__ ."/NomenclatorKeyStateServiceImpl.php");
 require_once (__DIR__ . "/NomenclatorPlaceServiceImpl.php");
 
 class NomenclatorKeyServiceImpl implements NomenclatorKeyService
