@@ -3,6 +3,8 @@
 
 class NomenclatorKey {
 
+    const LIMIT = 15;
+
     public  $id;
     public  $signature;
     public  $images;
@@ -33,9 +35,12 @@ class NomenclatorKey {
 
     public  $language;
 
-    public $stateId;
+    //public $stateId;
 
+    /** @var Place */
     public $placeOfCreation = null;
+
+    public $placeOfCreationId;
 
     /**  @var NomenclatorKeyState|null */
     public $state = null;
@@ -78,8 +83,8 @@ class NomenclatorKey {
         $key->usedFrom = $data['usedFrom'] ?? null;
         $key->usedTo = $data['usedTo'] ?? null;
 
-        $key->stateId = $data['stateId'] ?? null;
-        if ($key->stateId) {
+        //$key->stateId = $data['stateId'] ?? null;
+        if (isset($data['stateId']) && $data['stateId']) {
             $key->state = new NomenclatorKeyState();
             $key->state->id = $data['stateId'] ?? null;
             $key->state->createdAt = $data['createdAt'] ?? null;

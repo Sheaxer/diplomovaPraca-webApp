@@ -1,11 +1,12 @@
 <?php
 
 require_once (__DIR__ ."/../NomenclatorImageService.php");
-require_once ("NomenclatorImageServiceImpl.php");
-require_once ("KeyUserServiceImpl.php");
+require_once (__DIR__ ."/NomenclatorImageServiceImpl.php");
+require_once (__DIR__ ."/KeyUserServiceImpl.php");
 require_once (__DIR__ . "/../../controllers/helpers.php");
 require_once (__DIR__ . "/../../entities/NomenclatorKeyState.php");
-require_once ("NomenclatorKeyStateServiceImpl.php");
+require_once (__DIR__ ."/NomenclatorKeyStateServiceImpl.php");
+require_once (__DIR__ . "/NomenclatorPlaceServiceImpl.php");
 
 class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 {
@@ -60,7 +61,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
         $stm->bindValue(':usedTo', $nomenclator->usedFrom ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
         $stm->bindValue(':usedTo', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
-        $stm->bindParam(':keyType', $nomenclator->placeOfCreation);
+        $stm->bindParam(':keyType', $nomenclator->placeOfCreationId);
         $stm->bindParam(':groupId', $nomenclator->groupId);
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
@@ -118,6 +119,9 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $d = new DigitalizedTranscriptionServiceImpl($this->conn);
         $nomenclatorKey->digitalizedTranscriptions = $d->getDigitalizedTranscriptionsOfNomenclator($userInfo, $nomenclatorKey->id);
+
+        $p = new NomenclatorPlaceServiceImpl($this->conn);
+
 
         if ($nomenclatorKey->state && $nomenclatorKey->state->createdById) {
             $u = new SystemUserServiceImpl($this->conn);
@@ -191,7 +195,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         return $nomenclatorKey;
     }
 
-    public function getNomenklatorKeysByAttributes(?array $userInfo, ?array $folders = null, ?array $structures = null): ?array
+    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array
     {
         $query = "SELECT k.* FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
         $wasNullFolder = false;
@@ -285,6 +289,8 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $query .= ' WHERE ( s.state = :approvedState)';
             }
         }
+
+        $query .= " LIMIT :offset, :pageLimit";
         //var_dump($query);
         $stm = $this->conn->prepare($query);
         if(!empty($removedNullFolders))
@@ -310,6 +316,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         } else {
             $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
         }
+        $offset = ($page - 1) * $limit;
+        $stm->bindParam(":offset", $offset);
+        $stm->bindParam(":pageLimit", $limit);
+
         $stm->execute();
         $nomenclatorKeysData = $stm->fetchAll(PDO::FETCH_ASSOC);
         if($nomenclatorKeysData === false)

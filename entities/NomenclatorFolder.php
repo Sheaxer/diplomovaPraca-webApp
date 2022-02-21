@@ -12,4 +12,6 @@ class NomenclatorFolder
 
     public static  $tableName = "folders";
 
+    public const LIMIT = 15;
+
 }

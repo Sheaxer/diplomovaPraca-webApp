@@ -2,19 +2,20 @@
 
 require_once (__DIR__ ."/helpers.php");
 require_once (__DIR__ ."/../config/serviceConfig.php");
-require_once (__DIR__ . "/../services/NomenclatorFolderService.php");
+require_once (__DIR__ . "/../services/NomenclatorPlaceService.php");
 require_once (__DIR__ ."/../entities/AuthorizationException.php");
-require_once (__DIR__ . "/../entities/NomenclatorFolder.php");
+require_once (__DIR__ . "/../entities/Place.php");
 
-function folderController()
+function placeController()
 {
     $pathElements = getPathElements();
-    $pathParams = [];
+    $headers = apache_request_headers();
+
     try {
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
                 $page = 1;
-                $limit = NomenclatorFolder::LIMIT;
+                $limit = Place::LIMIT;
                 if (sizeof($pathElements[0]) > 8 ) {
                     if ($pathElements[0][7] == '?') {
                         $pathParams = explode("&", substr($pathElements[0], 8));
@@ -28,9 +29,9 @@ function folderController()
                         $limit = intval(substr($pathParam, 6));
                     }
                 }
-                $folderService = GETNomenclatorFolderService();
-                $folders = $folderService->getAllFolders($limit, $page);
-                post_result($folders);
+                $placeService = GETNomenclatorPlaceService();
+                $places = $placeService->getAllPlaces($limit, $page);
+                post_result($places);
                 break;
             default:
                 throw new RuntimeException("Only GET method allowed for this endpoint");
@@ -41,4 +42,3 @@ function folderController()
         throwException($exception);
     }
 }
-

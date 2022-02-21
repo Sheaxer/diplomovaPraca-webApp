@@ -7,6 +7,8 @@ require_once (__DIR__ . "/controllers/UserController.php");
 require_once (__DIR__ . "/controllers/FolderController.php");
 require_once (__DIR__ . "/controllers/KeyUsersController.php");
 require_once (__DIR__ . "/controllers/CipherCreatorController.php");
+require_once (__DIR__ . "/controllers/PlaceController.php");
+
 $path = getPathElements();
 if(isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] !== null && !empty($_SERVER['HTTP_ORIGIN']))
     header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
@@ -23,10 +25,12 @@ else if (strcmp($path[0], "digitalizedTranscriptions") === 0)
     digitalizedTranscriptionController();
 else if( (strcmp($path[0],"login") === 0) || (strcmp($path[0],"users") === 0) || (strcmp($path[0], "changePassword") === 0) || (strcmp($path[0],"register") === 0))
     userController();
-else if (strcmp($path[0],"folders") === 0)
+else if (strcmp(substr($path[0],0,7),"folders") === 0)
     folderController();
 else if(strcmp(substr($path[0],0,8),"keyUsers") === 0)
     keyUsersController();
+else if(strcmp(substr($path[0],0,6), "places") === 0)
+    placeController();
 else
     if(strcmp($path[0],"cipherCreator") === 0)
         cipherCreatorController();

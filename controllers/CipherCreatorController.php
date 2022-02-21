@@ -30,6 +30,7 @@ function cipherCreatorController()
 
                 //var_dump($object);
                 $nomenclatorKey = new NomenclatorKey();
+                $nomenclatorKey->placeOfCreationId = null;
                 
                 $transcription = new DigitalizedTranscription();
                 $transcription->encryptionPairs = array();

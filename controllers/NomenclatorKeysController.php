@@ -11,6 +11,8 @@ require_once (__DIR__ ."/../entities/DigitalizedTranscription.php");
 require_once (__DIR__ . "/../services/DigitalizedTranscriptionService.php");
 require_once (__DIR__ . "/../entities/EncryptionPair.php");
 require_once (__DIR__ ."/../entities/AuthorizationException.php");
+require_once (__DIR__ . "/../entities/Place.php");
+
 function nomenclatorKeyController()
 {
     $pathElements = getPathElements();
@@ -35,6 +37,8 @@ function nomenclatorKeyController()
                         $folders = array();
                         $structures = array();
                         $signatures = array();
+                        $limit = NomenclatorKey::LIMIT;
+                        $page = 1;
                         //var_dump($_GET['folder']);
                         foreach ($pathParams as $param) {
                             if (substr_compare($param, "folder=", 0,7) === 0)
@@ -43,6 +47,13 @@ function nomenclatorKeyController()
                                 array_push($structures, urldecode(substr($param, 18)));
                             else if (substr_compare($param, "signature=", 0,10) === 0)
                                 array_push($signatures , urldecode(substr($param, 10)));
+                            else if (substr_compare($param, "limit=", 0, 6) === 0) {
+                                $limit = intval(substr($param, 6));
+                            }
+                            else if (substr_compare($param, "page=", 0, 5)) {
+                                $page = intval(substr($param, 5));
+                            }
+                            
                         }
                         //var_dump($folders);
                         //var_dump($structures);
@@ -52,7 +63,7 @@ function nomenclatorKeyController()
                         if (empty($structures))
                             $structures = null;
 
-                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $folders, $structures);
+                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures );
                         post_result($keys);
 
                     } else if (sizeof($pathElements) === 2 || sizeof($pathElements) === 3) {
@@ -87,6 +98,32 @@ function nomenclatorKeyController()
                         throw new Exception("No data");
 
                     $userInfo = authorize();
+
+                    if (sizeof($pathElements) == 3) {
+                        if (is_numeric($pathElements[1])) {
+                            if (strcmp($pathElements[2], "state") == 0) {
+                                /* TODO update state */
+                                if (! $userInfo || ! $userInfo['isAdmin']) {
+                                    throw new AuthorizationException('You must be admin to edit nomenclator key state');
+                                }
+
+                                $note = $object['note'] ?? null;
+                                $state = $object['state'] ?? null;
+
+                                $nomenclatorKeyService = POSTNomenclatorKeyService();
+                                $retVal = $nomenclatorKeyService->updateNomenclatorKeyState($userInfo, $state, $note, intval($pathElements[1]), null);
+                                if ($retVal) {
+                                    post_result([
+                                        'status' => 'success'
+                                    ]);
+                                } else {
+                                    post_result([
+                                        'status' => 'error'
+                                    ]);
+                                }
+                            }
+                        }
+                    } 
 
                     if (sizeof($pathElements) === 1) {
                         $nomenclatorKey = new NomenclatorKey();
@@ -142,6 +179,12 @@ function nomenclatorKeyController()
                                 if (array_key_exists("structure", $image))
                                     $nomenclatorImage->structure = $image['structure'];
 
+                                if (array_key_exists('hasInstructions', $image)) {
+                                    $nomenclatorImage->hasInstructions = $image['hasInstructions'];
+                                } else {
+                                    $nomenclatorImage->hasInstructions = false;
+                                }
+
                                 array_push($nomenclatorKey->images, $nomenclatorImage);
                             }
                             if (($uploadedUrl !== null) && ($i !== sizeof($uploadedUrl))) {
@@ -165,11 +208,25 @@ function nomenclatorKeyController()
                                 {
                                     $k->name = $keyUser['name'];
                                 }
-                                array_push($nomenclatorKey->keyUsers,$k);
+                                if (array_key_exists('isMainUser', $keyUser)) {
+                                    $k->isMainUser = $keyUser['isMainUser'];
+                                    
+                                } else {
+                                    $k->isMainUser = false;
+                                }
+                                array_push($nomenclatorKey->keyUsers, $k);
                             }
                         }
-                        else
+                        else {
                             $nomenclatorKey->keyUsers = null;
+                        }
+
+                        if (array_key_exists('placeOfCreationId', $object)) {
+                            $nomenclatorKey->placeOfCreationId = $object['placeOfCreationId'];
+                        } else {
+                            $nomenclatorKey->placeOfCreationId = null;
+                        }
+                           
                         $nomenclatorKeyService = POSTNomenclatorKeyService();
                         if ($nomenclatorKeyService === null)
                             throw new Exception("System Error");

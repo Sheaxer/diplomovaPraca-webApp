@@ -23,7 +23,7 @@ class NomenclatorImageServiceImpl implements NomenclatorImageService
         $stm->bindParam(':isLocal',$nomenclatorImage->isLocal);
         $stm->bindParam(':structure',$nomenclatorImage->structure);
         $stm->bindParam(':ord',$ord);
-        $stm->bindParam(':ord',$nomenclatorImage->hasInstructions);
+        $stm->bindParam(':hasInstructions',$nomenclatorImage->hasInstructions);
         $stm->execute();
     }
 

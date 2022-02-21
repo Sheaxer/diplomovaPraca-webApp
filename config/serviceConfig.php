@@ -19,6 +19,9 @@ require_once (__DIR__ . "/DatabaseConfig.php");
 require_once (__DIR__ . "/../services/SystemUserService.php");
 require_once (__DIR__ . "/../services/mysql/SystemUserServiceImpl.php");
 
+require_once (__DIR__ . "/../services/NomenclatorPlaceService.php");
+require_once (__DIR__ . "/../services/mysql/NomenclatorPlaceServiceImpl.php");
+
 function GETConnection(): ?PDO
 {
     $conf = new GETDatabaseConfig();
@@ -128,5 +131,21 @@ function POSTSystemUserService() : ?SystemUserService
     if($conn === null)
         return null;
     return new SystemUserServiceImpl($conn);
+}
+
+function GETNomenclatorPlaceService(): ?NomenclatorPlaceService
+{ 
+    $conn = GETConnection();
+    if($conn === null)
+        return null;
+    return new NomenclatorPlaceServiceImpl($conn);
+}
+
+function POSTNomenclatorPlaceService(): ?NomenclatorPlaceService
+{ 
+    $conn = POSTConnection();
+    if($conn === null)
+        return null;
+    return new NomenclatorPlaceServiceImpl($conn);
 }
 

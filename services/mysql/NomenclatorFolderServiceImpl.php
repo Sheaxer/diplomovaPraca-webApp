@@ -1,5 +1,5 @@
 <?php
-require_once ("entities/NomenclatorFolder.php");
+require_once (__DIR__ ."/../../entities/NomenclatorFolder.php");
 require_once (__DIR__ ."/../NomenclatorFolderService.php");
 
 class NomenclatorFolderServiceImpl implements NomenclatorFolderService
@@ -11,10 +11,13 @@ class NomenclatorFolderServiceImpl implements NomenclatorFolderService
         $this->conn=$PDO;
     }
 
-    public function getAllFolders(): ?array
+    public function getAllFolders($limit, $page): ?array
     {
-        $query = "SELECT * FROM folders";
+        $query = "SELECT * FROM folders LIMIT :offset, :pageLimit";
         $stm = $this->conn->prepare($query);
+        $offset = ($page -1) * $limit;
+        $stm->bindParam(':offset', $offset);
+        $stm->bindParam(':pageLimit', $limit);
         #$stm->setAttribute(PDO::SQLSRV_ATTR_FETCHES_DATETIME_TYPE, true);
         $stm->execute();
         $result = $stm->fetchAll(PDO::FETCH_CLASS,"NomenclatorFolder");
@@ -50,10 +53,5 @@ WHERE folderName=:folderName";
         else
             return true;
         // TODO: Implement folderExists() method.
-    }
-
-    public function getFolderById()
-    {
-        
     }
 }
