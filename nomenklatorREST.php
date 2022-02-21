@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL);
 require_once (__DIR__. "/controllers/helpers.php");
 require_once (__DIR__ . "/controllers/DigitalizedTranscriptionController.php");
 require_once (__DIR__ . "/controllers/NomenclatorKeysController.php");

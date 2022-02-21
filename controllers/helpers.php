@@ -5,21 +5,20 @@ require_once (__DIR__ . "/../config/serviceConfig.php");
 function authorize() : ?array
 {
     $headers = apache_request_headers();
-    if(isset($headers['authorization']))
+    if(isset($headers['authorization']) || isset($headers['Authorization']))
     {
         $systemUserService = GETSystemUserService();
         if($systemUserService === null)
         {
             throw new Exception("System Error");
         }
-        if ($headers['authorization']) {
-            $userInfo = $systemUserService->loginWithToken($headers['authorization']);
+            $userInfo = $systemUserService->loginWithToken($headers['authorization'] ?? $headers['Authorization']);
             if($userInfo === null)
             {
                 throw new AuthorizationException("Invalid authorization token 8");
             }
             return $userInfo;
-         } else return null;   
+         
         
 
     }
@@ -120,5 +119,19 @@ function checkForLongUnicode($string)
     }
 
     return $tmp_str_left;
+}
+
+function stripNullsFromObject($object)
+{
+    $ob = (object) array_filter((array) $object);
+    return $ob;
+}
+
+function stripNullsFromArray($array) {
+    $ar = []; 
+    foreach ($array as $a) {
+        $ar[]= stripNullsFromObject($a);
+    }
+    return $ar;
 }
 

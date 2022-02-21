@@ -90,7 +90,7 @@ class NomenclatorKey {
             $key->state->createdAt = $data['createdAt'] ?? null;
             $key->state->createdById = $data['createdBy'] ?? null;
             $key->state->note = $data['note'] ?? null;
-            $key->state->uploadedAt = $data['uploadedAt'] ?? null;
+            $key->state->updatedAt = $data['updatedAt'] ?? null;
             $key->state->state = $data['state'] ?? null;
             $key->state->nomenclatorKeyId = $data['id'] ?? null;
         }

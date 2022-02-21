@@ -15,7 +15,7 @@ interface NomenclatorKeyService
 
     public function nomenclatorKeyExistsBySignature($signature):bool;
 
-    public function updateNomenclatorKeyState(array $userInfo, $state, $note, ?int $nomenclatorId, ?int $stateId,  ): bool;
+    public function updateNomenclatorKeyState(array $userInfo, $state, $note, ?int $nomenclatorId, ?int $stateId): bool;
 
     public function getNomenclatorKeyState(?array $userInfo, $nomenclatorId, $stateId): ?NomenclatorKeyState;
 

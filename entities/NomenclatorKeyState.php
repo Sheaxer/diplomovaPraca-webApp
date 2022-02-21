@@ -13,7 +13,7 @@ class NomenclatorKeyState
     public $state;
     public $createdBy;
     public $createdAt;
-    public $uploadedAt;
+    public $updatedAt;
     public $note;
     public $createdById;
 }

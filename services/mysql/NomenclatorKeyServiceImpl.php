@@ -138,7 +138,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyById(?array $userInfo, int $id): ?NomenclatorKey
     {
-        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.uploadedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id=:id";
+        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id=:id";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -166,7 +166,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyBySignature(?array $userInfo, string $signature): ?NomenclatorKey
     {
-        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.uploadedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE signature=:signature";
+        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE signature=:signature";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -196,7 +196,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array
     {
-        $query = "SELECT k.* FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
+        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
         $wasNullFolder = false;
         $folderParams = 0;
         $removedNullFolders = array();
@@ -316,10 +316,11 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
         }
         $offset = ($page - 1) * $limit;
-        $stm->bindParam(":offset", $offset);
-        $stm->bindParam(":pageLimit", $limit);
-
+        $stm->bindParam(":offset", $offset, PDO::PARAM_INT);
+        $stm->bindParam(":pageLimit", $limit, PDO::PARAM_INT);
+        
         $stm->execute();
+
         $nomenclatorKeysData = $stm->fetchAll(PDO::FETCH_ASSOC);
         if($nomenclatorKeysData === false)
             return null;
@@ -373,7 +374,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             }
         }
         if ($stateId) {
-            $query2 = "UPDATE nomenclatorKeyState SET `state`=:stateString, note= :note, uploadedAt = :updatedAt";
+            $query2 = "UPDATE nomenclatorKeyState SET `state`=:stateString, note= :note, updatedAt = :updatedAt";
             $stm2 = $this->conn->prepare($query2);
             $stm2->bindParam(':stateString', $state);
             $stm2->bindParam(':note', $note);

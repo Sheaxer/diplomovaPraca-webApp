@@ -15,16 +15,15 @@ function keyUsersController()
                 $keyUserService = GETKeyUserService();
                 if(sizeof($pathElements) === 1)
                 {
-                    if(strcmp($pathElements[0],"keyUsers") === 0)
+                    if(strcmp(substr($pathElements[0],0, 8),"keyUsers") === 0)
                     {
+                        if(isset($_GET['name']) && !empty($_GET['name']) && ($_GET['name'] !== null)){
+                            $user = $keyUserService->getKeyUserByName($_GET['name']);
+                            post_result(stripNullsFromObject($user));
+                            exit();
+                        }
                         $keyUsers = $keyUserService->getAllKeyUsers();
-                        post_result($keyUsers);
-                        exit();
-                    }
-                    else if(isset($_GET['name']) && !empty($_GET['name']) && ($_GET['name'] !== null))
-                    {
-                        $user = $keyUserService->getKeyUserByName($_GET['name']);
-                        post_result($user);
+                        post_result(stripNullsFromArray($keyUsers));
                         exit();
                     }
 

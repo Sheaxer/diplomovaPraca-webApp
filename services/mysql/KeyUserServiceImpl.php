@@ -78,7 +78,7 @@ class KeyUserServiceImpl implements KeyUserService
                 $tmp->isMainUser = $i['isMainUser'];
                 array_push($users,$tmp);
             }
-               
+            
         }
         return $users;
     }

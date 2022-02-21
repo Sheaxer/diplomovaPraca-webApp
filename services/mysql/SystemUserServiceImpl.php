@@ -120,7 +120,7 @@ class SystemUserServiceImpl implements SystemUserService
                     if($expires_date > $current_date)
                     {
                         //echo var_dump($row['userId']);
-                        $query2 = "SELECT isAdmin FROM users WHERE id = :userId";
+                        $query2 = "SELECT isAdmin FROM systemusers WHERE id = :userId";
                         $stmt2 = $this->conn->prepare($query2);
                         $stmt2->setFetchMode(PDO::FETCH_ASSOC);
                         $stmt2->bindParam(':userId', $info->userId);
@@ -128,6 +128,12 @@ class SystemUserServiceImpl implements SystemUserService
                         $usr = $stmt2->fetch();
                         if ($usr) {
                             $isAdmin = $usr['isAdmin'];
+                            return [
+                                'id' => $info->userId,
+                                'isAdmin' => $isAdmin
+                            ];
+                        } else {
+                            $isAdmin = false;
                             return [
                                 'id' => $info->userId,
                                 'isAdmin' => $isAdmin

@@ -1,7 +1,7 @@
 <?php
-const SERVICEPATH="localhost/diplomovka/";
+const SERVICEPATH="diplomovka.local/";
 
-const PATHREMOVE = 1;
+const PATHREMOVE = 0;
 
 const FILESIZELIMIT = 10000000;
 
