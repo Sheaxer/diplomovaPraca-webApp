@@ -1,6 +1,6 @@
 <?php
 
-require_once ("entities/NomenclatorKey.php");
+require_once ( __DIR__ .  "/../entities/NomenclatorKey.php");
 interface NomenclatorKeyService
 {
     public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?int;

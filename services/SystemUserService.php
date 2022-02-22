@@ -1,6 +1,6 @@
 <?php
 
-require_once ("entities/SystemUser.php");
+require_once (__DIR__ . "/../entities/SystemUser.php");
 interface SystemUserService
 {
     public function createSystemUser(string $userName, string $password, bool $isAdmin): int;

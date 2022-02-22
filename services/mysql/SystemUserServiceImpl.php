@@ -1,6 +1,6 @@
 <?php
 
-require_once ("entities/SystemUser.php");
+require_once (__DIR__ . "/../../entities/SystemUser.php");
 require_once (__DIR__ ."/../SystemUserService.php");
 
 require_once (__DIR__ . "/../../entities/LoginInfo.php");

@@ -1,7 +1,7 @@
 <?php
 
 require_once (__DIR__ ."/../NomenclatorImageService.php");
-require_once ("entities/NomenclatorImage.php");
+require_once (__DIR__ . "/../../entities/NomenclatorImage.php");
 
 class NomenclatorImageServiceImpl implements NomenclatorImageService
 {
