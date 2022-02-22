@@ -130,7 +130,7 @@ function nomenclatorKeyController()
 
                     if (sizeof($pathElements) === 1) {
                         //if ()
-                        xdebug_break();
+                        //xdebug_break();
                         $nomenclatorKey = new NomenclatorKey();
 
                         if (array_key_exists('usedChars', $object)) {
