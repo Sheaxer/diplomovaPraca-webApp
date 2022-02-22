@@ -12,12 +12,14 @@ $a = "SELECT id from systemusers where isAdmin = 1 LIMIT 1";
 $s = $getService->prepare($a);
 $s->execute();
 $userId = $s->fetch(PDO::FETCH_COLUMN);
+var_dump($userId);
 
 $query = "SELECT id from nomenclatorKeys WHERE stateId = 0 OR stateId is NULL";
 $stm = $getService->prepare($query);
 
 $stm->execute();
 $ids = $stm->fetchAll(PDO::FETCH_COLUMN);
+var_dump($ids);
 
 $query2 = "INSERT INTO nomenclatorKeyState (`state`, createdBy, note) VALUES (:st, :createdBy, :note)";
 $stm2 = $postService->prepare($query2);
@@ -31,6 +33,7 @@ $stm3 = $postService->prepare($query3);
 $postService->beginTransaction();
 
 foreach ($ids as $id) {
+    var_dump($id);
     $stm2->execute();
     $stateId = $postService->lastInsertId();
     $stm3->bindParam(':stateId', $stateId);

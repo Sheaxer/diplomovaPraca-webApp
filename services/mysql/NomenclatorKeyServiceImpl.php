@@ -39,7 +39,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stateStm->execute();
         $stateId = intval($this->conn->lastInsertId());
         
-        $query = "INSERT INTO nomenclatorkeys (folder, `signature`, completeStructure, `language`, 
+        $query = "INSERT INTO nomenclatorKeys (folder, `signature`, completeStructure, `language`, 
             stateId, usedChars,  cipherType, keyType, usedFrom, usedTo, usedAround, 
             placeOfCreation, groupId) 
         VALUES 
@@ -142,7 +142,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyById(?array $userInfo, int $id): ?NomenclatorKey
     {
-        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id=:id";
+        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id=:id";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -170,7 +170,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyBySignature(?array $userInfo, string $signature): ?NomenclatorKey
     {
-        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE signature=:signature";
+        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE signature=:signature";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -200,7 +200,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array
     {
-        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorkeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
+        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
         $wasNullFolder = false;
         $folderParams = 0;
         $removedNullFolders = array();
@@ -340,7 +340,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function nomenclatorKeyExistsById($keyId) :bool
     {
-        $query = "SELECT 1 FROM nomenclatorkeys where id=:id";
+        $query = "SELECT 1 FROM nomenclatorKeys where id=:id";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id',$keyId);
         $stm->execute();
@@ -352,7 +352,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function nomenclatorKeyExistsBySignature($signature): bool
     {
-        $query = "SELECT 1 FROM nomenclatorkeys where signature=:signature";
+        $query = "SELECT 1 FROM nomenclatorKeys where signature=:signature";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(":signature",$signature);
         $stm->execute();

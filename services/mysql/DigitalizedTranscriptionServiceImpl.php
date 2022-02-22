@@ -151,7 +151,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
         $stm1 = $this->conn->prepare($query1);
         $stm1->execute();
         $data = $stm1->fetchAll(PDO::FETCH_ASSOC);
-        $query2 = "SELECT id,folder,signature,completeStructure FROM nomenclatorkeys WHERE id=:id";
+        $query2 = "SELECT id,folder,signature,completeStructure FROM nomenclatorKeys WHERE id=:id";
 
         $stm2 = $this->conn->prepare($query2);
         $query3 = "SELECT name from keyusers join nomenclatorkeyusers n on keyusers.id = n.userId where n.nomenclatorKeyId=:keyId";
