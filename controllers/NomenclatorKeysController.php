@@ -39,6 +39,7 @@ function nomenclatorKeyController()
                         $signatures = array();
                         $limit = NomenclatorKey::LIMIT;
                         $page = 1;
+                       // xdebug_break();
                         //var_dump($_GET['folder']);
                         foreach ($pathParams as $param) {
                             if (substr_compare($param, "folder=", 0,7) === 0)
@@ -50,7 +51,7 @@ function nomenclatorKeyController()
                             else if (substr_compare($param, "limit=", 0, 6) === 0) {
                                 $limit = intval(substr($param, 6));
                             }
-                            else if (substr_compare($param, "page=", 0, 5)) {
+                            else if (substr_compare($param, "page=", 0, 5) === 0) {
                                 $page = intval(substr($param, 5));
                             }
                             
