@@ -130,6 +130,7 @@ function nomenclatorKeyController()
 
                     if (sizeof($pathElements) === 1) {
                         //if ()
+                        xdebug_break();
                         $nomenclatorKey = new NomenclatorKey();
 
                         if (array_key_exists('usedChars', $object)) {
@@ -511,7 +512,7 @@ function deleteFiles(array $urls)
     }
 }
 
-function storeImage($string, $name): bool
+function storeImage($string, $name): ?string
 {
     if (strpos($name, '.') !== false) {
         $name = substr($name, 0, strpos($name, '.'));
@@ -541,5 +542,6 @@ function storeImage($string, $name): bool
         $i++;  
     }
     file_put_contents(IMAGEUPLOADPATH . $fileName . '.' . $ext, $string);
-    return SERVICEPATH . IMAGEUPLOADPATH . $fileName . '.' . $ext;
+    $url = (SERVICEPATH . IMAGEUPLOADPATH . $fileName . '.' . $ext);
+    return $url;
 }
