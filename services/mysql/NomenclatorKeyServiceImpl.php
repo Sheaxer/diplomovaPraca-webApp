@@ -368,9 +368,9 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             return false;
         $nomeclatorStateId = null;
         if ($nomenclatorId) {
-            $query = "SELECT s.id FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState ON k.stateId = s.id WHERE k.id = :nomeclatorKeyId";
+            $query = "SELECT s.id FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id = :nomeclatorKeyId";
             $stm = $this->conn->prepare($query);
-            $stm->bindParam(':nomeclatorKeyId', $nomenclatorId);
+            $stm->bindParam(':nomeclatorKeyId', $nomenclatorId, PDO::PARAM_INT);
             $stm->execute();
             $nomeclatorStateId = $stm->fetch(PDO::FETCH_COLUMN); 
             if ($nomeclatorStateId) {

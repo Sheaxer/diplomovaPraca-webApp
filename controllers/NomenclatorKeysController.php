@@ -112,7 +112,7 @@ function nomenclatorKeyController()
 
                                 $note = $object['note'] ?? null;
                                 $state = $object['state'] ?? null;
-
+                                //xdebug_break();
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
                                 $retVal = $nomenclatorKeyService->updateNomenclatorKeyState($userInfo, $state, $note, intval($pathElements[1]), null);
                                 if ($retVal) {
