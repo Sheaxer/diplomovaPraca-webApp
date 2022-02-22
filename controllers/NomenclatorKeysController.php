@@ -91,13 +91,16 @@ function nomenclatorKeyController()
                     throw new Exception("Incorrect URL");
                 break;
             case "POST":
-                if (strcmp($pathElements[0], "nomenclatorKeys") === 0) {
+                if (strcmp(substr($pathElements[0], 0, 15), "nomenclatorKeys") === 0) {
 
                     $object = getData();
                     if($object === null)
                         throw new Exception("No data");
 
                     $userInfo = authorize();
+                    if (! $userInfo) {
+                        throw new AuthorizationException("Not authorized");
+                    }
 
                     if (sizeof($pathElements) == 3) {
                         if (is_numeric($pathElements[1])) {
@@ -126,7 +129,36 @@ function nomenclatorKeyController()
                     } 
 
                     if (sizeof($pathElements) === 1) {
+                        //if ()
                         $nomenclatorKey = new NomenclatorKey();
+
+                        if (array_key_exists('usedChars', $object)) {
+                            $nomenclatorKey->usedChars = $object['usedChars'];
+                        }
+
+                        if (array_key_exists('cipherType', $object)) {
+                            $nomenclatorKey->cipherType = $object['cipherType'];
+                        }
+
+                        if (array_key_exists('keyType', $object)) {
+                            $nomenclatorKey->keyType = $object['keyType'];
+                        }
+
+                        if (array_key_exists('usedFrom', $object)) {
+                           
+                            $nomenclatorKey->usedFrom = new DateTime($object['usedFrom']);
+                            
+                            
+                        }
+
+                        if (array_key_exists('usedTo', $object)) {
+                            $nomenclatorKey->usedTo = new DateTime($object['usedTo']);
+                        }
+
+                        if (array_key_exists('usedAround', $object)) {
+                            $nomenclatorKey->usedAround = new DateTime($object['usedAround']);
+                        }
+
                         if (array_key_exists("folder", $object)) {
                             $folderService = GETNomenclatorFolderService();
                             if ($folderService === null)
@@ -155,21 +187,43 @@ function nomenclatorKeyController()
 
                         if (array_key_exists("nomenclatorImages", $object)) {
                             $nomenclatorKey->images = array();
-                            $uploadedUrl = null;
+                            $uploadedUrl = [];
+                            $encodedUrl = [];
                             $i = 0;
                             foreach ($object['nomenclatorImages'] as $image) {
                                 $nomenclatorImage = new NomenclatorImage();
                                 if (!array_key_exists('url', $image)) {
-                                    if ($uploadedUrl === null) {
-                                        $uploadedUrl = uploadImages();
+
+                                    if (array_key_exists('string', $image)) {
+                                        $decoded = base64_decode($image['string']);
+                                        $name = $image['name'];
+
+                                        $u = storeImage($decoded, $name);
+                                        if ($u) {
+                                            $nomenclatorImage->url = $u;
+                                            $nomenclatorImage->isLocal = true;
+                                            $encodedUrl[]= $u;
+                                        } else {
+                                            deleteFiles($uploadedUrl);
+                                            deleteFiles($encodedUrl);
+                                            throw new RuntimeException("Unable to store image possibly due to mime type. Allowed types are application/pdf, image/png and image/jpeg");
+                                        }
+
+                                    } else {
+                                        if (empty($uploadedUrl)) {
+                                            $uploadedUrl = uploadImages();
+                                        }
+                                        if ($i >= sizeof($uploadedUrl)) {
+                                            deleteFiles($uploadedUrl);
+                                            deleteFiles($encodedUrl);
+                                            throw new RuntimeException("Incorrect number of images uploaded");
+                                        }
+                                        $nomenclatorImage->url = $uploadedUrl[$i];
+                                        $nomenclatorImage->isLocal = true;
+                                        $i++;
                                     }
-                                    if ($i >= sizeof($uploadedUrl)) {
-                                        deleteFiles($uploadedUrl);
-                                        throw new RuntimeException("Incorrect number of images uploaded");
-                                    }
-                                    $nomenclatorImage->url = $uploadedUrl[$i];
-                                    $nomenclatorImage->isLocal = true;
-                                    $i++;
+
+                                    
 
                                 } else {
                                     $nomenclatorImage->url = $image['url'];
@@ -455,4 +509,37 @@ function deleteFiles(array $urls)
         $u = substr($url,strlen(SERVICEPATH));
         unlink(__DIR__ . "/../" .$u);
     }
+}
+
+function storeImage($string, $name): bool
+{
+    if (strpos($name, '.') !== false) {
+        $name = substr($name, 0, strpos($name, '.'));
+    }
+
+    $f = finfo_open();
+    $mimeType = finfo_buffer($f, $string, FILEINFO_MIME_TYPE);
+
+    $ext = '';
+    switch ($mimeType) {
+        case 'application/pdf': 
+            $ext = 'pdf';
+            break;
+        case 'image/png': 
+            $ext = 'png';
+            break;
+        case 'image/jpeg':
+            $ext=  'jpg';
+            break;
+        default:
+            return false;
+    }
+    $i = 0;
+    $fileName = $name;
+    while (file_exists( IMAGEUPLOADPATH . $fileName . '.' . $ext )) {
+        $fileName = $name . strval($i);
+        $i++;  
+    }
+    file_put_contents(IMAGEUPLOADPATH . $fileName . '.' . $ext, $string);
+    return SERVICEPATH . IMAGEUPLOADPATH . $fileName . '.' . $ext;
 }

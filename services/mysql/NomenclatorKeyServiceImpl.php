@@ -27,7 +27,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $stateQuery = "INSERT INTO nomenclatorKeyState (`state`, createdBy, createdAt, updatedAt, note) VALUES (:stateString, :createdBy, :createdAt, :updatedAt, :note)";
         $stateStm = $this->conn->prepare($stateQuery);
-        $stateStm->bindParam(':stateString', NomenclatorKeyState::STATE_NEW);
+        $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_NEW);
         $now = new DateTime();
         $stateStm->bindParam(':createdBy', $userId);
         $stateStm->bindValue(':createdAt', $now->format('Y-m-d H:i:s'));
@@ -58,15 +58,19 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':cipherType', $nomenclator->cipherType);
         $stm->bindParam(':keyType', $nomenclator->keyType);
         $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
-        $stm->bindValue(':usedTo', $nomenclator->usedFrom ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
-        $stm->bindValue(':usedTo', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
-        $stm->bindParam(':keyType', $nomenclator->placeOfCreationId);
+        $stm->bindValue(':usedTo', $nomenclator->usedTo ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
+        $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
+        $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId);
         $stm->bindParam(':groupId', $nomenclator->groupId);
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
 
         
-        $stm->execute();
+        $a = $stm->execute();
+        if (! $a) {
+            $this->conn->rollBack();
+            throw new Exception('Unable to create nomenclator key');
+        }
         $addedId = intval($this->conn->lastInsertId());
         $i=1;
         if($nomenclator->images !== null) {
