@@ -83,7 +83,7 @@ function userController()
                     }
 
                     $systemUserService = POSTSystemUserService();
-                    $addedId = $systemUserService->createSystemUser($object['username'], $object['password'], "0");
+                    $addedId = $systemUserService->createSystemUser($object['username'], $object['password'], false);
                     if ($addedId !== null && ! is_array($addedId) ) {
                         $data['id'] = $addedId;
                         post_result($data);

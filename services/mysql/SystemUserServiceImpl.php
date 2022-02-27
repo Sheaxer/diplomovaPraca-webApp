@@ -24,7 +24,7 @@ class SystemUserServiceImpl implements SystemUserService
         $stm->bindParam(':username',$userName);
         $password_hash = password_hash($password,PASSWORD_DEFAULT);
         $stm->bindParam(':passwordHash', $password_hash);
-        $stm->bindParam(':isAdmin', $isAdmin);
+        $stm->bindParam(':isAdmin', $isAdmin, PDO::PARAM_BOOL);
         $this->conn->beginTransaction();
         $result = $stm->execute();
         if (! $result) {
