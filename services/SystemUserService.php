@@ -3,7 +3,7 @@
 require_once (__DIR__ . "/../entities/SystemUser.php");
 interface SystemUserService
 {
-    public function createSystemUser(string $userName, string $password, bool $isAdmin): int;
+    public function createSystemUser(string $userName, string $password, bool $isAdmin);
 
     public function logIn(string $userName, string $password) :?array;
 
@@ -14,4 +14,6 @@ interface SystemUserService
     public function loginWithToken(string $tokenString);
 
     public function getUsernameById($id): ?string;
+
+    public function getUserIdByUsername($username);
 }

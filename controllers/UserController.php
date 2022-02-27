@@ -74,12 +74,24 @@ function userController()
                         throw new Exception("System Error");
                 } else if (strcmp($pathElements[0], "register") === 0) {
                     //$userInfo = authorize();
+                   
+                    $systemUserService = GETSystemUserService();
+
+                    $userId = $systemUserService->getUserIdByUsername($object['username']);
+                    if ($userId) {
+                        throw new Exception('User already exists');
+                    }
+
                     $systemUserService = POSTSystemUserService();
                     $addedId = $systemUserService->createSystemUser($object['username'], $object['password'], false);
-                    if ($addedId !== null) {
+                    if ($addedId !== null && ! is_array($addedId) ) {
                         $data['id'] = $addedId;
                         post_result($data);
-                    } else
+                    } else {
+                        if (is_array($addedId)) {
+                            throw new Exception($addedId[2]);
+                        }
+                    }
                         throw new Exception("System Error");
                 } 
                 else throw new RuntimeException("Incorrect URL 1");

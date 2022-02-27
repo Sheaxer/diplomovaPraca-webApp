@@ -13,7 +13,10 @@ class SystemUserServiceImpl implements SystemUserService
         $this->conn = $PDO;
     }
 
-    public function createSystemUser(string $userName, string $password, bool $isAdmin): int
+    /**
+     * @return array|int
+     */
+    public function createSystemUser(string $userName, string $password, bool $isAdmin)
     {
         $query = "INSERT INTO systemusers (username, passwordHash, `isAdmin`) VALUES (:username,:passwordHash, :isAdmin)";
         $stm = $this->conn->prepare($query);
@@ -23,7 +26,13 @@ class SystemUserServiceImpl implements SystemUserService
         $stm->bindParam(':passwordHash', $password_hash);
         $stm->bindParam(':isAdmin', $isAdmin);
         $this->conn->beginTransaction();
-        $stm->execute();
+        $result = $stm->execute();
+        if (! $result) {
+            $errCode = $this->conn->errorCode();
+            $errors = $this->conn->errorInfo();
+            $this->conn->rollBack();
+            return $errors;
+        }
         $addedId = intval($this->conn->lastInsertId());
         $this->conn->commit();
         return $addedId;
@@ -157,5 +166,15 @@ class SystemUserServiceImpl implements SystemUserService
         $stm->execute();
         $username = $stm->fetch(PDO::FETCH_COLUMN);
         return $username;
+    }
+
+    public function getUserIdByUsername($username)
+    {
+        $query = "SELECT id from systemusers WHERE username = :username";
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':username', $username);
+        $stm->execute();
+        $res = $stm->fetch(PDO::FETCH_ASSOC);
+        return $res;
     }
 }
