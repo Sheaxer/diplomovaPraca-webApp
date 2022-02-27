@@ -89,7 +89,7 @@ function userController()
                         post_result($data);
                     } else {
                         if (is_array($addedId)) {
-                            throw new Exception($addedId[2]);
+                            throw new Exception($addedId[0]);
                         }
                     }
                         throw new Exception("System Error");
