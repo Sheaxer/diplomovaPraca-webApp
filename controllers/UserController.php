@@ -37,6 +37,9 @@ function userController()
                     if ($userInfo === null)
                         throw new RuntimeException("Incorrect credentials");
                     $data= $systemUserService->createToken($userInfo['id']);
+                    if ($data) {
+                        $data['isAdmin'] = boolval( $userInfo['isAdmin']);
+                    }
                     post_result($data);
 
                 } else if (strcmp($pathElements[0], "changePassword") === 0) {

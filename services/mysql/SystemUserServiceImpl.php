@@ -31,7 +31,7 @@ class SystemUserServiceImpl implements SystemUserService
 
     public function logIn(string $userName, string $password): ?array
     {
-        $query= "SELECT id,passwordHash FROM systemusers WHERE username=:username";
+        $query= "SELECT id,passwordHash, isAdmin FROM systemusers WHERE username=:username";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':username',$userName);
 
