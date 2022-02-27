@@ -65,6 +65,15 @@ function throwException(Exception $exception)
         header('X-PHP-Response-Code: 500',true,500);
         echo (json_encode($errors));
     }
+    die();
+}
+
+function returnExceptionArray($array)
+{
+    $errors['error'] = $array;
+    header('X-PHP-Response-Code: 400',true,400);
+    echo (json_encode($errors));
+    die();
 }
 
 function post_result($result)
