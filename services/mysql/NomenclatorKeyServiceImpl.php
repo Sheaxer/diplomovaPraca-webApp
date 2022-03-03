@@ -16,7 +16,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $this->conn = $conn;
     }
 
-    public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?int
+    public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?array
     {
         if($nomenclator->signature === null)
             $nomenclator->signature = generateRandomString(6);
@@ -109,7 +109,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         }
 
         $this->conn->commit();
-        return $addedId;
+        return [
+            'id' => $addedId,
+            'stateId' => $stateId
+        ];
     }
 
     private function fillNomenclator(?array $userInfo, NomenclatorKey $nomenclatorKey): NomenclatorKey
@@ -256,6 +259,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $structureParameter = 0;
         if($structures !== null)
         {
+            $isWhereAlready = true;
             if($folderParams > 0)
                 $query .= " AND ( k.completeStructure IN (";
             else

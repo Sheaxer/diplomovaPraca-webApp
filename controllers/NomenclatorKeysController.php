@@ -75,7 +75,7 @@ function nomenclatorKeyController()
                                 $key = $nomenclatorKeyService->getNomenclatorKeyById($userInfo, intval($pathElements[1]));
                                 post_result($key);
                             } else {
-                                if (strcmp($pathElements[2], "digitalizedTranscriptions")) {
+                                if (strcmp($pathElements[2], "digitalizedTranscriptions") === 0) {
                                     $digitalizedTranscriptionService = GETDigitalizedTranscriptionService();
                                     if ($digitalizedTranscriptionService === null) {
                                         throw new Exception("System Error");
@@ -187,6 +187,10 @@ function nomenclatorKeyController()
                         else
                             $nomenclatorKey->language = null;
 
+                        if (array_key_exists('groupId', $object)) {
+                            $nomenclatorKey->groupId = $object['groupId'];
+                        }
+
                         if (array_key_exists("nomenclatorImages", $object)) {
                             $nomenclatorKey->images = array();
                             $uploadedUrl = [];
@@ -286,7 +290,7 @@ function nomenclatorKeyController()
                         $nomenclatorKeyService = POSTNomenclatorKeyService();
                         if ($nomenclatorKeyService === null)
                             throw new Exception("System Error");
-                        $addedId['id'] = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                        $addedId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
                         post_result($addedId);
                         // post to nomenclator
                     } else if (sizeof($pathElements) === 3) {

@@ -3,7 +3,7 @@
 require_once ( __DIR__ .  "/../entities/NomenclatorKey.php");
 interface NomenclatorKeyService
 {
-    public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?int;
+    public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?array;
 
     public function getNomenclatorKeyById(?array $userInfo, int $id): ?NomenclatorKey;
 

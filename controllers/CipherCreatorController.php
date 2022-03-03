@@ -291,12 +291,13 @@ function cipherCreatorController()
                 {
                     $newStr = checkForLongUnicode($pair->cipherTextUnit);
                     $pair->cipherTextUnit = $newStr;
-                    $usedChars[]= $pair->plainTextUnit;
+                    $usedChars[]= $pair->cipherTextUnit;
                 }
                 /** use unique symbols only, ; sepparated */
                 $nomenclatorKey->usedChars = implode(';', array_unique($usedChars));
                 $nomenclatorKey->cipherType='ed';
-                $newId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                $data = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                $newId = $data['id'];
                 //var_dump($transcription);
                 /*foreach ($transcription->encryptionPairs as $pair)
                 {
