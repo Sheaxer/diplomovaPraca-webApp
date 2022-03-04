@@ -344,11 +344,30 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         return $keys;
     }
 
-    public function nomenclatorKeyExistsById($keyId) :bool
+    public function nomenclatorKeyExistsById(?array $userInfo, $keyId) :bool
     {
-        $query = "SELECT 1 FROM nomenclatorKeys where id=:id";
+        $query = "SELECT 1 FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id where k.id=:id";
+        
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
+            }
+        } else {
+            $query .= " AND (s.state=:approvedState)";
+        }
+        
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id',$keyId);
+
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createById', $userInfo['id']);
+                $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
+        }
+
         $stm->execute();
         $ans = $stm->fetchColumn(0);
         if($ans === false)

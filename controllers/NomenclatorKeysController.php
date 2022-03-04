@@ -302,7 +302,7 @@ function nomenclatorKeyController()
 
 
                                 $nomenclatorKeyService = GETNomenclatorKeyService();
-                                if ($nomenclatorKeyService->nomenclatorKeyExistsById($keyId) === false)
+                                if ($nomenclatorKeyService->nomenclatorKeyExistsById($userInfo ,$keyId) === false)
                                     throw new RuntimeException("Nomenclator Key with supplied id does not exist");
 
                                 $transcription = new DigitalizedTranscription();

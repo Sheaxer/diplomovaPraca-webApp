@@ -11,7 +11,7 @@ interface NomenclatorKeyService
 
     public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array;
 
-    public function nomenclatorKeyExistsById($keyId) :bool;
+    public function nomenclatorKeyExistsById(?array $userInfo, $keyId) :bool;
 
     public function nomenclatorKeyExistsBySignature($signature):bool;
 
