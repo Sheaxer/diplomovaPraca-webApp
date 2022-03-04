@@ -165,7 +165,9 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         }
         $stm->execute();
         $nomenclatorKeyData = $stm->fetch(PDO::FETCH_ASSOC);
-       
+        if (! $nomenclatorKeyData) {
+            return null;
+        }
         $nomenclatorKey = NomenclatorKey::createFromArray($nomenclatorKeyData);
         $nomenclatorKey = $this->fillNomenclator($userInfo, $nomenclatorKey);
         return $nomenclatorKey;

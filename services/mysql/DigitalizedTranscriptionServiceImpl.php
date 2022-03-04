@@ -88,26 +88,63 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
         return $result;
     }
 
-    public function getDigitalizedTranscriptionById($id): ?DigitalizedTranscription
+    public function getDigitalizedTranscriptionById(?array $userInfo, $id): ?DigitalizedTranscription
     {
-        $query = "SELECT * FROM digitalizedtranscriptions WHERE id=:id";
+        $query = "SELECT n.* FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id  WHERE n.id=:id";
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createdBy OR s.`state` = :approvedState)";
+            }
+        } else {
+            $query .= " AND s.`state` = :approvedState";
+        }
+        
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id',$id);
+
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createdBy', $userInfo['id']);
+                $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+        }
+
+
         $stm->execute();
         $res = $stm->fetchObject('DigitalizedTranscription');
         if($res instanceof DigitalizedTranscription)
         {
-            $res->encryptionPairs = $this->getEncryptionPairsByTranscriptionId($id);
+            $res->encryptionPairs = $this->getEncryptionPairsByTranscriptionId($userInfo, $id);
             return $res;
         }
         return null;
     }
 
-    public function getEncryptionPairsByTranscriptionId(int $id): ?array
+    public function getEncryptionPairsByTranscriptionId(?array $userInfo, int $id): ?array
     {
-        $query = "SELECT plainTextUnit, cipherTextUnit FROM encryptionpairs WHERE digitalizedTranscriptionId=:id";
+        $query = "SELECT e.plainTextUnit, e.cipherTextUnit FROM encryptionpairs e INNER JOIN digitalizedtranscriptions n ON e.digitalizedTranscriptionId = n.id INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE e.digitalizedTranscriptionId=:id";
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query .= " AND (s.createdBy = :createdBy OR s.`state` = :approvedState)";
+            }
+        } else {
+            $query .= " AND s.`state` = :approvedState";
+        }
+
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id', $id);
+
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm->bindParam(':createdBy', $userInfo['id']);
+                $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+        }
+
         $stm->execute();
         $data = $stm->fetchAll(PDO::FETCH_ASSOC);
         if ($data === null | $data === false)
@@ -115,9 +152,9 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
         return $data;
     }
 
-    public function getEncryptionKeyByTranscriptionId(int $id): ?array
+    public function getEncryptionKeyByTranscriptionId(?array $userInfo, int $id): ?array
     {
-        $data = $this->getEncryptionPairsByTranscriptionId($id);
+        $data = $this->getEncryptionPairsByTranscriptionId($userInfo, $id);
         if($data === null)
             return null;
         $result = array();
@@ -132,9 +169,9 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
         return $result;
     }
 
-    public function getDecryptionKeyByTranscriptionId(int $id): ?array
+    public function getDecryptionKeyByTranscriptionId(?array $userInfo, int $id): ?array
     {
-        $data = $this->getEncryptionPairsByTranscriptionId($id);
+        $data = $this->getEncryptionPairsByTranscriptionId($userInfo, $id);
         if($data === null)
             return null;
         $result = array();
@@ -145,12 +182,31 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
         return $result;
     }
 
-    public function getAllTranscriptions(): ?array
+    public function getAllTranscriptions(?array $userInfo): ?array
     {
-        $query1 = "SELECT id, digitalizationDate, digitalizationVersion, nomenclatorKeyId FROM digitalizedtranscriptions";
+        $query1 = "SELECT n.id as id, n.digitalizationDate as digitalizationDate, n.digitalizationVersion as digitalizationVersion, n.nomenclatorKeyId as nomenclatorKeyId FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $query1 .= " WHERE (s.createdBy = :createdBy OR s.`state` = :approvedState)";
+            }
+        } else {
+            $query1 .= " WHERE s.`state` = :approvedState";
+        }
+        
         $stm1 = $this->conn->prepare($query1);
+
+        if ($userInfo) {
+            if (! $userInfo['isAdmin']) {
+                $stm1->bindParam(':createdBy', $userInfo['id']);
+                $stm1->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+            }
+        } else {
+            $stm1->bindValue(':approvedState', NomenclatorKeyState::STATE_APPROVED);
+        }
+
         $stm1->execute();
         $data = $stm1->fetchAll(PDO::FETCH_ASSOC);
+
         $query2 = "SELECT id,folder,signature,completeStructure FROM nomenclatorKeys WHERE id=:id";
 
         $stm2 = $this->conn->prepare($query2);

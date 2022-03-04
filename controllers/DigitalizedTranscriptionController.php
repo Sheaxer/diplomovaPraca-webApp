@@ -19,14 +19,14 @@ function digitalizedTranscriptionController()
                         $transcriptionService = GETDigitalizedTranscriptionService();
 
                         if (sizeof($pathElements) === 2) {
-                            $data = $transcriptionService->getDigitalizedTranscriptionById($transcriptionId);
+                            $data = $transcriptionService->getDigitalizedTranscriptionById($userInfo, $transcriptionId);
                             post_result($data);
                         } else {
                             if (strcmp($pathElements[2], "encryptionKey") === 0) {
-                                $data = $transcriptionService->getEncryptionKeyByTranscriptionId($transcriptionId);
+                                $data = $transcriptionService->getEncryptionKeyByTranscriptionId($userInfo, $transcriptionId);
                                 post_result($data);
                             } else if (strcmp($pathElements[2], "decryptionKey") === 0) {
-                                $data = $transcriptionService->getDecryptionKeyByTranscriptionId($transcriptionId);
+                                $data = $transcriptionService->getDecryptionKeyByTranscriptionId($userInfo, $transcriptionId);
                                 post_result($data);
                             } else if (strcmp($pathElements[2], "cipherCreator") === 0) {
                                 {
@@ -40,7 +40,7 @@ function digitalizedTranscriptionController()
                 } else if(sizeof($pathElements) === 1)
                 {
                     $transcriptionService = GETDigitalizedTranscriptionService();
-                    $data = $transcriptionService->getAllTranscriptions();
+                    $data = $transcriptionService->getAllTranscriptions($userInfo);
                     post_result($data);
                 }
 
@@ -59,7 +59,7 @@ function digitalizedTranscriptionToCipherCreator(?array $userInfo, int $transcri
     require_once (__DIR__ . "/../entities/NomenclatorKey.php");
 
     $transcriptionService = GETDigitalizedTranscriptionService();
-    $transcription = $transcriptionService->getDigitalizedTranscriptionById($transcriptionId);
+    $transcription = $transcriptionService->getDigitalizedTranscriptionById($userInfo, $transcriptionId);
     if($transcription === null)
         return null;
 
@@ -113,7 +113,7 @@ function digitalizedTranscriptionToCipherCreator(?array $userInfo, int $transcri
             }
         }
     }
-    $encKey = $transcriptionService->getEncryptionKeyByTranscriptionId($transcriptionId);
+    $encKey = $transcriptionService->getEncryptionKeyByTranscriptionId($userInfo, $transcriptionId);
     foreach ($encKey as $p => $c)
     {
        if(strlen($p) === 0)
