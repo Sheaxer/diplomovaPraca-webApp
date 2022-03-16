@@ -19,8 +19,8 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
         $stm = $this->conn->prepare($query);
         $countQuery = "SELECT COUNT(*) from places";
         $offset = ($page - 1) * $limit;
-        $stm->bindParam(':offset', $offset);
-        $stm->bindParam(':pageLimit', $limit);
+        $stm->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stm->bindParam(':pageLimit', $limit, PDO::PARAM_INT);
         $stm->execute();
         $countStm = $this->conn->prepare($countQuery);
         $countStm->execute();
@@ -47,5 +47,29 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
         $stm->setFetchMode(PDO::FETCH_CLASS, 'Place');
         $stm->execute();
         return $stm->fetch();
+    }
+
+    public function createPlace($name): array
+    {
+        $query = 'INSERT INTO places (`name`) VALUES (:placeName)';
+        $this->conn->beginTransaction();
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':placeName', $name);
+        $wasSuccess = $stm->execute();
+        if ($wasSuccess) {
+            $addedId = $this->conn->lastInsertId();
+            $this->conn->commit();
+            return [
+                'success' => true,
+                'id'      => $addedId,
+            ];
+        } else {
+            $errors = $this->conn->errorInfo();
+            return [
+                'success' => false,
+                'error'   => $errors[2],
+            ];
+        }
+        
     }
 }

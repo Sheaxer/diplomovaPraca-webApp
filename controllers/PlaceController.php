@@ -33,6 +33,27 @@ function placeController()
                 $places = $placeService->getAllPlaces($limit, $page);
                 post_result($places);
                 break;
+            case "POST":
+                $object = getData();
+                if($object === null)
+                    throw new Exception("No data");
+                $userInfo = authorize();
+                if (! $userInfo) {
+                    throw new AuthorizationException("Not authorized");
+                }
+                if (! array_key_exists('name', $object)) {
+                    throw new Exception("Name missing");
+                }
+                $placeService = POSTNomenclatorPlaceService();
+                $result = $placeService->createPlace($object['name']);
+                if ($result['success']) {
+                    post_result([
+                        'id' => $result['id'],
+                    ]);
+                } else {
+                    throw new Exception($result['error']);
+                }
+                break;
             default:
                 throw new RuntimeException("Only GET method allowed for this endpoint");
         }
