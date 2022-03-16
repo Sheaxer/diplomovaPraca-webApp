@@ -22,8 +22,16 @@ function keyUsersController()
                             post_result(stripNullsFromObject($user));
                             exit();
                         }
-                        $keyUsers = $keyUserService->getAllKeyUsers();
-                        post_result(stripNullsFromArray($keyUsers));
+                        $page = 1;
+                        $limit = KeyUser::DEFAULT_LIMIT;
+                        if (isset($_GET['limit']) && !empty($_GET['limit']) && $_GET['limit'] != null ) {
+                            $limit = intval($_GET['limit']);
+                        }
+                        if (isset($_GET['page']) && !empty($_GET['page']) && $_GET['page'] != null ) {
+                            $limit = intval($_GET['page']);
+                        }
+                        $keyUsers = $keyUserService->getAllKeyUsers($page, $limit);
+                        post_result($keyUsers);
                         exit();
                     }
 

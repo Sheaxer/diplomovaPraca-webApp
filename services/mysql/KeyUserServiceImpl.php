@@ -83,14 +83,27 @@ class KeyUserServiceImpl implements KeyUserService
         return $users;
     }
 
-    public function getAllKeyUsers(): ?array
+    public function getAllKeyUsers($page, $limit): ?array
     {
-        $q = "SELECT * from keyusers";
+        $q = "SELECT * from keyusers LIMIT :offset, :pageLimit";
+        $countQuery = "SELECT COUNT(*) from keyusers";
         $stm = $this->conn->prepare($q);
+        $countStm = $this->conn->prepare($countQuery);
+        $countStm->execute();
+        $count = intval($countStm->fetchColumn(0));
+        $offset = ($page-1)*$limit;
+        $stm->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stm->bindParam(':pageLimit', $limit, PDO::PARAM_INT);
         $stm->execute();
         $res = $stm->fetchAll(PDO::FETCH_CLASS,"KeyUser");
-        if($res === false)
-            return null;
-        return $res;
+        $isNextPage = false;
+        if (($offset + $limit) < $count) {
+            $isNextPage = true;
+        }
+        return [
+            'count'    => $count,
+            'nextPage' => $isNextPage,
+            'items'    => $res,
+        ];
     }
 }

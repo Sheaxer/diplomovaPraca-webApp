@@ -10,5 +10,5 @@ interface KeyUserService
 
     public function getKeyUsersByNomenclatorKeyId(int $id): ?array;
 
-    public function getAllKeyUsers() : ?array;
+    public function getAllKeyUsers($page, $limit) : ?array;
 }
