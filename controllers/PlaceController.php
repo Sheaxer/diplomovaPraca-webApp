@@ -10,13 +10,13 @@ function placeController()
 {
     $pathElements = getPathElements();
     $headers = apache_request_headers();
-
     try {
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
                 $page = 1;
+                $pathParams = [];
                 $limit = Place::LIMIT;
-                if (sizeof($pathElements[0]) > 8 ) {
+                if (strlen($pathElements[0]) > 8 ) {
                     if ($pathElements[0][7] == '?') {
                         $pathParams = explode("&", substr($pathElements[0], 8));
                     }

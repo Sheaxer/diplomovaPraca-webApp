@@ -17,11 +17,26 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
     {
         $query = "SELECT * from places LIMIT :offset, :pageLimit";
         $stm = $this->conn->prepare($query);
+        $countQuery = "SELECT COUNT(*) from places";
         $offset = ($page - 1) * $limit;
         $stm->bindParam(':offset', $offset);
         $stm->bindParam(':pageLimit', $limit);
         $stm->execute();
-        return $stm->fetchAll(PDO::FETCH_CLASS, 'Place');
+        $countStm = $this->conn->prepare($countQuery);
+        $countStm->execute();
+        $count = $countStm->fetchColumn(0);
+        $places = $stm->fetchAll(PDO::FETCH_CLASS, 'Place');
+        $end = $offset + $limit;
+        $isNextPage = false;
+        if ($end < $count) {
+            $isNextPage = true;
+        }
+
+        return [
+            'count' => $count,
+            'nextPage' => $isNextPage,
+            'items' => $places,
+        ];
     }
 
     public function getPlaceById($id): ?Place
