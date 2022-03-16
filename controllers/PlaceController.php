@@ -13,34 +13,41 @@ function placeController()
     try {
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
-               
-                $page = 1;
-                $pathParams = [];
-                $limit = Place::LIMIT;
-                $name = null;
-                if (strlen($pathElements[0]) > 8 ) {
-                    if ($pathElements[0][6] == '?') {
-                        $pathParams = explode("&", substr($pathElements[0], 7));
+                if (sizeof($pathElements) == 1) {
+                    $page = 1;
+                    $pathParams = [];
+                    $limit = Place::LIMIT;
+                    $name = null;
+                    if (strlen($pathElements[0]) > 8 ) {
+                        if ($pathElements[0][6] == '?') {
+                            $pathParams = explode("&", substr($pathElements[0], 7));
+                        }
                     }
-                }
-                foreach ($pathParams as $pathParam) {
-                    if (substr_compare($pathParam, "page=", 0,5) === 0) {
-                        $page = intval(substr($pathParam, 5));
+                    foreach ($pathParams as $pathParam) {
+                        if (substr_compare($pathParam, "page=", 0,5) === 0) {
+                            $page = intval(substr($pathParam, 5));
+                        }
+                        else if (substr_compare($pathParam, "limit=", 0, 6) === 0) {
+                            $limit = intval(substr($pathParam, 6));
+                        } else if (substr_compare($pathParam, "name=", 0, 5) === 0) {
+                            $name = substr($pathParam, 5);
+                        }
                     }
-                    else if (substr_compare($pathParam, "limit=", 0, 6) === 0) {
-                        $limit = intval(substr($pathParam, 6));
-                    } else if (substr_compare($pathParam, "name=", 0, 5) === 0) {
-                        $name = substr($pathParam, 5);
+                    $placeService = GETNomenclatorPlaceService();
+                    if ($name) {
+                        $place = $placeService->getPlaceByName($name);
+                        post_result($place);
+                    } else {
+                        $places = $placeService->getAllPlaces($limit, $page);
+                        post_result($places);
                     }
-                }
-                $placeService = GETNomenclatorPlaceService();
-                if ($name) {
-                    $place = $placeService->getPlaceByName($name);
-                    post_result($place);
                 } else {
-                    $places = $placeService->getAllPlaces($limit, $page);
-                    post_result($places);
+                    $id = intval ($pathElements[1]);
+                    $placeService = GETNomenclatorPlaceService();
+                    $place = $placeService->getPlaceById($id);
+                    post_result($place);
                 }
+
                 break;
             case "POST":
                 $object = getData();
