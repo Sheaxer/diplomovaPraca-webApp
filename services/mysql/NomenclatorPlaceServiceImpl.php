@@ -72,4 +72,31 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
         }
         
     }
+
+    public function getPlaceByName($name): ?Place
+    {
+        $query = "SELECT * from places WHERE `name` = :placeName LIMIT 1";
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':placeName', $name);
+        $stm->setFetchMode(PDO::FETCH_CLASS, 'Place');
+        $stm->execute();
+        $place = $stm->fetch();
+        if ($place) {
+            return $place;
+        }
+        return null;
+    }
+
+    public function placeExists($name): bool
+    {
+        $query = "SELECT COUNT(id) from places WHERE `name` = :placeName LIMIT 1";
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':placeName', $name);
+        $stm->execute();
+        $res = $stm->fetchColumn(0);
+        if ($res) {
+            return true;
+        }
+        return false;
+    }
 }

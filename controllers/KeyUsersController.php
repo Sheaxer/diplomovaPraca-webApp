@@ -42,6 +42,9 @@ function keyUsersController()
                 break;
             case "POST":
                 $userInfo = authorize();
+                if (! $userInfo) {
+                    throw new AuthorizationException('Not authorized');
+                }
                 $object = getData();
                 if($object === null)
                     throw new RuntimeException("No data provided");
