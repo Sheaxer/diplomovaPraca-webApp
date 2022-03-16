@@ -205,7 +205,9 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array
     {
-        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
+        $selectQuery = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note ";
+        $countQuery  ="SELECT COUNT(k.id) ";
+        $query = "FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
         $wasNullFolder = false;
         $folderParams = 0;
         $removedNullFolders = array();
@@ -298,15 +300,18 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $query .= ' WHERE ( s.state = :approvedState)';
             }
         }
-
+        $countQuery.= $query;
+        $query =  $selectQuery . $query;
         $query .= " LIMIT :offset, :pageLimit";
         //var_dump($query);
         $stm = $this->conn->prepare($query);
+        $countStm = $this->conn->prepare($countQuery);
         if(!empty($removedNullFolders))
         {
             for ($i =0; $i<$folderParams; $i++)
             {
                 $stm->bindParam(":folder" . strval($i), $removedNullFolders[$i]);
+                $countStm->bindParam(":folder" . strval($i), $removedNullFolders[$i]);
             }
 
         }
@@ -315,23 +320,29 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             for ($i = 0; $i < $structureParameter; $i++)
             {
                 $stm->bindParam(":structure" . strval($i), $structures[$i]);
+                $countStm->bindParam(":structure" . strval($i), $structures[$i]);
             }
         }
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $stm->bindParam(":createdById", $userInfo['id']);
                 $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
+                $countStm->bindParam(":createdById", $userInfo['id']);
+                $countStm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
             }
         } else {
             $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
+            $countStm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
         }
         $offset = ($page - 1) * $limit;
         $stm->bindParam(":offset", $offset, PDO::PARAM_INT);
         $stm->bindParam(":pageLimit", $limit, PDO::PARAM_INT);
         
         $stm->execute();
-
+        $countStm->execute();
         $nomenclatorKeysData = $stm->fetchAll(PDO::FETCH_ASSOC);
+        $count = $countStm->fetchColumn(0);
+        
         if($nomenclatorKeysData === false)
             return null;
         $keys = array();
@@ -341,7 +352,16 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             //$nomKey = NomenclatorKey::createFromArray($key);
             array_push($keys,$this->fillNomenclator($userInfo, $nomenclatorKey));
         }
-        return $keys;
+        $isNextPage = false;
+        $end = $offset + $limit;
+        if ($end < $count) {
+            $isNextPage = true;
+        } 
+        return [
+            'count' => $count,
+            'nextPage' => $isNextPage,
+            'items' => $keys,
+        ];
     }
 
     public function nomenclatorKeyExistsById(?array $userInfo, $keyId) :bool
