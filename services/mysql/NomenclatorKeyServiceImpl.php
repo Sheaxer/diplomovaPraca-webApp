@@ -36,8 +36,16 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $this->conn->beginTransaction();
         
-        $stateStm->execute();
+        $wasSuccessful = $stateStm->execute();
         $stateId = intval($this->conn->lastInsertId());
+
+        if (! $wasSuccessful || !$stateId) {
+            $response = [
+                'exception' => $this->conn->errorInfo()[2]
+            ];
+            $this->conn->rollBack();
+            return $response;
+        }
         
         $query = "INSERT INTO nomenclatorKeys (folder, `signature`, completeStructure, `language`, 
             stateId, usedChars,  cipherType, keyType, usedFrom, usedTo, usedAround, 
@@ -474,5 +482,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->execute();
 
         return $stm->fetchObject('NomenclatorKeyState');
+    }
+
+    public function updateNomenclatorKey(NomenclatorKey $nomenclatorKey)
+    {
+        //$query = 'UPDATE nomenclatorKeys SET '
     }
 }

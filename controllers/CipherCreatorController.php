@@ -297,6 +297,9 @@ function cipherCreatorController()
                 $nomenclatorKey->usedChars = implode(';', array_unique($usedChars));
                 $nomenclatorKey->cipherType='ed';
                 $data = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                if (! isset($data['id'])) {
+                    throw new Exception($data['exception']);
+                }
                 $newId = $data['id'];
                 //var_dump($transcription);
                 /*foreach ($transcription->encryptionPairs as $pair)

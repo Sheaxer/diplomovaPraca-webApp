@@ -92,7 +92,8 @@ function nomenclatorKeyController()
                     throw new Exception("Incorrect URL");
                 break;
             case "POST":
-                if (strcmp(substr($pathElements[0], 0, 15), "nomenclatorKeys") === 0) {
+
+                if ( strcmp(substr($pathElements[0], 0, 15), "nomenclatorKeys") === 0) {
 
                     $object = getData();
                     if($object === null)
@@ -129,7 +130,17 @@ function nomenclatorKeyController()
                         }
                     } 
 
-                    if (sizeof($pathElements) === 1) {
+                    if (sizeof($pathElements) === 1 || sizeof($pathElements) === 2) {
+                        $nomenclatorKeyId = null;
+                        if (sizeof($pathElements) == 2) {
+                            if (is_numeric($pathElements[1])) {
+                                if (! $userInfo['isAdmin']) {
+                                    throw new AuthorizationException('Only admin can edit the nomenclator key');
+                                }
+                                $nomenclatorKeyId = intval($pathElements[1]);
+                            } else throw new Exception('Invalid id');
+
+                        }
                         //if ()
                         //xdebug_break();
                         $nomenclatorKey = new NomenclatorKey();
@@ -288,9 +299,20 @@ function nomenclatorKeyController()
                         }
                            
                         $nomenclatorKeyService = POSTNomenclatorKeyService();
+
+                       
+
                         if ($nomenclatorKeyService === null)
                             throw new Exception("System Error");
+                        
+                            /*if ($nomenclatorKeyId) {
+                                $nomenclatorKey->id = $nomenclatorKeyId;
+                                $nomenclatorKeyService->updateNomenclatorKeyState();
+                            }*/
                         $addedId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                        if (isset ($addedId['exception'])) {
+                            throw new Exception($addedId['exception']);
+                        }
                         post_result($addedId);
                         // post to nomenclator
                     } else if (sizeof($pathElements) === 3) {
