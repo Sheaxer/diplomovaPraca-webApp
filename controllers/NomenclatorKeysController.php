@@ -309,6 +309,7 @@ function nomenclatorKeyController()
                                 $nomenclatorKey->id = $nomenclatorKeyId;
                                 $nomenclatorKeyService->updateNomenclatorKeyState();
                             }*/
+                        xdebug_break();
                         $addedId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
                         if (isset ($addedId['exception'])) {
                             throw new Exception($addedId['exception']);

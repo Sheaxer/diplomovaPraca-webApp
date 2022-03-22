@@ -119,7 +119,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $this->conn->commit();
         return [
             'id' => $addedId,
-            'stateId' => $stateId
+            'stateId' => intval($stateId)
         ];
     }
 
