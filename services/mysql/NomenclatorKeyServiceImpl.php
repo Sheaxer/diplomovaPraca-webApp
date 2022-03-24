@@ -72,13 +72,13 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':groupId', $nomenclator->groupId);
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
-
         
         $a = $stm->execute();
         if (! $a) {
+            
+            $err = $this->conn->errorInfo();
             $this->conn->rollBack();
-            $err = $this->conn->errorInfo()[2];
-            throw new Exception($err);
+            throw new Exception('Unable to create nomenclator key ' . $err[2]);
         }
         $addedId = intval($this->conn->lastInsertId());
         $i=1;
