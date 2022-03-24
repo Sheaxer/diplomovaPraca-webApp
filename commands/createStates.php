@@ -21,7 +21,7 @@ $stm->execute();
 $ids = $stm->fetchAll(PDO::FETCH_COLUMN);
 var_dump($ids);
 
-$query2 = "INSERT INTO nomenclatorKeyState (`state`, createdBy, note) VALUES (:st, :createdBy, :note)";
+$query2 = "INSERT INTO nomenclatorkeystate (`state`, createdBy, note) VALUES (:st, :createdBy, :note)";
 $stm2 = $postService->prepare($query2);
 $stm2->bindValue(':st', NomenclatorKeyState::STATE_NEW);
 $stm2->bindValue(':createdBy', intval($userId));

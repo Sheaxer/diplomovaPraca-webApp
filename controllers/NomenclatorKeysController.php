@@ -37,7 +37,7 @@ function nomenclatorKeyController()
                         $folders = array();
                         $structures = array();
                         $signatures = array();
-                        $limit = NomenclatorKey::LIMIT;
+                        $limit = null;
                         $page = 1;
                        // xdebug_break();
                         //var_dump($_GET['folder']);

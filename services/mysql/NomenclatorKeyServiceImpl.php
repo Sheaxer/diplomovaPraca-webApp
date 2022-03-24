@@ -25,7 +25,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $nomenclator->signature .= generateRandomString(1);
         }
 
-        $stateQuery = "INSERT INTO nomenclatorKeyState (`state`, createdBy, createdAt, updatedAt, note) VALUES (:stateString, :createdBy, :createdAt, :updatedAt, :note)";
+        $stateQuery = "INSERT INTO nomenclatorkeystate (`state`, createdBy, createdAt, updatedAt, note) VALUES (:stateString, :createdBy, :createdAt, :updatedAt, :note)";
         $stateStm = $this->conn->prepare($stateQuery);
         $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_NEW);
         $now = new DateTime();
@@ -153,7 +153,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyById(?array $userInfo, int $id): ?NomenclatorKey
     {
-        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id=:id";
+        $query = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorkeystate s ON k.stateId = s.id WHERE k.id=:id";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -183,7 +183,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyBySignature(?array $userInfo, string $signature): ?NomenclatorKey
     {
-        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE signature=:signature";
+        $query = "SELECT k.*,  s.state, s.createdBy, s.createdAt, s.updatedAt, s.note FROM nomenclatorKeys k INNER JOIN nomenclatorkeystate s ON k.stateId = s.id WHERE signature=:signature";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -215,7 +215,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
     {
         $selectQuery = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note ";
         $countQuery  ="SELECT COUNT(k.id) ";
-        $query = "FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
+        $query = "FROM nomenclatorKeys k INNER JOIN nomenclatorkeystate s ON k.stateId = s.id";
         $wasNullFolder = false;
         $folderParams = 0;
         $removedNullFolders = array();
@@ -310,7 +310,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         }
         $countQuery.= $query;
         $query =  $selectQuery . $query;
-        $query .= " LIMIT :offset, :pageLimit";
+        if ($limit) {
+            $query .= " LIMIT :offset, :pageLimit";
+        }
+       
         //var_dump($query);
         $stm = $this->conn->prepare($query);
         $countStm = $this->conn->prepare($countQuery);
@@ -342,9 +345,11 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $stm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
             $countStm->bindValue(":approvedState", NomenclatorKeyState::STATE_APPROVED);
         }
-        $offset = ($page - 1) * $limit;
-        $stm->bindParam(":offset", $offset, PDO::PARAM_INT);
-        $stm->bindParam(":pageLimit", $limit, PDO::PARAM_INT);
+        if ($limit) {
+            $offset = ($page - 1) * $limit;
+            $stm->bindParam(":offset", $offset, PDO::PARAM_INT);
+            $stm->bindParam(":pageLimit", $limit, PDO::PARAM_INT);
+        }
         
         $stm->execute();
         $countStm->execute();
@@ -361,10 +366,13 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             array_push($keys,$this->fillNomenclator($userInfo, $nomenclatorKey));
         }
         $isNextPage = false;
-        $end = $offset + $limit;
-        if ($end < $count) {
-            $isNextPage = true;
-        } 
+        if ($limit) {
+            $end = $offset + $limit;
+            if ($end < $count) {
+                $isNextPage = true;
+            }
+        }
+       
         return [
             'count' => $count,
             'nextPage' => $isNextPage,
@@ -374,7 +382,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function nomenclatorKeyExistsById(?array $userInfo, $keyId) :bool
     {
-        $query = "SELECT 1 FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id where k.id=:id";
+        $query = "SELECT 1 FROM nomenclatorKeys k INNER JOIN nomenclatorkeystate s ON k.stateId = s.id where k.id=:id";
         
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
@@ -421,7 +429,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             return false;
         $nomeclatorStateId = null;
         if ($nomenclatorId) {
-            $query = "SELECT s.id FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE k.id = :nomeclatorKeyId";
+            $query = "SELECT s.id FROM nomenclatorKeys k INNER JOIN nomenclatorkeystate s ON k.stateId = s.id WHERE k.id = :nomeclatorKeyId";
             $stm = $this->conn->prepare($query);
             $stm->bindParam(':nomeclatorKeyId', $nomenclatorId, PDO::PARAM_INT);
             $stm->execute();
@@ -431,7 +439,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             }
         }
         if ($stateId) {
-            $query2 = "UPDATE nomenclatorKeyState SET `state`=:stateString, note= :note, updatedAt = :updatedAt";
+            $query2 = "UPDATE nomenclatorkeystate SET `state`=:stateString, note= :note, updatedAt = :updatedAt";
             $stm2 = $this->conn->prepare($query2);
             $stm2->bindParam(':stateString', $state);
             $stm2->bindParam(':note', $note);
@@ -446,7 +454,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenclatorKeyState(?array $userInfo, $nomenclatorId, $stateId): ?NomenclatorKeyState
     {
-        $query = "SELECT s.* FROM nomenclatorKeys k INNER JOIN nomenclatorKeyState ON k.stateId = s.id WHERE ";
+        $query = "SELECT s.* FROM nomenclatorKeys k INNER JOIN nomenclatorkeystate ON k.stateId = s.id WHERE ";
         if ($nomenclatorId) {
             $query .= "k.id = :nomenclatorKeyId";
         } else if ($stateId) {
@@ -484,8 +492,30 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         return $stm->fetchObject('NomenclatorKeyState');
     }
 
-    public function updateNomenclatorKey(NomenclatorKey $nomenclatorKey)
+    public function updateNomenclatorKey(NomenclatorKey $nomenclator)
     {
-        //$query = 'UPDATE nomenclatorKeys SET '
+        $query = "UPDATE nomenclatorkeys SET folder = :folder, `signature` = :signatureStr, 
+        completeStructure = :completeStructure, `language` = :lang, 
+            usedChars = :usedChars,  cipherType = :cipherType, keyType = :keyType, 
+            usedFrom = :usedFrom, usedTo = :usedTo, usedAround = :usedAround , 
+            placeOfCreation = :placeOfCreation, groupId = :groupId 
+            WHERE id = :id";
+
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':folder',$nomenclator->folder);
+        $stm->bindParam(':signatureStr',$nomenclator->signature);
+        $stm->bindParam(':completeStructure',$nomenclator->completeStructure);
+        //$date = date("Y-m-d H:i:s");
+        //$stm->bindParam(':date', $date);
+        $stm->bindParam(":lang",$nomenclator->language);
+        $stm->bindParam(':usedChars', $nomenclator->usedChars);
+        $stm->bindParam(':cipherType', $nomenclator->cipherType);
+        $stm->bindParam(':keyType', $nomenclator->keyType);
+        $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
+        $stm->bindValue(':usedTo', $nomenclator->usedTo ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
+        $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
+        $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId);
+        $stm->bindParam(':groupId', $nomenclator->groupId);
+        $stm->bindParam(':id', $nomenclator->id);
     }
 }

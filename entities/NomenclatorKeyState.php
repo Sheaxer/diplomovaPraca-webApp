@@ -2,7 +2,7 @@
 
 class NomenclatorKeyState
 {
-    const TABLE_NAME = 'nomenclatorKeyState';
+    const TABLE_NAME = 'nomenclatorkeystate';
 
     const STATE_APPROVED = 'approved';
     const STATE_DELETED  = 'deleted';

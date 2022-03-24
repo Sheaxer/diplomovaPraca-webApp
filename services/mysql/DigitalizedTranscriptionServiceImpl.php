@@ -62,7 +62,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
     public function getDigitalizedTranscriptionsOfNomenclator(?array $userInfo, int $nomenclatorId): ?array
     {
         $query = "SELECT n.id as id, n.digitalizationVersion as digitalizationVersions, n.note as note, n.digitalizationDate as digitalizationDate, u.username as uploadedBy 
-         FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id inner join systemusers u on s.createdBy = u.id WHERE nomenclatorKeyId=:nomenclatorKeyId";
+         FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorkeystate s ON k.stateId = s.id inner join systemusers u on s.createdBy = u.id WHERE nomenclatorKeyId=:nomenclatorKeyId";
         
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
@@ -90,7 +90,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
     public function getDigitalizedTranscriptionById(?array $userInfo, $id): ?DigitalizedTranscription
     {
-        $query = "SELECT n.* FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id  WHERE n.id=:id";
+        $query = "SELECT n.* FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorkeystate s ON k.stateId = s.id  WHERE n.id=:id";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createdBy OR s.`state` = :approvedState)";
@@ -124,7 +124,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
     public function getEncryptionPairsByTranscriptionId(?array $userInfo, int $id): ?array
     {
-        $query = "SELECT e.plainTextUnit, e.cipherTextUnit FROM encryptionpairs e INNER JOIN digitalizedtranscriptions n ON e.digitalizedTranscriptionId = n.id INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id WHERE e.digitalizedTranscriptionId=:id";
+        $query = "SELECT e.plainTextUnit, e.cipherTextUnit FROM encryptionpairs e INNER JOIN digitalizedtranscriptions n ON e.digitalizedTranscriptionId = n.id INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorkeystate s ON k.stateId = s.id WHERE e.digitalizedTranscriptionId=:id";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createdBy OR s.`state` = :approvedState)";
@@ -184,7 +184,7 @@ VALUES (:nomenclatorKeyId,:digitalizationVersion,:note,:digitalizationDate,:crea
 
     public function getAllTranscriptions(?array $userInfo): ?array
     {
-        $query1 = "SELECT n.id as id, n.digitalizationDate as digitalizationDate, n.digitalizationVersion as digitalizationVersion, n.nomenclatorKeyId as nomenclatorKeyId FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorKeyState s ON k.stateId = s.id";
+        $query1 = "SELECT n.id as id, n.digitalizationDate as digitalizationDate, n.digitalizationVersion as digitalizationVersion, n.nomenclatorKeyId as nomenclatorKeyId FROM digitalizedtranscriptions n INNER JOIN nomenclatorKeys k ON n.nomenclatorKeyId = k.id INNER JOIN nomenclatorkeystate s ON k.stateId = s.id";
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query1 .= " WHERE (s.createdBy = :createdBy OR s.`state` = :approvedState)";
