@@ -77,7 +77,8 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $a = $stm->execute();
         if (! $a) {
             $this->conn->rollBack();
-            throw new Exception('Unable to create nomenclator key');
+            $err = $this->conn->errorInfo()[2];
+            throw new Exception($err);
         }
         $addedId = intval($this->conn->lastInsertId());
         $i=1;
