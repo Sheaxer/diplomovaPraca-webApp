@@ -22,7 +22,7 @@ class NomenclatorImageServiceImpl implements NomenclatorImageService
         $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId, PDO::PARAM_INT);
         $stm->bindParam(':isLocal',$nomenclatorImage->isLocal, PDO::PARAM_BOOL);
         $stm->bindParam(':structure',$nomenclatorImage->structure);
-        $stm->bindParam(':ord', $ord);
+        $stm->bindParam(':ord', $ord, PDO::PARAM_INT);
         $stm->bindParam(':hasInstructions',$nomenclatorImage->hasInstructions, PDO::PARAM_BOOL);
         $stm->execute();
     }
