@@ -10,6 +10,8 @@ require_once (__DIR__ . "/controllers/KeyUsersController.php");
 require_once (__DIR__ . "/controllers/CipherCreatorController.php");
 require_once (__DIR__ . "/controllers/PlaceController.php");
 
+require_once (__DIR__ . "/controllers/NomenclatorImageController.php");
+
 $path = getPathElements();
 if(isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] !== null && !empty($_SERVER['HTTP_ORIGIN']))
     header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
@@ -32,6 +34,9 @@ else if(strcmp(substr($path[0],0,8),"keyUsers") === 0)
     keyUsersController();
 else if(strcmp(substr($path[0],0,6), "places") === 0)
     placeController();
+else if(strcmp(substr($path[0], 0, 20), "nomenclatorKeyImages") === 0) {
+    imageController();
+}
 else
     if(strcmp($path[0],"cipherCreator") === 0)
         cipherCreatorController();
