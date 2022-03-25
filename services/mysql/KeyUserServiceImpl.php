@@ -30,9 +30,9 @@ class KeyUserServiceImpl implements KeyUserService
     {
         $query = "INSERT INTO nomenclatorkeyusers (userId, nomenclatorKeyId, isMainUser) VALUES (:userId, :nomenclatorKeyId, :isMainUser)";
         $stm = $this->conn->prepare($query);
-        $stm->bindParam(':userId',$id);
-        $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId);
-        $stm->bindParam(':isMainUser', $isMainUser);
+        $stm->bindParam(':userId',$id, PDO::PARAM_INT);
+        $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId, PDO::PARAM_INT);
+        $stm->bindParam(':isMainUser', $isMainUser, PDO::PARAM_BOOL);
         $stm->execute();
     }
 
