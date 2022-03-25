@@ -110,8 +110,6 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                             $userId = $u->id;
                         }
                     }
-
-
                     if($userId !== null)
                         $keyUserService->assignKeyUserToNomenclatorKey($userId, $addedId, $user->isMainUser);
                 }
