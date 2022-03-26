@@ -12,6 +12,7 @@ require_once (__DIR__ . "/../services/DigitalizedTranscriptionService.php");
 require_once (__DIR__ . "/../entities/EncryptionPair.php");
 require_once (__DIR__ ."/../entities/AuthorizationException.php");
 require_once (__DIR__ . "/../entities/Place.php");
+require_once (__DIR__ . "/../config/constants.php");
 
 function nomenclatorKeyController()
 {
@@ -203,6 +204,7 @@ function nomenclatorKeyController()
                         }
 
                         if (array_key_exists("nomenclatorImages", $object)) {
+                            $getNomenclatorImageService = GETNomenclatorImageService();
                             $nomenclatorKey->images = array();
                             $uploadedUrl = [];
                             $encodedUrl = [];
@@ -244,7 +246,20 @@ function nomenclatorKeyController()
 
                                 } else {
                                     $nomenclatorImage->url = $image['url'];
-                                    $nomenclatorImage->isLocal = false;
+                                    if (!array_key_exists('isLocal', $image)) {
+                                        $nomenclatorImage->isLocal = false;
+                                    } else {
+                                        if ($image['isLocal']) {
+                                            if (file_exists(urlToFilePath($image['url']))) {
+                                                $nomenclatorImage->isLocal = true;
+                                            } else {
+                                                $nomenclatorImage->isLocal = false;
+                                            }
+                                        } else {
+                                            $nomenclatorImage->isLocal = false;
+                                        }
+                                    }
+                                    
                                 }
 
                                 if (array_key_exists("structure", $image))
@@ -571,4 +586,10 @@ function storeImage($string, $name): ?string
     file_put_contents(IMAGEUPLOADPATH . $fileName . '.' . $ext, $string);
     $url = (SERVICEPATH . IMAGEUPLOADPATH . $fileName . '.' . $ext);
     return $url;
+}
+
+function urlToFilePath($url)
+{
+    $path = str_replace(SERVICEPATH, '', $url);
+    return $path;
 }
