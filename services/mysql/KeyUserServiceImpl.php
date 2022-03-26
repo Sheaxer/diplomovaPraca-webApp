@@ -14,15 +14,20 @@ class KeyUserServiceImpl implements KeyUserService
         $this->conn = $PDO;
     }
 
-    public function createKeyUser(KeyUser $user): ?int
+    public function createKeyUser(KeyUser $user, $doTransaction = true): ?int
     {
         $query = "INSERT INTO keyusers (name) VALUES (:name)";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':name',$user->name);
-        $this->conn->beginTransaction();
+        if ($doTransaction) {
+            $this->conn->beginTransaction();
+        }
         $stm->execute();
         $id = intval($this->conn->lastInsertId());
-        $this->conn->commit();
+        if ($doTransaction) {
+            $this->conn->commit();
+        }
+      
         return $id;
     }
 

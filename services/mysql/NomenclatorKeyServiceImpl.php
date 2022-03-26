@@ -108,6 +108,8 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                         $u = $keyUserService->getKeyUserByName($user->name);
                         if ($u) {
                             $userId = $u->id;
+                        } else {
+                            $userId = $keyUserService->createKeyUser($user, false);
                         }
                     }
                     if($userId !== null)
