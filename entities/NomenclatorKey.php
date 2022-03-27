@@ -46,7 +46,7 @@ class NomenclatorKey {
     public $state = null;
 
 
-    public static $table_name = "nomenclatorKeys";
+    public static $table_name = "nomenclatorkeys";
 
     /*public function  __construct(?int $id = null, ?string $signature = null, ?string $structure = null,
                                  ?array $images = null, ?bool $simple = null, ?bool $homophonic = null,

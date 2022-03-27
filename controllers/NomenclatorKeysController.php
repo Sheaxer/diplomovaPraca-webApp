@@ -278,8 +278,10 @@ function nomenclatorKeyController()
                                 throw new RuntimeException("Incorrect number of images uploaded");
                             }
                         }
-                        else
+                        else {
                             $nomenclatorKey->images = null;
+                        }
+                            
                         if(array_key_exists("keyUsers",$object))
                         {
                             $nomenclatorKey->keyUsers = array();
@@ -388,11 +390,11 @@ function nomenclatorKeyController()
 function uploadImages() :array
 {
     $urls = array();
-    if (!isset($_FILES['nomenclatorImage']['error'])) {
+    if (!isset($_FILES['nomenclatorImages']['error'])) {
         return $urls;
     }
-    if(is_array($_FILES['nomenclatorImage']['error'])) {
-        foreach ($_FILES['nomenclatorImage']['error'] as $err) {
+    if(is_array($_FILES['nomenclatorImages']['error'])) {
+        foreach ($_FILES['nomenclatorImages']['error'] as $err) {
             switch ($err) {
                 case UPLOAD_ERR_OK:
                     break;
@@ -408,7 +410,7 @@ function uploadImages() :array
     }
     else
     {
-        switch ($_FILES['nomenclatorImage']['error'])
+        switch ($_FILES['nomenclatorImages']['error'])
         {
             case UPLOAD_ERR_OK:
                 break;
@@ -422,8 +424,8 @@ function uploadImages() :array
         }
     }
     // Check $_FILES['nomenklatorImage']['error'] value.
-    if(is_array($_FILES['nomenclatorImage']['size'])) {
-        foreach ($_FILES['nomenclatorImage']['size'] as $size) {
+    if(is_array($_FILES['nomenclatorImages']['size'])) {
+        foreach ($_FILES['nomenclatorImages']['size'] as $size) {
             if ($size > FILESIZELIMIT) {
                 throw new RuntimeException('Exceeded filesize limit.');
             }
@@ -431,7 +433,7 @@ function uploadImages() :array
     }
     else
     {
-        if ($_FILES['nomenclatorImage']['size'] > FILESIZELIMIT) {
+        if ($_FILES['nomenclatorImages']['size'] > FILESIZELIMIT) {
             throw new RuntimeException('Exceeded filesize limit.');
         }
     }
@@ -443,8 +445,8 @@ function uploadImages() :array
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $i = 0;
     $ext = array();
-    if(is_array($_FILES['nomenclatorImage']['tmp_name'])) {
-        foreach ($_FILES['nomenclatorImage']['tmp_name'] as $tmpName) {
+    if(is_array($_FILES['nomenclatorImages']['tmp_name'])) {
+        foreach ($_FILES['nomenclatorImages']['tmp_name'] as $tmpName) {
             array_push($ext, array_search(
                 $finfo->file($tmpName),
                 array(
@@ -462,7 +464,7 @@ function uploadImages() :array
     }
     else {
         if (false === $ext = array_search(
-                $finfo->file($_FILES['nomenclatorImage']['tmp_name']),
+                $finfo->file($_FILES['nomenclatorImages']['tmp_name']),
                 array(
                     'jpg' => 'image/jpeg',
                     'png' => 'image/png',
@@ -475,18 +477,18 @@ function uploadImages() :array
     }
     $i = 0;
     //var_dump($finfo->file($_FILES['nomenklatorImage']['tmp_name']));
-    if(is_array($_FILES['nomenclatorImage']['name']))
+    if(is_array($_FILES['nomenclatorImages']['name']))
     {
-        foreach ($_FILES['nomenclatorImage']['tmp_name'] as $tmpName)
+        foreach ($_FILES['nomenclatorImages']['tmp_name'] as $tmpName)
         {
             $j = 0;
-            $fileName =  pathinfo($_FILES['nomenclatorImage']['name'][$i])['filename'];
+            $fileName =  pathinfo($_FILES['nomenclatorImages']['name'][$i])['filename'];
 
             while (file_exists(sprintf(IMAGEUPLOADPATH . '%s.%s',
                 $fileName,
                 $ext[$i])))
             {
-                $fileName = pathinfo($_FILES['nomenclatorImage']['name'][$i])['filename'] . "_" . strval($j);
+                $fileName = pathinfo($_FILES['nomenclatorImages']['name'][$i])['filename'] . "_" . strval($j);
                 $j++;
             }
 
@@ -512,19 +514,19 @@ function uploadImages() :array
     }
     else
     {
-        $fileName = pathinfo($_FILES['nomenclatorImage']['name'])['filename'];
+        $fileName = pathinfo($_FILES['nomenclatorImages']['name'])['filename'];
         $j = 0;
 
         while(file_exists(sprintf( IMAGEUPLOADPATH . '%s.%s',
             $fileName,
             $ext)))
         {
-            $fileName = pathinfo($_FILES['nomenclatorImage']['name'])['filename'] . "_" . strval($j);
+            $fileName = pathinfo($_FILES['nomenclatorImages']['name'])['filename'] . "_" . strval($j);
             $j++;
         }
 
         if (!move_uploaded_file(
-            $_FILES['nomenclatorImage']['tmp_name'],
+            $_FILES['nomenclatorImages']['tmp_name'],
             sprintf( IMAGEUPLOADPATH . '%s.%s',
                 $fileName,
                 $ext

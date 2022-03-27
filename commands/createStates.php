@@ -14,7 +14,7 @@ $s->execute();
 $userId = $s->fetch(PDO::FETCH_COLUMN);
 var_dump($userId);
 
-$query = "SELECT id from nomenclatorKeys WHERE stateId = 0 OR stateId is NULL";
+$query = "SELECT id from nomenclatorkeys WHERE stateId = 0 OR stateId is NULL";
 $stm = $getService->prepare($query);
 
 $stm->execute();
@@ -27,7 +27,7 @@ $stm2->bindValue(':st', NomenclatorKeyState::STATE_NEW);
 $stm2->bindValue(':createdBy', intval($userId));
 $stm2->bindValue(':note', '');
 
-$query3 = "UPDATE nomenclatorKeys SET stateId = :stateId WHERE id=:id";
+$query3 = "UPDATE nomenclatorkeys SET stateId = :stateId WHERE id=:id";
 $stm3 = $postService->prepare($query3);
 
 $postService->beginTransaction();

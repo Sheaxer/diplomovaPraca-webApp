@@ -38,6 +38,15 @@ function getData(): ?array
     return $object;
 }
 
+function isMultiPart()
+{
+    $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+    if (stripos($content_type, 'multipart/form-data') !== false) {
+        return true;
+    }
+    return false;
+}
+
 function getPathElements(): array
 {
     $path = ltrim($_SERVER['REQUEST_URI'], '/');    // Trim leading slash(es)

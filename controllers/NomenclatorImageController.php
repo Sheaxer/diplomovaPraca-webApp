@@ -7,6 +7,7 @@ require_once (__DIR__ ."/../entities/NomenclatorImage.php");
 
 function imageController()
 {
+    //xdebug_break();
     $pathElements = getPathElements();
     $headers = apache_request_headers();
     try {
@@ -17,11 +18,21 @@ function imageController()
                     if (! $userInfo) {
                         throw new AuthorizationException("Not authorized");
                     }
-
+                    if (isMultiPart()) {
+                        $uploadedUrl = [];
+                        $uploadedUrl = uploadImages();
+                        if ($uploadedUrl && sizeof($uploadedUrl) > 0) {
+                            post_result([
+                                'urls' => $uploadedUrl
+                            ]);
+                        } else {
+                            post_result(null);
+                        }
+                    }
                     $object = getData();
 
                     $nomenclatorKeyImages = array();
-                    $uploadedUrl = [];
+                   
                     $encodedUrl = [];
                     $i = 0;
                     $isSingle = false;
@@ -42,25 +53,13 @@ function imageController()
                                 $nomenclatorImage->isLocal = true;
                                 $encodedUrl[]= $u;
                             } else {
-                                deleteFiles($uploadedUrl);
+                                //deleteFiles($uploadedUrl);
                                 deleteFiles($encodedUrl);
                                 throw new RuntimeException("Unable to store image possibly due to mime type. Allowed types are application/pdf, image/png and image/jpeg");
                             }
+                            array_push($nomenclatorKeyImages, $nomenclatorImage);
 
-                        } else {
-                            if (empty($uploadedUrl)) {
-                                $uploadedUrl = uploadImages();
-                            }
-                            if ($i >= sizeof($uploadedUrl)) {
-                                deleteFiles($uploadedUrl);
-                                deleteFiles($encodedUrl);
-                                throw new RuntimeException("Incorrect number of images uploaded");
-                            }
-                            $nomenclatorImage->url = $uploadedUrl[$i];
-                            $nomenclatorImage->isLocal = true;
-                            $i++;
-                        }
-                        array_push($nomenclatorKeyImages, $nomenclatorImage);
+                        }  
                     }
                     if ($isSingle) {
                         $nomenclatorImage = new NomenclatorImage();
@@ -75,25 +74,12 @@ function imageController()
                                 $nomenclatorImage->isLocal = true;
                                 $encodedUrl[]= $u;
                             } else {
-                                deleteFiles($uploadedUrl);
+                                //deleteFiles($uploadedUrl);
                                 deleteFiles($encodedUrl);
                                 throw new RuntimeException("Unable to store image possibly due to mime type. Allowed types are application/pdf, image/png and image/jpeg");
                             }
-
-                        } else {
-                            if (empty($uploadedUrl)) {
-                                $uploadedUrl = uploadImages();
-                            }
-                            if ($i >= sizeof($uploadedUrl)) {
-                                deleteFiles($uploadedUrl);
-                                deleteFiles($encodedUrl);
-                                throw new RuntimeException("Incorrect number of images uploaded");
-                            }
-                            $nomenclatorImage->url = $uploadedUrl[$i];
-                            $nomenclatorImage->isLocal = true;
-                            $i++;
+                            array_push($nomenclatorKeyImages, $nomenclatorImage);
                         }
-                        array_push($nomenclatorKeyImages, $nomenclatorImage);
                     }
                     /** @var NomenclatorImage[] $nomenclatorKeyImages */
                    
