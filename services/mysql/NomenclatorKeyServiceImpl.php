@@ -67,7 +67,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':keyType', $nomenclator->keyType);
         $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
         $stm->bindValue(':usedTo', $nomenclator->usedTo ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
-        $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
+        $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->usedAround->format('Y-m-d H:i:s') : null);
         $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId, PDO::PARAM_INT);
         $stm->bindParam(':groupId', $nomenclator->groupId, PDO::PARAM_INT);
 
