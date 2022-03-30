@@ -43,7 +43,7 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
     {
         $query = "SELECT * from places WHERE id = :id";
         $stm = $this->conn->prepare($query);
-        $stm->bindParam(':id', $id);
+        $stm->bindParam(':id', $id, PDO::PARAM_INT);
         $stm->setFetchMode(PDO::FETCH_CLASS, 'Place');
         $stm->execute();
         return $stm->fetch();

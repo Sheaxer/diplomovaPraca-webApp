@@ -137,19 +137,20 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $d = new DigitalizedTranscriptionServiceImpl($this->conn);
         $nomenclatorKey->digitalizedTranscriptions = $d->getDigitalizedTranscriptionsOfNomenclator($userInfo, $nomenclatorKey->id);
 
-        $p = new NomenclatorPlaceServiceImpl($this->conn);
-
-
+        if ($nomenclatorKey->placeOfCreationId) {
+            $p = new NomenclatorPlaceServiceImpl($this->conn);
+            $nomenclatorKey->placeOfCreation =  $p->getPlaceById(intval($nomenclatorKey->placeOfCreationId));
+        }
+       
         if ($nomenclatorKey->state && $nomenclatorKey->state->createdById) {
             $u = new SystemUserServiceImpl($this->conn);
             $nomenclatorKey->state->createdBy = $u->getUsernameById($nomenclatorKey->state->createdById);
         }
        
-        
         /* TODO fill in folder and used where? */
         /*$u = new KeyUserServiceImpl($this->conn);
         $nomenclatorKey->keyUsers = $u->getKeyUsersByNomenclatorKeyId($nomenclatorKey->id);*/
-
+        unset($nomenclatorKey->placeOfCreationId);
         return $nomenclatorKey;
 
     }
