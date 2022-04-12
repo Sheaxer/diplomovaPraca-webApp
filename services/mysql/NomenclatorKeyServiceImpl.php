@@ -443,11 +443,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             }
         }
         if ($stateId) {
-            $query2 = "UPDATE nomenclatorkeystate SET `state`=:stateString, note= :note, updatedAt = :updatedAt";
+            $query2 = "UPDATE nomenclatorkeystate SET `state`=:stateString, note= :note, updatedAt = :updatedAt where id=:stateId";
             $stm2 = $this->conn->prepare($query2);
             $stm2->bindParam(':stateString', $state);
             $stm2->bindParam(':note', $note);
             $stm2->bindValue(':updatedAt', (new DateTime())->format('Y-m-d H:i:s'));
+            $stm2->bindParam(':stateId', $stateId, PDO::PARAM_INT);
             $res = $stm2->execute();
             return $res;
 
