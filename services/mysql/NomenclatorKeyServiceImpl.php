@@ -522,5 +522,108 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId);
         $stm->bindParam(':groupId', $nomenclator->groupId);
         $stm->bindParam(':id', $nomenclator->id);
+
+        $result = $stm->execute();
+        if (! $result) {
+            $errorCode = $this->conn->errorInfo()[2];
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+        return [
+            'status' => 'success',
+        ];
     }
+
+    public function addKeyUsersToNomenclatorKey(int $nomenclatorKeyId, array $users)
+    {
+        $keyUserService = new KeyUserServiceImpl($this->conn);
+        $this->conn->beginTransaction();
+        /** @var KeyUser $user */
+        foreach ($users as $user) {
+            $userId = null;
+            if ($user->id) {
+                $u = $keyUserService->getKeyUserById($user->id);
+                $userId = $user->id;
+                if (! $u) {
+                    $this->conn->rollBack();
+                    return [
+                        'status' => 'error',
+                        'error' => 'Unknown key user'
+                    ];
+                }
+            } else if ($user->name) {
+                $u = $keyUserService->getKeyUserByName($user->name);
+                if ($u) {
+                    $userId = $u->id;
+                } else {
+                    $userId = $keyUserService->createKeyUser($user, false);
+                }
+            } else {
+                $this->conn->rollBack();
+                return [
+                    'status' => 'error',
+                    'error' => 'Unknown key user'
+                ];
+            }
+
+            $keyUserService->assignKeyUserToNomenclatorKey($userId, $nomenclatorKeyId, $user->isMainUser);
+        }
+
+        $this->conn->commit();
+        return [
+            'status' => 'success',
+        ];
+    }
+
+    public function removeKeyUsersFromNomenclatorKey(int $nomenclatorKeyId, array $users)
+    {
+        $keyUserService = new KeyUserServiceImpl($this->conn);
+        $this->conn->beginTransaction();
+        /** @var KeyUser $user */
+        foreach ($users as $user) {
+            $userId = null;
+            if ($user->id) {
+                $u = $keyUserService->getKeyUserById($user->id);
+                $userId = $user->id;
+                if (! $u) {
+                    $this->conn->rollBack();
+                    return [
+                        'status' => 'error',
+                        'error' => 'Unknown key user'
+                    ];
+                }
+            } else if ($user->name) {
+                $u = $keyUserService->getKeyUserByName($user->name);
+                if ($u) {
+                    $userId = $u->id;
+                } else {
+                    $this->conn->rollBack();
+                    return [
+                        'status' => 'error',
+                        'error' => 'Unknown key user'
+                    ];
+                }
+            } else {
+                $this->conn->rollBack();
+                return [
+                    'status' => 'error',
+                    'error' => 'Unknown key user'
+                ];
+            }
+
+            $result = $keyUserService->removeKeyUserFromNomenclatorKey($nomenclatorKeyId, $userId, false);
+            if ($result['status'] == 'error') {
+                $this->conn->rollBack();
+                return $result;
+            }
+        }
+
+        $this->conn->commit();
+        return [
+            'status' => 'success',
+        ];
+    }
+
 }

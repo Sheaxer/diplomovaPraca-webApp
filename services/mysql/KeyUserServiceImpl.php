@@ -33,12 +33,30 @@ class KeyUserServiceImpl implements KeyUserService
 
     public function assignKeyUserToNomenclatorKey(int $id, int $nomenclatorKeyId, $isMainUser)
     {
-        $query = "INSERT INTO nomenclatorkeyusers (userId, nomenclatorKeyId, isMainUser) VALUES (:userId, :nomenclatorKeyId, :isMainUser)";
-        $stm = $this->conn->prepare($query);
-        $stm->bindParam(':userId',$id, PDO::PARAM_INT);
-        $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId, PDO::PARAM_INT);
-        $stm->bindParam(':isMainUser', $isMainUser, PDO::PARAM_BOOL);
-        $stm->execute();
+
+        $existsQuery = "SELECT * from nomenclatorkeyusers where userId = :userId AND nomenclatorKeyId = :nomenclatorKeyId";
+        $existsStm = $this->conn->prepare($existsQuery);
+        $existsStm->bindParam(':userId',$id, PDO::PARAM_INT);
+        $existsStm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId, PDO::PARAM_INT);
+        $existsStm->execute();
+        $res = $existsStm->fetchAll(PDO::FETCH_ASSOC);
+        if ($res && ! empty($res)) {
+            $updateQuery = "UPDATE nomenclatorkeyusers SET isMainUser = :isMainUser where userId = :userId AND nomenclatorKeyId = :nomenclatorKeyId";
+            $updateStm = $this->conn->prepare($updateQuery);
+            $updateStm->bindParam(':userId',$id, PDO::PARAM_INT);
+            $updateStm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId, PDO::PARAM_INT);
+            $updateStm->bindParam(':isMainUser', $isMainUser, PDO::PARAM_BOOL);
+            $updateStm->execute();
+        } else {
+            $query = "INSERT INTO nomenclatorkeyusers (userId, nomenclatorKeyId, isMainUser) VALUES (:userId, :nomenclatorKeyId, :isMainUser)";
+            $stm = $this->conn->prepare($query);
+            $stm->bindParam(':userId',$id, PDO::PARAM_INT);
+            $stm->bindParam(':nomenclatorKeyId',$nomenclatorKeyId, PDO::PARAM_INT);
+            $stm->bindParam(':isMainUser', $isMainUser, PDO::PARAM_BOOL);
+            $stm->execute();
+        }
+
+       
     }
 
     public function getKeyUserByName(string $name): ?KeyUser
@@ -109,6 +127,34 @@ class KeyUserServiceImpl implements KeyUserService
             'count'    => $count,
             'nextPage' => $isNextPage,
             'items'    => $res,
+        ];
+    }
+
+    public function removeKeyUserFromNomenclatorKey(int $nomenclatorKeyId, int $userId, bool $doTransaction = true)
+    {
+        $query = 'DELETE FROM nomenclatorkeyusers where nomenclatorKeyId =:nomenclatorKeyId AND userId=:userId';
+        $stm = $this->conn->prepare($query);
+        $stm->bindParam(':nomenclatorKeyId', $nomenclatorKeyId, PDO::PARAM_INT);
+        $stm->bindParam(':userId', $userId, PDO::PARAM_INT);
+        if ($doTransaction) {
+            $this->conn->beginTransaction();
+        }
+        $result = $stm->execute();
+        if ($result === false) {
+            $errorInfo = $this->conn->errorInfo()[2];
+            if ($doTransaction) {
+                $this->conn->rollBack();
+            }
+            return [
+                'status' => 'error',
+                'error' => $errorInfo,
+            ];
+        }
+        if ($doTransaction) {
+            $this->conn->commit();
+        }
+        return [
+            'status' => 'success',
         ];
     }
 }

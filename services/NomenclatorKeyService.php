@@ -21,5 +21,8 @@ interface NomenclatorKeyService
 
     public function updateNomenclatorKey(NomenclatorKey $nomenclatorKey);
 
+    public function addKeyUsersToNomenclatorKey(int $nomenclatorKeyId, array $users);
+
+    public function removeKeyUsersFromNomenclatorKey(int $nomenclatorKeyId, array $users);
 
 }

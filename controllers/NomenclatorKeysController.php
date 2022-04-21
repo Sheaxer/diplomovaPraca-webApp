@@ -93,7 +93,6 @@ function nomenclatorKeyController()
                     throw new Exception("Incorrect URL");
                 break;
             case "POST":
-
                 if ( strcmp(substr($pathElements[0], 0, 15), "nomenclatorKeys") === 0) {
 
                     $object = getData();
@@ -127,6 +126,71 @@ function nomenclatorKeyController()
                                         'status' => 'error'
                                     ]);
                                 }
+                            } else if (strcmp(substr($pathElements[2], 0, 11), "addKeyUsers") == 0){
+                                $nomenclatorKeyId = intval($pathElements[1]);
+                                $nomenclatorKeyService = GETNomenclatorKeyService();
+                                $originalNomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($userInfo ,$nomenclatorKeyId);
+                                if (! $originalNomenclatorKey) {
+                                    throw new Exception('Invalid nomenclator key id');
+                                }
+                                $users = [];
+                                foreach ($object as $user) {
+                                    if (! isset($user['id']) && ! isset($user['name'])) {
+                                        throw new Exception('Data needs to be array, each item must have either id or name specified');
+                                    }
+                                    $keyUser = new KeyUser();
+                                    if (isset($user['id'])) {
+                                        $keyUser->id = $user['id'];
+                                    }
+                                    if (isset($user['name'])) {
+                                        $keyUser->name = $user['name'];
+                                    }
+                                    if (isset($user['isMainUser'])) {
+                                        $keyUser->isMainUser = $user['isMainUser'];
+                                    } else {
+                                        $keyUser->isMainUser = false;
+                                    }
+                                    $users[] = $keyUser;
+                                }
+                                $nomenclatorKeyService = POSTNomenclatorKeyService();
+                                $result = $nomenclatorKeyService->addKeyUsersToNomenclatorKey($nomenclatorKeyId, $users);
+                                if ($result['status'] == 'success') {
+                                    post_result([
+                                        'status' => 'success'
+                                    ]);
+                                } else {
+                                    throw new Exception($result['error']);
+                                }
+                            } else if (strcmp(substr($pathElements[2], 0, 14), 'removeKeyUsers') == 0) {
+                                $nomenclatorKeyId = intval($pathElements[1]);
+                                $nomenclatorKeyService = GETNomenclatorKeyService();
+                                $originalNomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($userInfo ,$nomenclatorKeyId);
+                                if (! $originalNomenclatorKey) {
+                                    throw new Exception('Invalid nomenclator key id');
+                                }
+                                foreach ($object as $user) {
+                                    if (! isset($user['id']) && ! isset($user['name'])) {
+                                        throw new Exception('Data needs to be array, each item must have either id or name specified');
+                                    }
+                                    $keyUser = new KeyUser();
+                                    if (isset($user['id'])) {
+                                        $keyUser->id = $user['id'];
+                                    }
+                                    if (isset($user['name'])) {
+                                        $keyUser->name = $user['name'];
+                                    }
+                                    
+                                    $users[] = $keyUser;
+                                }
+                                $nomenclatorKeyService = POSTNomenclatorKeyService();
+                                $result = $nomenclatorKeyService->removeKeyUsersFromNomenclatorKey($nomenclatorKeyId, $users);
+                                if ($result['status'] == 'success') {
+                                    post_result([
+                                        'status' => 'success'
+                                    ]);
+                                } else {
+                                    throw new Exception($result['error']);
+                                }
                             }
                         }
                     } 
@@ -135,10 +199,90 @@ function nomenclatorKeyController()
                         $nomenclatorKeyId = null;
                         if (sizeof($pathElements) == 2) {
                             if (is_numeric($pathElements[1])) {
-                                if (! $userInfo['isAdmin']) {
+                                /*if (! $userInfo['isAdmin']) {
                                     throw new AuthorizationException('Only admin can edit the nomenclator key');
-                                }
+                                }*/
                                 $nomenclatorKeyId = intval($pathElements[1]);
+                                $nomenclatorKeyService = GETNomenclatorKeyService();
+                                $originalNomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($userInfo ,$nomenclatorKeyId);
+                                if (! $originalNomenclatorKey) {
+                                    throw new Exception('Invalid nomenclator key id');
+                                }
+
+                                $nomenclatorKey = new NomenclatorKey();
+
+                                if (array_key_exists('usedChars', $object)) {
+                                    $nomenclatorKey->usedChars = $object['usedChars'];
+                                }
+
+                                if (array_key_exists('cipherType', $object)) {
+                                    $nomenclatorKey->cipherType = $object['cipherType'];
+                                }
+
+                                if (array_key_exists('keyType', $object)) {
+                                    $nomenclatorKey->keyType = $object['keyType'];
+                                }
+
+                                if (array_key_exists('usedFrom', $object)) {
+                                
+                                    $nomenclatorKey->usedFrom = new DateTime($object['usedFrom']);
+                                    
+                                    
+                                }
+
+                                if (array_key_exists('usedTo', $object)) {
+                                    $nomenclatorKey->usedTo = new DateTime($object['usedTo']);
+                                }
+
+                                if (array_key_exists('usedAround', $object)) {
+                                    $nomenclatorKey->usedAround = new DateTime($object['usedAround']);
+                                }
+
+                                if (array_key_exists("folder", $object)) {
+                                    $folderService = GETNomenclatorFolderService();
+                                    if ($folderService === null)
+                                        throw new Exception("System Error");
+                                    $folderExists = $folderService->folderExists($object["folder"]);
+                                    if ($folderExists === false)
+                                        throw new Exception("Incorrect Folder");
+                                    else
+                                        $nomenclatorKey->folder = $object['folder'];
+
+                                } else $nomenclatorKey->folder = null;
+
+                                if (array_key_exists("signature", $object)) {
+                                    $nomenclatorKey->signature = $object["signature"];
+                                } else
+                                    $nomenclatorKey->signature = generateRandomString(6);
+
+                                if (array_key_exists("completeStructure", $object))
+                                    $nomenclatorKey->completeStructure = $object["completeStructure"];
+                                else $nomenclatorKey->completeStructure = null;
+
+                                if(array_key_exists("language",$object))
+                                    $nomenclatorKey->language = $object['language'];
+                                else
+                                    $nomenclatorKey->language = null;
+
+                                if (array_key_exists('groupId', $object)) {
+                                    $nomenclatorKey->groupId = $object['groupId'];
+                                }
+
+                                $nomenclatorKeyService = POSTNomenclatorKeyService();
+
+                                $nomenclatorKey->id = $nomenclatorKeyId;
+                                $result = $nomenclatorKeyService->updateNomenclatorKey($nomenclatorKey);
+
+                                if ($result['status'] == 'success') {
+                                    post_result([
+                                        'status' => 'success'
+                                    ]);
+                                } else {
+                                    throw new Exception($result['error']);
+                                }
+
+                                /** Check if you are admin or creator and update */
+
                             } else throw new Exception('Invalid id');
 
                         }
