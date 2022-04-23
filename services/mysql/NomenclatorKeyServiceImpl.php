@@ -69,7 +69,21 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindValue(':usedTo', $nomenclator->usedTo ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
         $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->usedAround->format('Y-m-d H:i:s') : null);
         $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId, PDO::PARAM_INT);
-        $stm->bindParam(':groupId', $nomenclator->groupId, PDO::PARAM_INT);
+        if ($nomenclator->groupId) {
+            $stm->bindParam(':groupId', $nomenclator->groupId, PDO::PARAM_INT);
+        } else {
+            $maxGroupIdQuery = 'SELECT groupId FROM nomenclatorkeys ORDER BY groupId DESC LIMIT 1';
+            $maxGroupIdStm = $this->conn->prepare($maxGroupIdQuery);
+            $maxGroupIdStm->execute();
+            $maxGroupId = $maxGroupIdStm->fetchColumn(0);
+            if (! $maxGroupId) {
+                $maxGroupId = 1;
+            } else {
+                $maxGroupId++;
+            }
+            $stm->bindParam(':groupId', $maxGroupId, PDO::PARAM_INT);
+        }
+        //
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
         
