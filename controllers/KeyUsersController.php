@@ -62,7 +62,7 @@ function keyUsersController()
                 else
                     throw new Exception("No name specified for key user");
                 $keyUserService = POSTKeyUserService();
-                $newId = $keyUserService->createKeyUser($keyUser);
+                $newId = $keyUserService->createKeyUser($keyUser, true);
 
                 $res['id'] = $newId;
                 post_result($res);

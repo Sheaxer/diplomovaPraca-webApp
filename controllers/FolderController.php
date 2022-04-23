@@ -32,6 +32,29 @@ function folderController()
                 $folders = $folderService->getAllFolders($limit, $page);
                 post_result($folders);
                 break;
+            case 'POST':
+                authorize();
+
+                $object = getData();
+                if (! $object || ! isset($object['name']) || ! isset($object['fond'])) {
+                    throw new Exception('Folder needs to contain name and fond');
+                }
+
+                $folder = new NomenclatorFolder();
+                $folder->name = $object['name'];
+                if (isset ($object['endDate'])) {
+                    $folder->endDate = new DateTime($object['endDate']);
+                }
+                if (isset ($object['startDate'])) {
+                    $folder->startDate = new DateTime($object['startDate']);
+                }
+                if (isset($object['regions'])) {
+                    foreach ($object['regions'] as $region ) {
+                        
+                    } 
+                }
+
+                break;
             default:
                 throw new RuntimeException("Only GET method allowed for this endpoint");
         }
