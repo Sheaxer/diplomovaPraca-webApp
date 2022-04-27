@@ -93,6 +93,7 @@ function nomenclatorKeyController()
                     throw new Exception("Incorrect URL");
                 break;
             case "POST":
+                //xdebug_break();
                 if ( strcmp(substr($pathElements[0], 0, 15), "nomenclatorKeys") === 0) {
 
                     $object = getData();

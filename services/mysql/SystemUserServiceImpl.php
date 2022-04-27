@@ -89,6 +89,7 @@ class SystemUserServiceImpl implements SystemUserService
             $stmt->execute([$userId,$tokenLeft,$tokenRightHashed,$date->format("Y-m-d H:i:s"),$expire_date->format("Y-m-d H:i:s")]);
             $res['token'] = $tokenLeft.':'.$tokenRight;
             $res['expiresAt'] = $expire_date->format("Y-m-d H:i:s");
+            $res['userId'] = $userId;
             return $res;
 
         } catch (Exception $e) {

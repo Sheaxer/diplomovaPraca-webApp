@@ -8,4 +8,8 @@ interface NomenclatorFolderService
 
     public function folderExists($name) :bool;
 
+    public function getFolderByName($name);
+
+    public function createFolder(NomenclatorFolder $folder);
+
 }

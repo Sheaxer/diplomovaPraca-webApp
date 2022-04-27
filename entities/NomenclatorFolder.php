@@ -4,6 +4,7 @@
 class NomenclatorFolder
 {
     public  $name;
+    /** @var Fond */
     public  $fond;
     public  $startDate;
     public  $endDate;
