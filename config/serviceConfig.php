@@ -22,6 +22,9 @@ require_once (__DIR__ . "/../services/mysql/SystemUserServiceImpl.php");
 require_once (__DIR__ . "/../services/NomenclatorPlaceService.php");
 require_once (__DIR__ . "/../services/mysql/NomenclatorPlaceServiceImpl.php");
 
+require_once (__DIR__ ."/../services/ArchiveService.php");
+require_once (__DIR__ ."/../services/mysql/ArchiveServiceImpl.php");
+
 function GETConnection(): ?PDO
 {
     $conf = new GETDatabaseConfig();
@@ -147,5 +150,23 @@ function POSTNomenclatorPlaceService(): ?NomenclatorPlaceService
     if($conn === null)
         return null;
     return new NomenclatorPlaceServiceImpl($conn);
+}
+
+function GETArchiveService(): ?ArchiveService
+{
+    $conn = GETConnection();
+    if ($conn === null) {
+        return null;
+    }
+    return new ArchiveServiceImpl($conn);
+}
+
+function POSTArchiveService(): ?ArchiveService
+{
+    $conn = POSTConnection();
+    if ($conn === null) {
+        return null;
+    }
+    return new ArchiveServiceImpl($conn);
 }
 

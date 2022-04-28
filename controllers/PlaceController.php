@@ -14,9 +14,9 @@ function placeController()
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
                 if (sizeof($pathElements) == 1) {
-                    $page = 1;
+                    $page = null;
                     $pathParams = [];
-                    $limit = Place::LIMIT;
+                    $limit = null;
                     $name = null;
                     if (strlen($pathElements[0]) > 8 ) {
                         if ($pathElements[0][6] == '?') {

@@ -15,23 +15,30 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
 
     public function getAllPlaces($limit, $page): array
     {
-        $query = "SELECT * from places LIMIT :offset, :pageLimit";
+        $query = "SELECT * from places";
+        if ($limit) {
+            $query .= " LIMIT :offset, :pageLimit";
+        }
         $stm = $this->conn->prepare($query);
         $countQuery = "SELECT COUNT(*) from places";
-        $offset = ($page - 1) * $limit;
-        $stm->bindParam(':offset', $offset, PDO::PARAM_INT);
-        $stm->bindParam(':pageLimit', $limit, PDO::PARAM_INT);
+        if ($limit) {
+            $offset = ($page - 1) * $limit;
+            $stm->bindParam(':offset', $offset, PDO::PARAM_INT);
+            $stm->bindParam(':pageLimit', $limit, PDO::PARAM_INT);
+        }
+        
         $stm->execute();
         $countStm = $this->conn->prepare($countQuery);
         $countStm->execute();
         $count = $countStm->fetchColumn(0);
         $places = $stm->fetchAll(PDO::FETCH_CLASS, 'Place');
-        $end = $offset + $limit;
         $isNextPage = false;
-        if ($end < $count) {
-            $isNextPage = true;
+        if ($limit) {
+            $end = $offset + $limit;
+            if ($end < $count) {
+                $isNextPage = true;
+            }
         }
-
         return [
             'count' => $count,
             'nextPage' => $isNextPage,

@@ -22,8 +22,8 @@ function keyUsersController()
                             post_result(stripNullsFromObject($user));
                             exit();
                         }
-                        $page = 1;
-                        $limit = KeyUser::DEFAULT_LIMIT;
+                        $page = null;
+                        $limit = null;
                         if (isset($_GET['limit']) && !empty($_GET['limit']) && $_GET['limit'] != null ) {
                             $limit = intval($_GET['limit']);
                         }

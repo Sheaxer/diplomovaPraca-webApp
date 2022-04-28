@@ -16,15 +16,24 @@ class NomenclatorFolderServiceImpl implements NomenclatorFolderService
 
     public function getAllFolders($limit, $page): ?array
     {
+        $countQuery = "SELECT COUNT(*) from folders";
+        $countStm = $this->conn->prepare($countQuery);
+        $countStm->setFetchMode(PDO::FETCH_ASSOC);
+        $count = $countStm->fetchColumn(0);
+        $isNextPage = false;
         $query = "SELECT * FROM folders";
         if ($limit ) {
             $query .= " LIMIT :offset, :pageLimit";
+
         }
         $stm = $this->conn->prepare($query);
         if ($limit) {
             $offset = ($page -1) * $limit;
             $stm->bindParam(':offset', $offset, PDO::PARAM_INT);
             $stm->bindParam(':pageLimit', $limit, PDO::PARAM_INT);
+            if (($offset + $limit) < $count) {
+                $isNextPage = true;
+            }
         }
        
         #$stm->setAttribute(PDO::SQLSRV_ATTR_FETCHES_DATETIME_TYPE, true);
@@ -64,7 +73,11 @@ WHERE folderName=:folderName";
                 $i->fond = $fond;
             }
         }
-        return $result;
+        return [
+            'count'    => $count,
+            'nextPage' => $isNextPage,
+            'items'    => $result,
+        ];
     }
 
     public function folderExists($name): bool
