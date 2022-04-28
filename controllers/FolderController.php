@@ -17,7 +17,7 @@ function folderController()
     try {
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
-                xdebug_break();
+                //xdebug_break();
                 $page = 1;
                 $limit = null;
                 if (strlen($pathElements[0]) > 8 ) {
