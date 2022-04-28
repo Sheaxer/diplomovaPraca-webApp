@@ -17,8 +17,8 @@ function folderController()
     try {
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
-                //xdebug_break();
-                $page = null;
+                xdebug_break();
+                $page = 1;
                 $limit = null;
                 if (strlen($pathElements[0]) > 8 ) {
                     if ($pathElements[0][7] == '?') {
@@ -29,7 +29,7 @@ function folderController()
                     if (substr_compare($pathParam, "page=", 0,5) === 0) {
                         $page = intval(substr($pathParam, 5));
                     }
-                    else if (substr_compare($pathParam, "limit=", 0, 6)) {
+                    else if (substr_compare($pathParam, "limit=", 0, 6) === 0) {
                         $limit = intval(substr($pathParam, 6));
                     }
                 }

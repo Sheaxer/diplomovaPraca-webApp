@@ -30,7 +30,7 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
         $stm->execute();
         $countStm = $this->conn->prepare($countQuery);
         $countStm->execute();
-        $count = $countStm->fetchColumn(0);
+        $count =  intval($countStm->fetchColumn(0));
         $places = $stm->fetchAll(PDO::FETCH_CLASS, 'Place');
         $isNextPage = false;
         if ($limit) {

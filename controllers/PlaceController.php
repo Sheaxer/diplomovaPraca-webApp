@@ -14,7 +14,7 @@ function placeController()
         switch ($_SERVER['REQUEST_METHOD']) {
             case "GET":
                 if (sizeof($pathElements) == 1) {
-                    $page = null;
+                    $page = 1;
                     $pathParams = [];
                     $limit = null;
                     $name = null;

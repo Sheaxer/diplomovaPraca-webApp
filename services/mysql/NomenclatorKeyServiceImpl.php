@@ -372,7 +372,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->execute();
         $countStm->execute();
         $nomenclatorKeysData = $stm->fetchAll(PDO::FETCH_ASSOC);
-        $count = $countStm->fetchColumn(0);
+        $count = intval($countStm->fetchColumn(0));
         
         if($nomenclatorKeysData === false)
             return null;

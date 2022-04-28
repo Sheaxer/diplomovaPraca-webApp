@@ -16,10 +16,12 @@ class NomenclatorFolderServiceImpl implements NomenclatorFolderService
 
     public function getAllFolders($limit, $page): ?array
     {
+        //xdebug_break();
         $countQuery = "SELECT COUNT(*) from folders";
         $countStm = $this->conn->prepare($countQuery);
         $countStm->setFetchMode(PDO::FETCH_ASSOC);
-        $count = $countStm->fetchColumn(0);
+        $countStm->execute();
+        $count =  intval($countStm->fetchColumn(0));
         $isNextPage = false;
         $query = "SELECT * FROM folders";
         if ($limit ) {

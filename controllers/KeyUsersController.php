@@ -22,7 +22,7 @@ function keyUsersController()
                             post_result(stripNullsFromObject($user));
                             exit();
                         }
-                        $page = null;
+                        $page = 1;
                         $limit = null;
                         if (isset($_GET['limit']) && !empty($_GET['limit']) && $_GET['limit'] != null ) {
                             $limit = intval($_GET['limit']);

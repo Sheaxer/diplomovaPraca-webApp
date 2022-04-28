@@ -15,7 +15,7 @@ function archiveController()
                     if (strcmp(substr($pathElements[0], 0, 8 ), "archives") == 0) {
                         $archiveService = GETArchiveService();
                         $limit = null;
-                        $page = null;
+                        $page = 1;
                         if (isset($_GET['limit']) && !empty($_GET['limit']) && $_GET['limit'] != null ) {
                             $limit = intval($_GET['limit']);
                         }
