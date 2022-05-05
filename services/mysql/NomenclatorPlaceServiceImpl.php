@@ -53,7 +53,11 @@ class NomenclatorPlaceServiceImpl implements NomenclatorPlaceService
         $stm->bindParam(':id', $id, PDO::PARAM_INT);
         $stm->setFetchMode(PDO::FETCH_CLASS, 'Place');
         $stm->execute();
-        return $stm->fetch();
+        $res = $stm->fetch();
+        if (! $res) {
+            return null;
+        }
+        return $res;
     }
 
     public function createPlace($name): array

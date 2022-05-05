@@ -57,38 +57,79 @@ function folderController()
                     $folder->regions = [];
                     foreach ($object['regions'] as $regionObject ) {
                         $region = new Region();
-                        if (isset($regionObject['id'])) {
-                            $region->id = $regionObject['id'];
+                        if (is_array($regionObject)) {
+                            if (isset($regionObject['id'])) {
+                                $region->id = $regionObject['id'];
+                            }
+                            if (isset($regionObject['description'])) {
+                                $region->description = $regionObject['description'];
+                            }
+                            if (! $region->id && ! $region->description) {
+                                throw new Exception("Missing required params");
+                            }
+                        } else {
+                            if (is_numeric($regionObject)) {
+                                $region->id = $regionObject;
+                            } else if (is_string($regionObject)) {
+                                $region->description = $regionObject;
+                            } else {
+                                throw new Exception("Invalid type for archive");
+                            }
                         }
-                        if (isset($regionObject['description'])) {
-                            $region->description = $regionObject['description'];
-                        }
-                        if (! $region->id && ! $region->description) {
-                            throw new Exception("Missing required params");
-                        }
+                        
                         $folder->regions[] = $region;
                     } 
                 }
                 if (isset ($object['fond'])) {
                     $fondObject = $object['fond'];
                     $fond = new Fond();
-                    if (isset($fondObject['name'])) {
-                        $fond->name = $fondObject['name'];
+                    if (is_array($fondObject)) {
+                        if (isset($fondObject['name'])) {
+                            $fond->name = $fondObject['name'];
+                            if (isset ($fondObject['archive'])) {
+                                $archiveObject = $fondObject['archive'];
+                                $archive = new Archive();
+                                if (is_array($archiveObject)) {
+                                    if (isset($archiveObject['country'])) {
+                                        $archive->country = $archiveObject['country'];
+                                    }
+                                    if (isset($archiveObject['name'])) {
+                                        $archive->name = $archiveObject['name'];
+                                    }
+                                    if (isset($archiveObject['shortName'])) {
+                                        $archive->shortName = $archiveObject['shortName'];
+                                    }
+                                } else {
+                                    $archive->shortName = $archiveObject;
+                                }
+                                
+                                $fond->archive = $archive;
+                            }
+                        }
+                    } else {
+                        $fond->name = $fondObject;
+                        if (isset ($object['archive'])) {
+                            $archiveObject = $object['archive'];
+                            $archive = new Archive();
+                            if (is_array($archiveObject)) {
+                                if (isset($archiveObject['country'])) {
+                                    $archive->country = $archiveObject['country'];
+                                }
+                                if (isset($archiveObject['name'])) {
+                                    $archive->name = $archiveObject['name'];
+                                }
+                                if (isset($archiveObject['shortName'])) {
+                                    $archive->shortName = $archiveObject['shortName'];
+                                }
+                            } else {
+                                $archive->shortName = $archiveObject;
+                            }
+                            $fond->archive = $archive;
+                        }
                     }
-                    if (isset ($fondObject['archive'])) {
-                        $archiveObject = $fondObject['archive'];
-                        $archive = new Archive();
-                        if (isset($archiveObject['country'])) {
-                            $archive->country = $archiveObject['country'];
-                        }
-                        if (isset($archiveObject['name'])) {
-                            $archive->name = $archiveObject['name'];
-                        }
-                        if (isset($archiveObject['shortName'])) {
-                            $archive->shortName = $archiveObject['shortName'];
-                        }
-                        $fond->archive = $archive;
-                    }
+                    
+                   
+                    
                     $folder->fond = $fond;
                 }
                 $folderService = POSTNomenclatorFolderService();

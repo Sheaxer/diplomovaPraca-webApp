@@ -154,8 +154,8 @@ WHERE folderName=:folderName";
             $existsArchiveStm = $this->conn->prepare($existsArchive);
             $existsArchiveStm->bindParam(":shortName", $folder->fond->archive->shortName, PDO::PARAM_STR);
             $existsArchiveStm->execute();
-            $existsArchiveStm->execute();
-            $eA = $existsArchiveStm->getAttribute(0);
+            //$existsArchiveStm->execute();
+            $eA = $existsArchiveStm->fetch(0);
             if ($eA == null) {
                
                 $insertArchive = "INSERT INTO archives (shortName, country, `name`) VALUES (:shortName, :country, :archiveName)";

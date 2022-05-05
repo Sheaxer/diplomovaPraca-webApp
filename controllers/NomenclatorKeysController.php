@@ -200,6 +200,7 @@ function nomenclatorKeyController()
                         $nomenclatorKeyId = null;
                         if (sizeof($pathElements) == 2) {
                             if (is_numeric($pathElements[1])) {
+                                //xdebug_break();
                                 /*if (! $userInfo['isAdmin']) {
                                     throw new AuthorizationException('Only admin can edit the nomenclator key');
                                 }*/
@@ -267,6 +268,14 @@ function nomenclatorKeyController()
 
                                 if (array_key_exists('groupId', $object)) {
                                     $nomenclatorKey->groupId = $object['groupId'];
+                                }
+                                if (array_key_exists('placeOfCreationId', $object)) {
+                                    $placeService = GETNomenclatorPlaceService();
+                                    $p = $placeService->getPlaceById($object['placeOfCreationId']);
+                                    if (! $p) {
+                                        throw new Exception("Place of creation does not exist");
+                                    }
+                                    $nomenclatorKey->placeOfCreationId = $object['placeOfCreationId'];
                                 }
 
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
