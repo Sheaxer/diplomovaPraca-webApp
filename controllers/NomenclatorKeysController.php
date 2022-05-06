@@ -18,6 +18,7 @@ function nomenclatorKeyController()
 {
     $pathElements = getPathElements();
     $headers = apache_request_headers();
+    //xdebug_break();
     try {
 
         $userInfo = authorize();
@@ -245,9 +246,155 @@ function nomenclatorKeyController()
                                     if ($folderService === null)
                                         throw new Exception("System Error");
                                     $folderExists = $folderService->folderExists($object["folder"]);
-                                    if ($folderExists === false)
-                                        throw new Exception("Incorrect Folder");
-                                    else
+                                    if ($folderExists === false) {
+                                        $newFolder = new NomenclatorFolder();
+                                        if (is_array($object['folder'])) {
+                                            
+                                            $folderObject = $object['folder'];
+
+                                            $newFolder->name = $folderObject['name'];
+                                            if (isset ($folderObject['endDate'])) {
+                                                $newFolder->endDate = new DateTime($object['endDate']);
+                                            }
+                                            if (isset ($folderObject['startDate'])) {
+                                                $newFolder->startDate = new DateTime($object['startDate']);
+                                            }
+                                            if (isset($folderObject['regions'])) {
+                                                $newFolder->regions = [];
+                                                foreach ($folderObject['regions'] as $regionObject ) {
+                                                    $region = new Region();
+                                                    if (is_array($regionObject)) {
+                                                        if (isset($regionObject['id'])) {
+                                                            $region->id = $regionObject['id'];
+                                                        }
+                                                        if (isset($regionObject['description'])) {
+                                                            $region->description = $regionObject['description'];
+                                                        }
+                                                        if (! $region->id && ! $region->description) {
+                                                            throw new Exception("Missing required params");
+                                                        }
+                                                    } else {
+                                                        if (is_numeric($regionObject)) {
+                                                            $region->id = $regionObject;
+                                                        } else if (is_string($regionObject)) {
+                                                            $region->description = $regionObject;
+                                                        } else {
+                                                            throw new Exception("Invalid type for archive");
+                                                        }
+                                                    }
+                                                    
+                                                    $newFolder->regions[] = $region;
+                                                } 
+                                            }
+                                            if (isset ($folderObject['fond'])) {
+                                                $fondObject = $folderObject['fond'];
+                                                $fond = new Fond();
+                                                if (is_array($fondObject)) {
+                                                    if (isset($fondObject['name'])) {
+                                                        $fond->name = $fondObject['name'];
+                                                        if (isset ($fondObject['archive'])) {
+                                                            $archiveObject = $fondObject['archive'];
+                                                            $archive = new Archive();
+                                                            if (is_array($archiveObject)) {
+                                                                if (isset($archiveObject['country'])) {
+                                                                    $archive->country = $archiveObject['country'];
+                                                                }
+                                                                if (isset($archiveObject['name'])) {
+                                                                    $archive->name = $archiveObject['name'];
+                                                                }
+                                                                if (isset($archiveObject['shortName'])) {
+                                                                    $archive->shortName = $archiveObject['shortName'];
+                                                                }
+                                                            } else {
+                                                                $archive->shortName = $archiveObject;
+                                                            }
+                                                            
+                                                            $fond->archive = $archive;
+                                                        }
+                                                    }
+                                                } else {
+                                                    $fond->name = $fondObject;
+                                                    if (isset ($folderObject['archive'])) {
+                                                        $archiveObject = $folderObject['archive'];
+                                                        $archive = new Archive();
+                                                        if (is_array($archiveObject)) {
+                                                            if (isset($archiveObject['country'])) {
+                                                                $archive->country = $archiveObject['country'];
+                                                            }
+                                                            if (isset($archiveObject['name'])) {
+                                                                $archive->name = $archiveObject['name'];
+                                                            }
+                                                            if (isset($archiveObject['shortName'])) {
+                                                                $archive->shortName = $archiveObject['shortName'];
+                                                            }
+                                                        } else {
+                                                            $archive->shortName = $archiveObject;
+                                                        }
+                                                        $fond->archive = $archive;
+                                                    }
+                                                }               
+                                                $newFolder->fond = $fond;
+                                            }
+                                        } else {
+                                            $newFolder->name = $object['folder'];
+                                            if (isset ($object['fond'])) {
+                                                $fondObject = $object['fond'];
+                                                $fond = new Fond();
+                                                if (is_array($fondObject)) {
+                                                    if (isset($fondObject['name'])) {
+                                                        $fond->name = $fondObject['name'];
+                                                        if (isset ($fondObject['archive'])) {
+                                                            $archiveObject = $fondObject['archive'];
+                                                            $archive = new Archive();
+                                                            if (is_array($archiveObject)) {
+                                                                if (isset($archiveObject['country'])) {
+                                                                    $archive->country = $archiveObject['country'];
+                                                                }
+                                                                if (isset($archiveObject['name'])) {
+                                                                    $archive->name = $archiveObject['name'];
+                                                                }
+                                                                if (isset($archiveObject['shortName'])) {
+                                                                    $archive->shortName = $archiveObject['shortName'];
+                                                                }
+                                                            } else {
+                                                                $archive->shortName = $archiveObject;
+                                                            }
+                                                            
+                                                            $fond->archive = $archive;
+                                                        }
+                                                    }
+                                                } else {
+                                                    $fond->name = $fondObject;
+                                                    if (isset ($object['archive'])) {
+                                                        $archiveObject = $object['archive'];
+                                                        $archive = new Archive();
+                                                        if (is_array($archiveObject)) {
+                                                            if (isset($archiveObject['country'])) {
+                                                                $archive->country = $archiveObject['country'];
+                                                            }
+                                                            if (isset($archiveObject['name'])) {
+                                                                $archive->name = $archiveObject['name'];
+                                                            }
+                                                            if (isset($archiveObject['shortName'])) {
+                                                                $archive->shortName = $archiveObject['shortName'];
+                                                            }
+                                                        } else {
+                                                            $archive->shortName = $archiveObject;
+                                                        }
+                                                        $fond->archive = $archive;
+                                                    }
+                                                }               
+                                                $newFolder->fond = $fond;
+                                            }
+                                        }
+                                        $folderService = POSTNomenclatorFolderService();
+                                        $status = $folderService->createFolder($newFolder);
+                                        if ($status['status'] == 'success') {
+                                            $nomenclatorKey->folder = $newFolder->name;
+                                        } else {
+                                            throw new Exception($status['error']);
+                                        }
+                                    } else
                                         $nomenclatorKey->folder = $object['folder'];
 
                                 } else $nomenclatorKey->folder = null;
@@ -332,12 +479,162 @@ function nomenclatorKeyController()
                             if ($folderService === null)
                                 throw new Exception("System Error");
                             $folderExists = $folderService->folderExists($object["folder"]);
-                            if ($folderExists === false)
-                                throw new Exception("Incorrect Folder");
-                            else
-                                $nomenclatorKey->folder = $object['folder'];
+                            if ($folderExists === false) {
+                                $newFolder = new NomenclatorFolder();
+                                if (is_array($object['folder'])) {
+                                    
+                                    $folderObject = $object['folder'];
 
-                        } else $nomenclatorKey->folder = null;
+                                    $newFolder->name = $folderObject['name'];
+                                    if (isset ($folderObject['endDate'])) {
+                                        $newFolder->endDate = new DateTime($object['endDate']);
+                                    }
+                                    if (isset ($folderObject['startDate'])) {
+                                        $newFolder->startDate = new DateTime($object['startDate']);
+                                    }
+                                    if (isset($folderObject['regions'])) {
+                                        $newFolder->regions = [];
+                                        foreach ($folderObject['regions'] as $regionObject ) {
+                                            $region = new Region();
+                                            if (is_array($regionObject)) {
+                                                if (isset($regionObject['id'])) {
+                                                    $region->id = $regionObject['id'];
+                                                }
+                                                if (isset($regionObject['description'])) {
+                                                    $region->description = $regionObject['description'];
+                                                }
+                                                if (! $region->id && ! $region->description) {
+                                                    throw new Exception("Missing required params");
+                                                }
+                                            } else {
+                                                if (is_numeric($regionObject)) {
+                                                    $region->id = $regionObject;
+                                                } else if (is_string($regionObject)) {
+                                                    $region->description = $regionObject;
+                                                } else {
+                                                    throw new Exception("Invalid type for archive");
+                                                }
+                                            }
+                                            
+                                            $newFolder->regions[] = $region;
+                                        } 
+                                    }
+                                    if (isset ($folderObject['fond'])) {
+                                        $fondObject = $folderObject['fond'];
+                                        $fond = new Fond();
+                                        if (is_array($fondObject)) {
+                                            if (isset($fondObject['name'])) {
+                                                $fond->name = $fondObject['name'];
+                                                if (isset ($fondObject['archive'])) {
+                                                    $archiveObject = $fondObject['archive'];
+                                                    $archive = new Archive();
+                                                    if (is_array($archiveObject)) {
+                                                        if (isset($archiveObject['country'])) {
+                                                            $archive->country = $archiveObject['country'];
+                                                        }
+                                                        if (isset($archiveObject['name'])) {
+                                                            $archive->name = $archiveObject['name'];
+                                                        }
+                                                        if (isset($archiveObject['shortName'])) {
+                                                            $archive->shortName = $archiveObject['shortName'];
+                                                        }
+                                                    } else {
+                                                        $archive->shortName = $archiveObject;
+                                                    }
+                                                    
+                                                    $fond->archive = $archive;
+                                                }
+                                            }
+                                        } else {
+                                            $fond->name = $fondObject;
+                                            if (isset ($folderObject['archive'])) {
+                                                $archiveObject = $folderObject['archive'];
+                                                $archive = new Archive();
+                                                if (is_array($archiveObject)) {
+                                                    if (isset($archiveObject['country'])) {
+                                                        $archive->country = $archiveObject['country'];
+                                                    }
+                                                    if (isset($archiveObject['name'])) {
+                                                        $archive->name = $archiveObject['name'];
+                                                    }
+                                                    if (isset($archiveObject['shortName'])) {
+                                                        $archive->shortName = $archiveObject['shortName'];
+                                                    }
+                                                } else {
+                                                    $archive->shortName = $archiveObject;
+                                                }
+                                                $fond->archive = $archive;
+                                            }
+                                        }               
+                                        $newFolder->fond = $fond;
+                                    }
+                                } else {
+                                    $newFolder->name = $object['folder'];
+                                    if (isset ($object['fond'])) {
+                                        $fondObject = $object['fond'];
+                                        $fond = new Fond();
+                                        if (is_array($fondObject)) {
+                                            if (isset($fondObject['name'])) {
+                                                $fond->name = $fondObject['name'];
+                                                if (isset ($fondObject['archive'])) {
+                                                    $archiveObject = $fondObject['archive'];
+                                                    $archive = new Archive();
+                                                    if (is_array($archiveObject)) {
+                                                        if (isset($archiveObject['country'])) {
+                                                            $archive->country = $archiveObject['country'];
+                                                        }
+                                                        if (isset($archiveObject['name'])) {
+                                                            $archive->name = $archiveObject['name'];
+                                                        }
+                                                        if (isset($archiveObject['shortName'])) {
+                                                            $archive->shortName = $archiveObject['shortName'];
+                                                        }
+                                                    } else {
+                                                        $archive->shortName = $archiveObject;
+                                                    }
+                                                    
+                                                    $fond->archive = $archive;
+                                                }
+                                            }
+                                        } else {
+                                            $fond->name = $fondObject;
+                                            if (isset ($object['archive'])) {
+                                                $archiveObject = $object['archive'];
+                                                $archive = new Archive();
+                                                if (is_array($archiveObject)) {
+                                                    if (isset($archiveObject['country'])) {
+                                                        $archive->country = $archiveObject['country'];
+                                                    }
+                                                    if (isset($archiveObject['name'])) {
+                                                        $archive->name = $archiveObject['name'];
+                                                    }
+                                                    if (isset($archiveObject['shortName'])) {
+                                                        $archive->shortName = $archiveObject['shortName'];
+                                                    }
+                                                } else {
+                                                    $archive->shortName = $archiveObject;
+                                                }
+                                                $fond->archive = $archive;
+                                            }
+                                        }               
+                                        $newFolder->fond = $fond;
+                                    }
+                                }
+                                $folderService = POSTNomenclatorFolderService();
+                                $status = $folderService->createFolder($newFolder);
+                                if ($status['status'] == 'success') {
+                                    $nomenclatorKey->folder = $newFolder->name;
+                                } else {
+                                    throw new Exception($status['error']);
+                                }
+                            } else {
+                                $nomenclatorKey->folder = $object['folder'];
+                            }
+                               
+
+                        } else {
+                            $nomenclatorKey->folder = null;
+                        }
 
                         if (array_key_exists("signature", $object)) {
                             $nomenclatorKey->signature = $object["signature"];
@@ -348,10 +645,11 @@ function nomenclatorKeyController()
                             $nomenclatorKey->completeStructure = $object["completeStructure"];
                         else $nomenclatorKey->completeStructure = null;
 
-                        if(array_key_exists("language",$object))
+                        if(array_key_exists("language",$object)) {
                             $nomenclatorKey->language = $object['language'];
-                        else
+                        } else {
                             $nomenclatorKey->language = null;
+                        }
 
                         if (array_key_exists('groupId', $object)) {
                             $nomenclatorKey->groupId = $object['groupId'];
