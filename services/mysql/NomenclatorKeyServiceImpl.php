@@ -231,7 +231,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, 
         ?array $folders = null, ?array $structures = null,
-        bool $myKeys = false, string $state = null
+        bool $myKeys = false, ?string $state = null, ?int $createdBy = null
     ): ?array
     {
         $selectQuery = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note ";
@@ -349,6 +349,14 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $isWhereAlready = true;
             }
         }
+        if ($createdBy) {
+            if ($isWhereAlready) {
+                $query .= " AND (s.createdBy = :keyCreatedById)";
+            } else {
+                $query .= " WHERE (s.createdBy = :keyCreatedById)";
+                $isWhereAlready = true;
+            }
+        }
 
         $countQuery.= $query;
         $query =  $selectQuery . $query;
@@ -400,6 +408,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         if ($state) {
             $stm->bindParam(":currentState", $state);
             $countStm->bindParam(":currentState", $state );
+        }
+        if ($createdBy) {
+            $stm->bindParam(":keyCreatedById", $createdBy, PDO::PARAM_INT);
+            $countStm->bindParam(":keyCreatedById", $createdBy, PDO::PARAM_INT );
         }
         
         $stm->execute();

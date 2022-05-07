@@ -43,6 +43,7 @@ function nomenclatorKeyController()
                         $page = 1;
                         $myKeys = false;
                         $state = null;
+                        $createdBy = null;
                        // xdebug_break();
                         //var_dump($_GET['folder']);
                         foreach ($pathParams as $param) {
@@ -62,6 +63,8 @@ function nomenclatorKeyController()
                                 $myKeys = filter_var($myKeysVal, FILTER_VALIDATE_BOOLEAN);
                             } else if (substr_compare($param, "state=", 0, 6) === 0) {
                                 $state = substr($param, 6);
+                            } else if (substr_compare($param, "createdById=", 0, 12) === 0) {
+                                $createdBy = intval(substr($param, 12));
                             }
                             
                         }
@@ -73,7 +76,7 @@ function nomenclatorKeyController()
                         if (empty($structures))
                             $structures = null;
 
-                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures, $myKeys, $state );
+                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures, $myKeys, $state, $createdBy );
                         post_result($keys);
 
                     } else if (sizeof($pathElements) === 2 || sizeof($pathElements) === 3) {
