@@ -238,7 +238,7 @@ function nomenclatorKeyController()
                                 }
 
                                 if (array_key_exists('usedAround', $object)) {
-                                    $nomenclatorKey->usedAround = new DateTime($object['usedAround']);
+                                    $nomenclatorKey->usedAround = $object['usedAround'];
                                 }
 
                                 if (array_key_exists("folder", $object)) {
@@ -428,7 +428,7 @@ function nomenclatorKeyController()
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
 
                                 $nomenclatorKey->id = $nomenclatorKeyId;
-                                $result = $nomenclatorKeyService->updateNomenclatorKey($nomenclatorKey);
+                                $result = $nomenclatorKeyService->updateNomenclatorKey($userInfo, $nomenclatorKey);
 
                                 if ($result['status'] == 'success') {
                                     post_result([
@@ -471,7 +471,7 @@ function nomenclatorKeyController()
                         }
 
                         if (array_key_exists('usedAround', $object)) {
-                            $nomenclatorKey->usedAround = new DateTime($object['usedAround']);
+                            $nomenclatorKey->usedAround = $object['usedAround'];
                         }
 
                         if (array_key_exists("folder", $object)) {

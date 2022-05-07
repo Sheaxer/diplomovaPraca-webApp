@@ -19,7 +19,7 @@ interface NomenclatorKeyService
 
     public function getNomenclatorKeyState(?array $userInfo, $nomenclatorId, $stateId): ?NomenclatorKeyState;
 
-    public function updateNomenclatorKey(NomenclatorKey $nomenclatorKey);
+    public function updateNomenclatorKey(array $userInfo, NomenclatorKey $nomenclatorKey);
 
     public function addKeyUsersToNomenclatorKey(int $nomenclatorKeyId, array $users);
 

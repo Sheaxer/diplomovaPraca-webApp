@@ -27,7 +27,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $stateQuery = "INSERT INTO nomenclatorkeystate (`state`, createdBy, createdAt, updatedAt, note) VALUES (:stateString, :createdBy, :createdAt, :updatedAt, :note)";
         $stateStm = $this->conn->prepare($stateQuery);
-        $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_NEW);
+        $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_AWAITING);
         $now = new DateTime();
         $stateStm->bindParam(':createdBy', $userId);
         $stateStm->bindValue(':createdAt', $now->format('Y-m-d H:i:s'));
@@ -67,7 +67,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':keyType', $nomenclator->keyType);
         $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
         $stm->bindValue(':usedTo', $nomenclator->usedTo ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
-        $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->usedAround->format('Y-m-d H:i:s') : null);
+        $stm->bindParam(':usedAround', $nomenclator->usedAround);
         $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId, PDO::PARAM_INT);
         if ($nomenclator->groupId) {
             $stm->bindParam(':groupId', $nomenclator->groupId, PDO::PARAM_INT);
@@ -511,15 +511,62 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         return $stm->fetchObject('NomenclatorKeyState');
     }
 
-    public function updateNomenclatorKey(NomenclatorKey $nomenclator)
+    public function updateNomenclatorKey(array $userInfo, NomenclatorKey $nomenclator)
     {
+        $this->conn->beginTransaction();
+        $getStateId = "SELECT stateId FROM nomenclatorkeys WHERE id=:id";
+        $getStateIdStm = $this->conn->prepare($getStateId);
+        $getStateIdStm->setFetchMode(PDO::FETCH_ASSOC);
+        $getStateIdStm->bindParam(":id", $nomenclator->id, PDO::PARAM_INT);
+        $getStateIdStm->execute();
+        $stateId = $getStateIdStm->fetchColumn(0);
+        if (! $stateId) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+
+        $getStateQuery = 'SELECT * from nomenclatorkeystate WHERE id=:stateId';
+        $getStateStm = $this->conn->prepare($getStateQuery);
+        $getStateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
+        $getStateStm->setFetchMode(PDO::FETCH_CLASS, NomenclatorKeyState::class);
+        $getStateIdStm->execute();
+        $state = $getStateStm->fetch();
+        if (! $state) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+        /** @var NomenclatorKeyState $state */
+        if ($state->createdBy != $userInfo['id']) {
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => 'User cannot update keys not created by them',
+            ];
+        }
+        if ($state->state != NomenclatorKeyState::STATE_APPROVED && $state->state != NomenclatorKeyState::STATE_AWAITING) {
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => 'Only keys in state awaiting or approved can be updated',
+            ];
+        }
+
+
         $query = "UPDATE nomenclatorkeys SET folder = :folder, `signature` = :signatureStr, 
         completeStructure = :completeStructure, `language` = :lang, 
             usedChars = :usedChars,  cipherType = :cipherType, keyType = :keyType, 
             usedFrom = :usedFrom, usedTo = :usedTo, usedAround = :usedAround , 
             placeOfCreation = :placeOfCreation, groupId = :groupId 
             WHERE id = :id";
-
+        
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':folder',$nomenclator->folder);
         $stm->bindParam(':signatureStr',$nomenclator->signature);
@@ -532,19 +579,41 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stm->bindParam(':keyType', $nomenclator->keyType);
         $stm->bindValue(':usedFrom', $nomenclator->usedFrom ? $nomenclator->usedFrom->format('Y-m-d H:i:s') : null);
         $stm->bindValue(':usedTo', $nomenclator->usedTo ? $nomenclator->usedTo->format('Y-m-d H:i:s') : null);
-        $stm->bindValue(':usedAround', $nomenclator->usedAround ? $nomenclator->useusedArounddTo->format('Y-m-d H:i:s') : null);
-        $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId);
-        $stm->bindParam(':groupId', $nomenclator->groupId);
-        $stm->bindParam(':id', $nomenclator->id);
+        $stm->bindParam(':usedAround', $nomenclator->usedAround);
+        $stm->bindParam(':placeOfCreation', $nomenclator->placeOfCreationId, PDO::PARAM_INT);
+        $stm->bindParam(':groupId', $nomenclator->groupId, PDO::PARAM_INT);
+        $stm->bindParam(':id', $nomenclator->id, PDO::PARAM_INT);
 
         $result = $stm->execute();
         if (! $result) {
             $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
             return [
                 'status' => 'error',
                 'error' => $errorCode,
             ];
         }
+
+        
+
+
+        $updateQuery = "UPDATE nomenclatorkeystate SET `state`=:stateString, updatedAt = :updatedAt WHERE id = :stateId";
+        $updateStm = $this->conn->prepare($updateQuery);
+        $updateStm->bindParam(":stateString", NomenclatorKeyState::STATE_AWAITING);
+        $now  = new DateTime();
+        $updateStm->bindValue(':updatedAt', $now->format("Y-m-d H:i:s"));
+        $updateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
+        $wasExecuted = $updateStm->execute();
+        if (! $wasExecuted) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+
+        $this->conn->commit();
         return [
             'status' => 'success',
         ];

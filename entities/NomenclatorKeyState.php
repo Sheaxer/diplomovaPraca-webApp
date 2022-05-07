@@ -7,6 +7,8 @@ class NomenclatorKeyState
     const STATE_APPROVED = 'approved';
     const STATE_DELETED  = 'deleted';
     const STATE_NEW      = 'new';
+    const STATE_REJECTED = 'rejected';
+    const STATE_AWAITING = 'awaiting';
 
     public $nomenclatorKeyId;
     public $id;

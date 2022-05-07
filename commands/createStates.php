@@ -23,7 +23,7 @@ var_dump($ids);
 
 $query2 = "INSERT INTO nomenclatorkeystate (`state`, createdBy, note) VALUES (:st, :createdBy, :note)";
 $stm2 = $postService->prepare($query2);
-$stm2->bindValue(':st', NomenclatorKeyState::STATE_NEW);
+$stm2->bindValue(':st', NomenclatorKeyState::STATE_AWAITING);
 $stm2->bindValue(':createdBy', intval($userId));
 $stm2->bindValue(':note', '');
 
