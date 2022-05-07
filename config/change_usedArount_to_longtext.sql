@@ -1,0 +1,1 @@
+ALTER TABLE `nomenclatorkeys` CHANGE `usedAround` `usedAround` LONGTEXT NULL DEFAULT NULL;
