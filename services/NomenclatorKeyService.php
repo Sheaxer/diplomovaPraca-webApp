@@ -9,7 +9,7 @@ interface NomenclatorKeyService
 
     public function getNomenclatorKeyBySignature(?array $userInfo, string $signature): ?NomenclatorKey;
 
-    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array;
+    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null, bool $myKeys = false, string $state = null): ?array;
 
     public function nomenclatorKeyExistsById(?array $userInfo, $keyId) :bool;
 
@@ -21,8 +21,8 @@ interface NomenclatorKeyService
 
     public function updateNomenclatorKey(array $userInfo, NomenclatorKey $nomenclatorKey);
 
-    public function addKeyUsersToNomenclatorKey(int $nomenclatorKeyId, array $users);
+    public function addKeyUsersToNomenclatorKey(array $userInfo, int $nomenclatorKeyId, array $users);
 
-    public function removeKeyUsersFromNomenclatorKey(int $nomenclatorKeyId, array $users);
+    public function removeKeyUsersFromNomenclatorKey(array $userInfo, int $nomenclatorKeyId, array $users);
 
 }

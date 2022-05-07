@@ -41,6 +41,8 @@ function nomenclatorKeyController()
                         $signatures = array();
                         $limit = null;
                         $page = 1;
+                        $myKeys = false;
+                        $state = null;
                        // xdebug_break();
                         //var_dump($_GET['folder']);
                         foreach ($pathParams as $param) {
@@ -55,6 +57,11 @@ function nomenclatorKeyController()
                             }
                             else if (substr_compare($param, "page=", 0, 5) === 0) {
                                 $page = intval(substr($param, 5));
+                            } else if (substr_compare($param, "myKeys=", 0, 7) === 0) {
+                                $myKeysVal = substr($param, 7);
+                                $myKeys = filter_var($myKeysVal, FILTER_VALIDATE_BOOLEAN);
+                            } else if (substr_compare($param, "state=", 0, 6) === 0) {
+                                $state = substr($param, 6);
                             }
                             
                         }
@@ -66,7 +73,7 @@ function nomenclatorKeyController()
                         if (empty($structures))
                             $structures = null;
 
-                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures );
+                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures, $myKeys, $state );
                         post_result($keys);
 
                     } else if (sizeof($pathElements) === 2 || sizeof($pathElements) === 3) {
@@ -129,12 +136,13 @@ function nomenclatorKeyController()
                                     ]);
                                 }
                             } else if (strcmp(substr($pathElements[2], 0, 11), "addKeyUsers") == 0){
+                                //xdebug_break();
                                 $nomenclatorKeyId = intval($pathElements[1]);
-                                $nomenclatorKeyService = GETNomenclatorKeyService();
-                                $originalNomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($userInfo ,$nomenclatorKeyId);
+                                //$nomenclatorKeyService = GETNomenclatorKeyService();
+                                /*$originalNomenclatorKey = $nomenclatorKeyService->getNomenclatorKeyById($userInfo ,$nomenclatorKeyId);
                                 if (! $originalNomenclatorKey) {
                                     throw new Exception('Invalid nomenclator key id');
-                                }
+                                }*/
                                 $users = [];
                                 foreach ($object as $user) {
                                     if (! isset($user['id']) && ! isset($user['name'])) {
@@ -155,7 +163,7 @@ function nomenclatorKeyController()
                                     $users[] = $keyUser;
                                 }
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
-                                $result = $nomenclatorKeyService->addKeyUsersToNomenclatorKey($nomenclatorKeyId, $users);
+                                $result = $nomenclatorKeyService->addKeyUsersToNomenclatorKey($userInfo, $nomenclatorKeyId, $users);
                                 if ($result['status'] == 'success') {
                                     post_result([
                                         'status' => 'success'
@@ -185,7 +193,7 @@ function nomenclatorKeyController()
                                     $users[] = $keyUser;
                                 }
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
-                                $result = $nomenclatorKeyService->removeKeyUsersFromNomenclatorKey($nomenclatorKeyId, $users);
+                                $result = $nomenclatorKeyService->removeKeyUsersFromNomenclatorKey($userInfo, $nomenclatorKeyId, $users);
                                 if ($result['status'] == 'success') {
                                     post_result([
                                         'status' => 'success'

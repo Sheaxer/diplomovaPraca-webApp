@@ -229,7 +229,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         return $nomenclatorKey;
     }
 
-    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, ?array $folders = null, ?array $structures = null): ?array
+    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, 
+        ?array $folders = null, ?array $structures = null,
+        bool $myKeys = false, string $state = null
+    ): ?array
     {
         $selectQuery = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note ";
         $countQuery  ="SELECT COUNT(k.id) ";
@@ -316,6 +319,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                     $query .= ' AND ((s.createdBy = :createdById)';
                 } else {
                     $query .= ' WHERE ((s.createdBy = :createdById)';
+                    $isWhereAlready = true;
                 }
                 $query .= ' OR ( s.state = :approvedState))';
             }
@@ -324,8 +328,28 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $query .= ' AND ( s.state = :approvedState)';
             } else {
                 $query .= ' WHERE ( s.state = :approvedState)';
+                $isWhereAlready = true;
             }
         }
+
+        if ($userInfo && $myKeys) {
+            if ($isWhereAlready) {
+                $query .= " AND (s.createdBy = :myId)";
+            } else {
+                $query .= " WHERE (s.createdBy = :myId)";
+                $isWhereAlready = true;
+            }
+        }
+
+        if ($state) {
+            if ($isWhereAlready) {
+                $query .= " AND (s.`state` = :currentState)";
+            } else {
+                $query .= " WHERE (s.`state` = :currentState)";
+                $isWhereAlready = true;
+            }
+        }
+
         $countQuery.= $query;
         $query =  $selectQuery . $query;
         if ($limit) {
@@ -367,6 +391,15 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $offset = ($page - 1) * $limit;
             $stm->bindParam(":offset", $offset, PDO::PARAM_INT);
             $stm->bindParam(":pageLimit", $limit, PDO::PARAM_INT);
+        }
+
+        if ($userInfo && $myKeys) {
+            $stm->bindParam(":myId", $userInfo['id'], PDO::PARAM_INT);
+            $countStm->bindParam(":myId", $userInfo['id'], PDO::PARAM_INT);
+        }
+        if ($state) {
+            $stm->bindParam(":currentState", $state);
+            $countStm->bindParam(":currentState", $state );
         }
         
         $stm->execute();
@@ -533,7 +566,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $getStateStm = $this->conn->prepare($getStateQuery);
         $getStateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
         $getStateStm->setFetchMode(PDO::FETCH_CLASS, NomenclatorKeyState::class);
-        $getStateIdStm->execute();
+        $getStateStm->execute();
         $state = $getStateStm->fetch();
         if (! $state) {
             $errorCode = $this->conn->errorInfo()[2];
@@ -599,7 +632,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $updateQuery = "UPDATE nomenclatorkeystate SET `state`=:stateString, updatedAt = :updatedAt WHERE id = :stateId";
         $updateStm = $this->conn->prepare($updateQuery);
-        $updateStm->bindParam(":stateString", NomenclatorKeyState::STATE_AWAITING);
+        $updateStm->bindValue(":stateString", NomenclatorKeyState::STATE_AWAITING);
         $now  = new DateTime();
         $updateStm->bindValue(':updatedAt', $now->format("Y-m-d H:i:s"));
         $updateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
@@ -619,10 +652,56 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         ];
     }
 
-    public function addKeyUsersToNomenclatorKey(int $nomenclatorKeyId, array $users)
+    public function addKeyUsersToNomenclatorKey(array $userInfo, int $nomenclatorKeyId, array $users)
     {
-        $keyUserService = new KeyUserServiceImpl($this->conn);
         $this->conn->beginTransaction();
+        $getStateId = "SELECT stateId FROM nomenclatorkeys WHERE id=:id";
+        $getStateIdStm = $this->conn->prepare($getStateId);
+        $getStateIdStm->setFetchMode(PDO::FETCH_ASSOC);
+        $getStateIdStm->bindParam(":id", $nomenclatorKeyId, PDO::PARAM_INT);
+        $getStateIdStm->execute();
+        $stateId = $getStateIdStm->fetchColumn(0);
+        if (! $stateId) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+
+        $getStateQuery = 'SELECT * from nomenclatorkeystate WHERE id=:stateId';
+        $getStateStm = $this->conn->prepare($getStateQuery);
+        $getStateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
+        $getStateStm->setFetchMode(PDO::FETCH_CLASS, NomenclatorKeyState::class);
+        $getStateStm->execute();
+        $state = $getStateStm->fetch();
+        if (! $state) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+        /** @var NomenclatorKeyState $state */
+        if ($state->createdBy != $userInfo['id']) {
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => 'User cannot update keys not created by them',
+            ];
+        }
+        if ($state->state != NomenclatorKeyState::STATE_APPROVED && $state->state != NomenclatorKeyState::STATE_AWAITING) {
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => 'Only keys in state awaiting or approved can be updated',
+            ];
+        }
+
+        $keyUserService = new KeyUserServiceImpl($this->conn);
+        //$this->conn->beginTransaction();
         /** @var KeyUser $user */
         foreach ($users as $user) {
             $userId = null;
@@ -654,16 +733,78 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $keyUserService->assignKeyUserToNomenclatorKey($userId, $nomenclatorKeyId, $user->isMainUser);
         }
 
+        $updateQuery = "UPDATE nomenclatorkeystate SET `state`=:stateString, updatedAt = :updatedAt WHERE id = :stateId";
+        $updateStm = $this->conn->prepare($updateQuery);
+        $updateStm->bindValue(":stateString", NomenclatorKeyState::STATE_AWAITING);
+        $now  = new DateTime();
+        $updateStm->bindValue(':updatedAt', $now->format("Y-m-d H:i:s"));
+        $updateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
+        $wasExecuted = $updateStm->execute();
+        if (! $wasExecuted) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+
         $this->conn->commit();
         return [
             'status' => 'success',
         ];
     }
 
-    public function removeKeyUsersFromNomenclatorKey(int $nomenclatorKeyId, array $users)
+    public function removeKeyUsersFromNomenclatorKey(array $userInfo, int $nomenclatorKeyId, array $users)
     {
-        $keyUserService = new KeyUserServiceImpl($this->conn);
         $this->conn->beginTransaction();
+        $getStateId = "SELECT stateId FROM nomenclatorkeys WHERE id=:id";
+        $getStateIdStm = $this->conn->prepare($getStateId);
+        $getStateIdStm->setFetchMode(PDO::FETCH_ASSOC);
+        $getStateIdStm->bindParam(":id", $nomenclatorKeyId, PDO::PARAM_INT);
+        $getStateIdStm->execute();
+        $stateId = $getStateIdStm->fetchColumn(0);
+        if (! $stateId) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+
+        $getStateQuery = 'SELECT * from nomenclatorkeystate WHERE id=:stateId';
+        $getStateStm = $this->conn->prepare($getStateQuery);
+        $getStateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
+        $getStateStm->setFetchMode(PDO::FETCH_CLASS, NomenclatorKeyState::class);
+        $getStateStm->execute();
+        $state = $getStateStm->fetch();
+        if (! $state) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
+        }
+        /** @var NomenclatorKeyState $state */
+        if ($state->createdBy != $userInfo['id']) {
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => 'User cannot update keys not created by them',
+            ];
+        }
+        if ($state->state != NomenclatorKeyState::STATE_APPROVED && $state->state != NomenclatorKeyState::STATE_AWAITING) {
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => 'Only keys in state awaiting or approved can be updated',
+            ];
+        }
+
+        $keyUserService = new KeyUserServiceImpl($this->conn);
+       
         /** @var KeyUser $user */
         foreach ($users as $user) {
             $userId = null;
@@ -701,6 +842,22 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $this->conn->rollBack();
                 return $result;
             }
+        }
+
+        $updateQuery = "UPDATE nomenclatorkeystate SET `state`=:stateString, updatedAt = :updatedAt WHERE id = :stateId";
+        $updateStm = $this->conn->prepare($updateQuery);
+        $updateStm->bindValue(":stateString", NomenclatorKeyState::STATE_AWAITING);
+        $now  = new DateTime();
+        $updateStm->bindValue(':updatedAt', $now->format("Y-m-d H:i:s"));
+        $updateStm->bindParam(":stateId", $stateId, PDO::PARAM_INT);
+        $wasExecuted = $updateStm->execute();
+        if (! $wasExecuted) {
+            $errorCode = $this->conn->errorInfo()[2];
+            $this->conn->rollBack();
+            return [
+                'status' => 'error',
+                'error' => $errorCode,
+            ];
         }
 
         $this->conn->commit();
