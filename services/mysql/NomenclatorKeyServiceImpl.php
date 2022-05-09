@@ -160,6 +160,11 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $u = new SystemUserServiceImpl($this->conn);
             $nomenclatorKey->state->createdBy = $u->getUsernameById($nomenclatorKey->state->createdById);
         }
+        if ($nomenclatorKey->folder) {
+            $f = new NomenclatorFolderServiceImpl($this->conn);
+            $fold = $f->getFolderByName($nomenclatorKey->folder);
+            $nomenclatorKey->folder = $fold;
+        }
        
         /* TODO fill in folder and used where? */
         /*$u = new KeyUserServiceImpl($this->conn);

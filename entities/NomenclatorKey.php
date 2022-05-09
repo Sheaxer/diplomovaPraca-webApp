@@ -83,6 +83,7 @@ class NomenclatorKey {
         $key->usedFrom = $data['usedFrom'] ?? null;
         $key->usedTo = $data['usedTo'] ?? null;
         $key->placeOfCreationId = $data['placeOfCreation'] ?? null;
+        $key->folder = $data['folder']  ?? null;
         //$key->stateId = $data['stateId'] ?? null;
         if (isset($data['stateId']) && $data['stateId']) {
             $key->state = new NomenclatorKeyState();
