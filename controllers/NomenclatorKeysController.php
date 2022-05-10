@@ -44,6 +44,9 @@ function nomenclatorKeyController()
                         $myKeys = false;
                         $state = null;
                         $createdBy = null;
+
+                        $orderBy = null;
+                        $order = 'ASC';
                        // xdebug_break();
                         //var_dump($_GET['folder']);
                         foreach ($pathParams as $param) {
@@ -65,6 +68,15 @@ function nomenclatorKeyController()
                                 $state = substr($param, 6);
                             } else if (substr_compare($param, "createdById=", 0, 12) === 0) {
                                 $createdBy = intval(substr($param, 12));
+                            } else if(substr_compare($param, 'orderBy=', 0, 8) === 0) {
+                                if (in_array(substr($param, 8), NomenclatorKey::$orderable)) {
+                                    $orderBy = substr($param, 8);
+                                }
+                            } else if(substr_compare($param, 'order=', 0, 6) === 0) {
+                                $arr = ['ASC', 'DESC'];
+                                if (in_array(substr($param, 6), $arr)) {
+                                    $order = substr($param, 6);
+                                }
                             }
                             
                         }
@@ -76,7 +88,7 @@ function nomenclatorKeyController()
                         if (empty($structures))
                             $structures = null;
 
-                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures, $myKeys, $state, $createdBy );
+                        $keys = $nomenclatorKeyService->getNomenklatorKeysByAttributes($userInfo, $limit, $page, $folders, $structures, $myKeys, $state, $createdBy, $orderBy, $order );
                         post_result($keys);
 
                     } else if (sizeof($pathElements) === 2 || sizeof($pathElements) === 3) {

@@ -236,7 +236,8 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
     public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, 
         ?array $folders = null, ?array $structures = null,
-        bool $myKeys = false, ?string $state = null, ?int $createdBy = null
+        bool $myKeys = false, ?string $state = null, ?int $createdBy = null,
+        ?string $orderBy = null, ?string $order = null
     ): ?array
     {
         $selectQuery = "SELECT k.*, s.state, s.createdBy, s.createdAt, s.updatedAt, s.note ";
@@ -363,10 +364,24 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             }
         }
 
+
+
         $countQuery.= $query;
         $query =  $selectQuery . $query;
         if ($limit) {
             $query .= " LIMIT :offset, :pageLimit";
+        }
+
+        if ($orderBy) {
+            $query .= " ORDER BY ";
+            if ($orderBy == 'createdAt' || $orderBy == 'updatedAt') {
+                $query .= "s." . $orderBy;
+            } else {
+                $query .= 'k.' . $orderBy;
+            }
+            if ($order) {
+                $query .= " " . $order;
+            }
         }
        
         //var_dump($query);
