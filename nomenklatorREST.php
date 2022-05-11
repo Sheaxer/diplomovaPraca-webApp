@@ -14,6 +14,8 @@ require_once (__DIR__ . "/controllers/NomenclatorImageController.php");
 
 require_once (__DIR__ ."/controllers/ArchiveController.php");
 
+require_once (__DIR__ . "/controllers/StatisticsController.php");
+
 $path = getPathElements();
 if(isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] !== null && !empty($_SERVER['HTTP_ORIGIN']))
     header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
@@ -40,6 +42,8 @@ else if(strcmp(substr($path[0], 0, 20), "nomenclatorKeyImages") === 0) {
     imageController();
 } else if(strcmp(substr($path[0],0,8), "archives") == 0) {
     archiveController();
+} else if (strcmp(substr($path[0], 0, 10), "statistics") === 0) {
+    statisticsController();
 }
 else
     if(strcmp($path[0],"cipherCreator") === 0)

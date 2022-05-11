@@ -25,6 +25,9 @@ require_once (__DIR__ . "/../services/mysql/NomenclatorPlaceServiceImpl.php");
 require_once (__DIR__ ."/../services/ArchiveService.php");
 require_once (__DIR__ ."/../services/mysql/ArchiveServiceImpl.php");
 
+require_once (__DIR__ . '/../services/StatisticsService.php');
+require_once (__DIR__ . '/../services/mysql/StatisticsServiceImpl.php');
+
 function GETConnection(): ?PDO
 {
     $conf = new GETDatabaseConfig();
@@ -168,5 +171,14 @@ function POSTArchiveService(): ?ArchiveService
         return null;
     }
     return new ArchiveServiceImpl($conn);
+}
+
+function GETStatisticsService(): ?StatisticsService
+{
+    $conn = GETConnection();
+    if ($conn === null) {
+        return null;
+    }
+    return new StatisticsServiceImpl($conn);
 }
 
