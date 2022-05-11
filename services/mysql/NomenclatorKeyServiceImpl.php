@@ -616,7 +616,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 'error' => 'User cannot update keys not created by them',
             ];
         }
-        if ($state->state != NomenclatorKeyState::STATE_APPROVED && $state->state != NomenclatorKeyState::STATE_AWAITING) {
+        if ($state->state != NomenclatorKeyState::STATE_APPROVED && $state->state != NomenclatorKeyState::STATE_AWAITING && $state->state != NomenclatorKeyState::STATE_REVISE) {
             $this->conn->rollBack();
             return [
                 'status' => 'error',

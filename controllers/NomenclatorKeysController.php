@@ -138,6 +138,9 @@ function nomenclatorKeyController()
 
                                 $note = $object['note'] ?? null;
                                 $state = $object['state'] ?? null;
+                                if (! in_array($state, NomenclatorKeyState::AVAILABLE_STATES)) {
+                                    throw new Exception('State is not allowed');
+                                }
                                 //xdebug_break();
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
                                 $retVal = $nomenclatorKeyService->updateNomenclatorKeyState($userInfo, $state, $note, intval($pathElements[1]), null);
