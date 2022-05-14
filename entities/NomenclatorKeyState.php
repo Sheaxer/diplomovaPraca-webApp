@@ -5,7 +5,7 @@ class NomenclatorKeyState
     const TABLE_NAME = 'nomenclatorkeystate';
 
     const STATE_APPROVED = 'approved';
-    const STATE_DELETED  = 'deleted';
+    const STATE_DELETED  = 'rejected';
     const STATE_NEW      = 'new';
     const STATE_REVISE = 'revise';
     const STATE_AWAITING = 'awaiting';
