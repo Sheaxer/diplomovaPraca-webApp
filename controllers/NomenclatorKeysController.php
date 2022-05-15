@@ -334,7 +334,9 @@ function nomenclatorKeyController()
                                                             } else {
                                                                 $archive->shortName = $archiveObject;
                                                             }
-                                                            
+                                                            if (! $archive->name) {
+                                                                $archive->name = $archive->shortName;
+                                                            }
                                                             $fond->archive = $archive;
                                                         }
                                                     }
@@ -355,6 +357,9 @@ function nomenclatorKeyController()
                                                             }
                                                         } else {
                                                             $archive->shortName = $archiveObject;
+                                                        }
+                                                        if (! $archive->name) {
+                                                            $archive->name = $archive->shortName;
                                                         }
                                                         $fond->archive = $archive;
                                                     }
@@ -385,7 +390,9 @@ function nomenclatorKeyController()
                                                             } else {
                                                                 $archive->shortName = $archiveObject;
                                                             }
-                                                            
+                                                            if (! $archive->name) {
+                                                                $archive->name = $archive->shortName;
+                                                            }
                                                             $fond->archive = $archive;
                                                         }
                                                     }
@@ -406,6 +413,9 @@ function nomenclatorKeyController()
                                                             }
                                                         } else {
                                                             $archive->shortName = $archiveObject;
+                                                        }
+                                                        if (! $archive->name) {
+                                                            $archive->name = $archive->shortName;
                                                         }
                                                         $fond->archive = $archive;
                                                     }
@@ -567,6 +577,9 @@ function nomenclatorKeyController()
                                                     } else {
                                                         $archive->shortName = $archiveObject;
                                                     }
+                                                    if (! $archive->name) {
+                                                        $archive->name = $archive->shortName;
+                                                    }
                                                     
                                                     $fond->archive = $archive;
                                                 }
@@ -588,6 +601,9 @@ function nomenclatorKeyController()
                                                     }
                                                 } else {
                                                     $archive->shortName = $archiveObject;
+                                                }
+                                                if (! $archive->name) {
+                                                    $archive->name = $archive->shortName;
                                                 }
                                                 $fond->archive = $archive;
                                             }
@@ -618,7 +634,9 @@ function nomenclatorKeyController()
                                                     } else {
                                                         $archive->shortName = $archiveObject;
                                                     }
-                                                    
+                                                    if (! $archive->name) {
+                                                        $archive->name = $archive->shortName;
+                                                    }
                                                     $fond->archive = $archive;
                                                 }
                                             }
@@ -639,6 +657,9 @@ function nomenclatorKeyController()
                                                     }
                                                 } else {
                                                     $archive->shortName = $archiveObject;
+                                                }
+                                                if (! $archive->name) {
+                                                    $archive->name = $archive->shortName;
                                                 }
                                                 $fond->archive = $archive;
                                             }

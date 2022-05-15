@@ -98,9 +98,13 @@ function folderController()
                                     }
                                     if (isset($archiveObject['shortName'])) {
                                         $archive->shortName = $archiveObject['shortName'];
-                                    }
+                                    }  
                                 } else {
                                     $archive->shortName = $archiveObject;
+                                    $archive->name = $archiveObject;
+                                }
+                                if (! $archive->name) {
+                                    $archive->name = $archive->shortName;
                                 }
                                 
                                 $fond->archive = $archive;
@@ -123,6 +127,9 @@ function folderController()
                                 }
                             } else {
                                 $archive->shortName = $archiveObject;
+                            }
+                            if (! $archive->name) {
+                                $archive->name = $archive->shortName;
                             }
                             $fond->archive = $archive;
                         }
