@@ -17,6 +17,7 @@ class LoginInfo
     public $hash;
     public $expiresAt;
     public  $loginDate;
+    public $username;
 
 
 

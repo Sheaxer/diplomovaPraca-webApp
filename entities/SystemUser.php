@@ -7,6 +7,7 @@ class SystemUser
     public  $passwordHash;
     public  $id;
     public  $isAdmin;
+    public $approved;
 
     public static  $tableName = "systemusers";
 

@@ -1,2 +1,3 @@
 constants.php
 DatabaseConfig.php
+SmtpConfig.php

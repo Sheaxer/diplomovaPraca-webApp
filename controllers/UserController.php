@@ -4,13 +4,12 @@ require_once (__DIR__. "/../config/serviceConfig.php");
 require_once (__DIR__ ."/../entities/SystemUser.php");
 require_once (__DIR__ ."/../services/SystemUserService.php");
 require_once (__DIR__ ."/../entities/AuthorizationException.php");
+require_once (__DIR__ .'/MailerController.php');
 
 function userController()
 {
-
     $pathElements = getPathElements();
     $headers = apache_request_headers();
-
     try {
         switch ($_SERVER['REQUEST_METHOD']) {
             case "POST":
@@ -28,6 +27,7 @@ function userController()
                     throw new RuntimeException("No password");
                 if (strcmp($pathElements[0], "login") === 0) {
                     // LOGIN
+
                     if (sizeof($pathElements) !== 1)
                         throw new RuntimeException("Incorrect URL 3");
 
@@ -74,7 +74,7 @@ function userController()
                         throw new Exception("System Error");
                 } else if (strcmp($pathElements[0], "register") === 0) {
                     //$userInfo = authorize();
-                   
+
                     $systemUserService = GETSystemUserService();
 
                     $userId = $systemUserService->getUserIdByUsername($object['username']);
@@ -85,6 +85,7 @@ function userController()
                     $systemUserService = POSTSystemUserService();
                     $addedId = $systemUserService->createSystemUser($object['username'], $object['password'], false);
                     if ($addedId !== null && ! is_array($addedId) ) {
+                        sendMail('New user registration', 'New user ' . $object['username'] . ' registered on keys.hcportal.eu.' );
                         $data['id'] = $addedId;
                         post_result($data);
                     } else {
@@ -93,7 +94,7 @@ function userController()
                         }
                     }
                         throw new Exception("System Error");
-                } 
+                }
                 else throw new RuntimeException("Incorrect URL 1");
         }
     } catch (Exception $exception) {

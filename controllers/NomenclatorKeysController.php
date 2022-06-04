@@ -14,6 +14,8 @@ require_once (__DIR__ ."/../entities/AuthorizationException.php");
 require_once (__DIR__ . "/../entities/Place.php");
 require_once (__DIR__ . "/../config/constants.php");
 
+require_once (__DIR__ . '/MailerController.php');
+
 function nomenclatorKeyController()
 {
     $pathElements = getPathElements();
@@ -78,7 +80,7 @@ function nomenclatorKeyController()
                                     $order = substr($param, 6);
                                 }
                             }
-                            
+
                         }
                         //var_dump($folders);
                         //var_dump($structures);
@@ -207,7 +209,7 @@ function nomenclatorKeyController()
                                     if (isset($user['name'])) {
                                         $keyUser->name = $user['name'];
                                     }
-                                    
+
                                     $users[] = $keyUser;
                                 }
                                 $nomenclatorKeyService = POSTNomenclatorKeyService();
@@ -221,7 +223,7 @@ function nomenclatorKeyController()
                                 }
                             }
                         }
-                    } 
+                    }
 
                     if (sizeof($pathElements) === 1 || sizeof($pathElements) === 2) {
                         $nomenclatorKeyId = null;
@@ -253,10 +255,10 @@ function nomenclatorKeyController()
                                 }
 
                                 if (array_key_exists('usedFrom', $object)) {
-                                
+
                                     $nomenclatorKey->usedFrom = new DateTime($object['usedFrom']);
-                                    
-                                    
+
+
                                 }
 
                                 if (array_key_exists('usedTo', $object)) {
@@ -275,7 +277,7 @@ function nomenclatorKeyController()
                                     if ($folderExists === false) {
                                         $newFolder = new NomenclatorFolder();
                                         if (is_array($object['folder'])) {
-                                            
+
                                             $folderObject = $object['folder'];
 
                                             $newFolder->name = $folderObject['name'];
@@ -308,9 +310,9 @@ function nomenclatorKeyController()
                                                             throw new Exception("Invalid type for archive");
                                                         }
                                                     }
-                                                    
+
                                                     $newFolder->regions[] = $region;
-                                                } 
+                                                }
                                             }
                                             if (isset ($folderObject['fond'])) {
                                                 $fondObject = $folderObject['fond'];
@@ -363,7 +365,7 @@ function nomenclatorKeyController()
                                                         }
                                                         $fond->archive = $archive;
                                                     }
-                                                }               
+                                                }
                                                 $newFolder->fond = $fond;
                                             }
                                         } else {
@@ -419,7 +421,7 @@ function nomenclatorKeyController()
                                                         }
                                                         $fond->archive = $archive;
                                                     }
-                                                }               
+                                                }
                                                 $newFolder->fond = $fond;
                                             }
                                         }
@@ -465,7 +467,8 @@ function nomenclatorKeyController()
 
                                 $nomenclatorKey->id = $nomenclatorKeyId;
                                 $result = $nomenclatorKeyService->updateNomenclatorKey($userInfo, $nomenclatorKey);
-
+                                /* TODO */
+                                sendMail('Cipher key update', 'User ' . $userInfo['username'] . ' just updated a cipher key with sign. ' . $nomenclatorKey->signature);
                                 if ($result['status'] == 'success') {
                                     post_result([
                                         'status' => 'success'
@@ -496,10 +499,10 @@ function nomenclatorKeyController()
                         }
 
                         if (array_key_exists('usedFrom', $object)) {
-                           
+
                             $nomenclatorKey->usedFrom = new DateTime($object['usedFrom']);
-                            
-                            
+
+
                         }
 
                         if (array_key_exists('usedTo', $object)) {
@@ -518,7 +521,7 @@ function nomenclatorKeyController()
                             if ($folderExists === false) {
                                 $newFolder = new NomenclatorFolder();
                                 if (is_array($object['folder'])) {
-                                    
+
                                     $folderObject = $object['folder'];
 
                                     $newFolder->name = $folderObject['name'];
@@ -551,9 +554,9 @@ function nomenclatorKeyController()
                                                     throw new Exception("Invalid type for archive");
                                                 }
                                             }
-                                            
+
                                             $newFolder->regions[] = $region;
-                                        } 
+                                        }
                                     }
                                     if (isset ($folderObject['fond'])) {
                                         $fondObject = $folderObject['fond'];
@@ -580,7 +583,7 @@ function nomenclatorKeyController()
                                                     if (! $archive->name) {
                                                         $archive->name = $archive->shortName;
                                                     }
-                                                    
+
                                                     $fond->archive = $archive;
                                                 }
                                             }
@@ -607,7 +610,7 @@ function nomenclatorKeyController()
                                                 }
                                                 $fond->archive = $archive;
                                             }
-                                        }               
+                                        }
                                         $newFolder->fond = $fond;
                                     }
                                 } else {
@@ -663,7 +666,7 @@ function nomenclatorKeyController()
                                                 }
                                                 $fond->archive = $archive;
                                             }
-                                        }               
+                                        }
                                         $newFolder->fond = $fond;
                                     }
                                 }
@@ -677,7 +680,7 @@ function nomenclatorKeyController()
                             } else {
                                 $nomenclatorKey->folder = $object['folder'];
                             }
-                               
+
 
                         } else {
                             $nomenclatorKey->folder = null;
@@ -741,7 +744,7 @@ function nomenclatorKeyController()
                                         $i++;
                                     }
 
-                                    
+
 
                                 } else {
                                     $nomenclatorImage->url = $image['url'];
@@ -758,7 +761,7 @@ function nomenclatorKeyController()
                                             $nomenclatorImage->isLocal = false;
                                         }
                                     }
-                                    
+
                                 }
 
                                 if (array_key_exists("structure", $image))
@@ -780,7 +783,7 @@ function nomenclatorKeyController()
                         else {
                             $nomenclatorKey->images = null;
                         }
-                            
+
                         if(array_key_exists("keyUsers",$object))
                         {
                             $nomenclatorKey->keyUsers = array();
@@ -797,7 +800,7 @@ function nomenclatorKeyController()
                                 }
                                 if (array_key_exists('isMainUser', $keyUser)) {
                                     $k->isMainUser = $keyUser['isMainUser'];
-                                    
+
                                 } else {
                                     $k->isMainUser = false;
                                 }
@@ -813,14 +816,14 @@ function nomenclatorKeyController()
                         } else {
                             $nomenclatorKey->placeOfCreationId = null;
                         }
-                           
+
                         $nomenclatorKeyService = POSTNomenclatorKeyService();
 
-                       
+
 
                         if ($nomenclatorKeyService === null)
                             throw new Exception("System Error");
-                        
+
                             /*if ($nomenclatorKeyId) {
                                 $nomenclatorKey->id = $nomenclatorKeyId;
                                 $nomenclatorKeyService->updateNomenclatorKeyState();
@@ -829,6 +832,7 @@ function nomenclatorKeyController()
                         if (isset ($addedId['exception'])) {
                             throw new Exception($addedId['exception']);
                         }
+                        sendMail('Cipher key added', 'User ' . $userInfo['username'] . ' just created a new cipher key with sign. ' . $nomenclatorKey->signature);
                         post_result($addedId);
                         // post to nomenclator
                     } else if (sizeof($pathElements) === 3) {
@@ -1066,10 +1070,10 @@ function storeImage($string, $name): ?string
 
     $ext = '';
     switch ($mimeType) {
-        case 'application/pdf': 
+        case 'application/pdf':
             $ext = 'pdf';
             break;
-        case 'image/png': 
+        case 'image/png':
             $ext = 'png';
             break;
         case 'image/jpeg':
@@ -1082,7 +1086,7 @@ function storeImage($string, $name): ?string
     $fileName = $name;
     while (file_exists( IMAGEUPLOADPATH . $fileName . '.' . $ext )) {
         $fileName = $name . strval($i);
-        $i++;  
+        $i++;
     }
     file_put_contents(IMAGEUPLOADPATH . $fileName . '.' . $ext, $string);
     $url = (SERVICEPATH . IMAGEUPLOADPATH . $fileName . '.' . $ext);

@@ -1,0 +1,10 @@
+<?php
+
+class SmtpConfig
+{
+    public const HOST = '';
+    public const USERNAME = '';
+    public const PASSWORD = '';
+
+    public const SENDTO = '';
+}

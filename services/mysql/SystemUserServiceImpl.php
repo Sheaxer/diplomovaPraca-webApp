@@ -40,7 +40,7 @@ class SystemUserServiceImpl implements SystemUserService
 
     public function logIn(string $userName, string $password): ?array
     {
-        $query= "SELECT id,passwordHash, isAdmin FROM systemusers WHERE username=:username";
+        $query= "SELECT id,passwordHash, isAdmin FROM systemusers WHERE username=:username and approved = 1";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':username',$userName);
 
@@ -112,7 +112,7 @@ class SystemUserServiceImpl implements SystemUserService
            return null;
         }
         $tokenRightHashed = hash('sha256', $tokenRight);
-        $query = "SELECT userId, hash, expiresAt FROM logins WHERE selector=:selector";
+        $query = "SELECT l.userId as userId, l.hash as hash, l.expiresAt as expiresAt, u.username as username FROM logins l INNER JOIN systemusers u ON l.userId = u.id WHERE l.selector=:selector";
         $stmt = $this->conn->prepare($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'LoginInfo');
         $stmt->bindParam(':selector',$tokenLeft);
@@ -140,13 +140,15 @@ class SystemUserServiceImpl implements SystemUserService
                             $isAdmin = $usr['isAdmin'];
                             return [
                                 'id' => $info->userId,
+                                'username' => $info->username,
                                 'isAdmin' => $isAdmin
                             ];
                         } else {
                             $isAdmin = false;
                             return [
                                 'id' => $info->userId,
-                                'isAdmin' => $isAdmin
+                                'username' => $info->username,
+                                'isAdmin' => $isAdmin,
                             ];
                         }
                     }
