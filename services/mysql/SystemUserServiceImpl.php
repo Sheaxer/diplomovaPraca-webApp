@@ -163,7 +163,7 @@ class SystemUserServiceImpl implements SystemUserService
 
     public function getUsernameById($id): ?string
     {
-        $query = "SELECT username FROM users WHERE id = :id LIMIT 1";
+        $query = "SELECT username FROM systemusers WHERE id = :id LIMIT 1";
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id', $id);
         $stm->execute();
