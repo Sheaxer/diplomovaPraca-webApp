@@ -52,7 +52,7 @@ class ArchiveServiceImpl implements ArchiveService
         $folderQuery = "SELECT * from folders where fond=:fond";
         $folderStatement = $this->conn->prepare($folderQuery);
 
-        $regionQuery = "SELECT r.* from regions r INNER JOIN folderregions f ON r.id = f.regionId  where r.folderName = :folderName";
+        $regionQuery = "SELECT r.* from regions r INNER JOIN folderregions f ON r.id = f.regionId  where f.folderName = :folderName";
         $regionStatement = $this->conn->prepare($regionQuery);
 
         /** @var DisplayArchive $archive */
