@@ -105,7 +105,7 @@ WHERE folderName=:folderName";
         $stm->execute();
         $folder = $stm->fetch();
         if ($folder && $folder instanceof NomenclatorFolder) {
-            $q2 = "SELECT r.* AS `description` FROM folderregions INNER JOIN regions r on folderregions.regionId = r.id 
+            $q2 = "SELECT r.description AS `description` FROM folderregions fr INNER JOIN regions r on fr.regionId = r.id 
             WHERE folderName=:folderName";
             
             $q3 = "SELECT f.`name` as `name`, a.shortName as shortName, a.country as country, a.name as archiveName from fonds f INNER JOIN folders fold on fold.fond = f.name INNER JOIN archives a ON f.archive = a.shortName where fold.name = :folderName";
