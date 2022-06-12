@@ -828,7 +828,7 @@ function nomenclatorKeyController()
                                 $nomenclatorKey->id = $nomenclatorKeyId;
                                 $nomenclatorKeyService->updateNomenclatorKeyState();
                             }*/
-                        $addedId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                        $addedId = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey, $userInfo['isAdmin']);
                         if (isset ($addedId['exception'])) {
                             throw new Exception($addedId['exception']);
                         }

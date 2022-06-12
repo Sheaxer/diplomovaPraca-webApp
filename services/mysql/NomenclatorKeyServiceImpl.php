@@ -16,7 +16,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $this->conn = $conn;
     }
 
-    public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator): ?array
+    public function createNomenclatorKey(int $userId, NomenclatorKey $nomenclator, bool $isAdmin): ?array
     {
         if($nomenclator->signature === null)
             $nomenclator->signature = generateRandomString(6);
@@ -27,7 +27,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
 
         $stateQuery = "INSERT INTO nomenclatorkeystate (`state`, createdBy, createdAt, updatedAt, note) VALUES (:stateString, :createdBy, :createdAt, :updatedAt, :note)";
         $stateStm = $this->conn->prepare($stateQuery);
-        $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_AWAITING);
+        if ($isAdmin) {
+            $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_APPROVED);
+        } else {
+            $stateStm->bindValue(':stateString', NomenclatorKeyState::STATE_AWAITING);
+        }
+
         $now = new DateTime();
         $stateStm->bindParam(':createdBy', $userId);
         $stateStm->bindValue(':createdAt', $now->format('Y-m-d H:i:s'));
@@ -35,7 +40,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         $stateStm->bindValue(':note', '');
 
         $this->conn->beginTransaction();
-        
+
         $wasSuccessful = $stateStm->execute();
         $stateId = intval($this->conn->lastInsertId());
 
@@ -46,12 +51,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $this->conn->rollBack();
             return $response;
         }
-        
-        $query = "INSERT INTO nomenclatorkeys (folder, `signature`, completeStructure, `language`, 
-            stateId, usedChars,  cipherType, keyType, usedFrom, usedTo, usedAround, 
-            placeOfCreation, groupId) 
-        VALUES 
-            (:folder, :signatureStr, :completeStructure, :lang ,:stateId, :usedChars, :cipherType, :keyType, 
+
+        $query = "INSERT INTO nomenclatorkeys (folder, `signature`, completeStructure, `language`,
+            stateId, usedChars,  cipherType, keyType, usedFrom, usedTo, usedAround,
+            placeOfCreation, groupId)
+        VALUES
+            (:folder, :signatureStr, :completeStructure, :lang ,:stateId, :usedChars, :cipherType, :keyType,
             :usedFrom, :usedTo, :usedAround, :placeOfCreation, :groupId)";
 
         $stm = $this->conn->prepare($query);
@@ -86,10 +91,10 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         //
 
         $imageService = new NomenclatorImageServiceImpl($this->conn);
-        
+
         $a = $stm->execute();
         if (! $a) {
-            
+
             $err = $this->conn->errorInfo();
             $this->conn->rollBack();
             throw new Exception('Unable to create nomenclator key ' . $err[2]);
@@ -155,7 +160,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $p = new NomenclatorPlaceServiceImpl($this->conn);
             $nomenclatorKey->placeOfCreation =  $p->getPlaceById(intval($nomenclatorKey->placeOfCreationId));
         }
-       
+
         if ($nomenclatorKey->state && $nomenclatorKey->state->createdById) {
             $u = new SystemUserServiceImpl($this->conn);
             $nomenclatorKey->state->createdBy = $u->getUsernameById($nomenclatorKey->state->createdById);
@@ -165,7 +170,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $fold = $f->getFolderByName($nomenclatorKey->folder);
             $nomenclatorKey->folder = $fold;
         }
-       
+
         /* TODO fill in folder and used where? */
         /*$u = new KeyUserServiceImpl($this->conn);
         $nomenclatorKey->keyUsers = $u->getKeyUsersByNomenclatorKeyId($nomenclatorKey->id);*/
@@ -214,7 +219,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         } else {
             $query .= " AND (s.state=:approvedState)";
         }
-        
+
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':signature',$signature);
         if ($userInfo) {
@@ -225,16 +230,16 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         } else {
             $stm->bindValue(':approvedState' ,NomenclatorKeyState::STATE_APPROVED);
         }
-        
+
         $stm->execute();
         $nomenclatorKeyData = $stm->fetch(PDO::FETCH_ASSOC);
-       
+
         $nomenclatorKey = NomenclatorKey::createFromArray($nomenclatorKeyData);
         $nomenclatorKey = $this->fillNomenclator($userInfo, $nomenclatorKey);
         return $nomenclatorKey;
     }
 
-    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page, 
+    public function getNomenklatorKeysByAttributes(?array $userInfo, $limit, $page,
         ?array $folders = null, ?array $structures = null,
         bool $myKeys = false, ?string $state = null, ?int $createdBy = null,
         ?string $orderBy = null, ?string $order = null
@@ -383,7 +388,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $query .= " " . $order;
             }
         }
-       
+
         //var_dump($query);
         $stm = $this->conn->prepare($query);
         $countStm = $this->conn->prepare($countQuery);
@@ -433,12 +438,12 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $stm->bindParam(":keyCreatedById", $createdBy, PDO::PARAM_INT);
             $countStm->bindParam(":keyCreatedById", $createdBy, PDO::PARAM_INT );
         }
-        
+
         $stm->execute();
         $countStm->execute();
         $nomenclatorKeysData = $stm->fetchAll(PDO::FETCH_ASSOC);
         $count = intval($countStm->fetchColumn(0));
-        
+
         if($nomenclatorKeysData === false)
             return null;
         $keys = array();
@@ -455,7 +460,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
                 $isNextPage = true;
             }
         }
-       
+
         return [
             'count' => $count,
             'nextPage' => $isNextPage,
@@ -466,7 +471,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
     public function nomenclatorKeyExistsById(?array $userInfo, $keyId) :bool
     {
         $query = "SELECT 1 FROM nomenclatorkeys k INNER JOIN nomenclatorkeystate s ON k.stateId = s.id where k.id=:id";
-        
+
         if ($userInfo) {
             if (! $userInfo['isAdmin']) {
                 $query .= " AND (s.createdBy = :createById OR s.state= :approvedState)";
@@ -474,7 +479,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         } else {
             $query .= " AND (s.state=:approvedState)";
         }
-        
+
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':id',$keyId);
 
@@ -516,7 +521,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             $stm = $this->conn->prepare($query);
             $stm->bindParam(':nomeclatorKeyId', $nomenclatorId, PDO::PARAM_INT);
             $stm->execute();
-            $nomeclatorStateId = $stm->fetch(PDO::FETCH_COLUMN); 
+            $nomeclatorStateId = $stm->fetch(PDO::FETCH_COLUMN);
             if ($nomeclatorStateId) {
                 $stateId = $nomeclatorStateId;
             }
@@ -625,13 +630,13 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         }
 
 
-        $query = "UPDATE nomenclatorkeys SET folder = :folder, `signature` = :signatureStr, 
-        completeStructure = :completeStructure, `language` = :lang, 
-            usedChars = :usedChars,  cipherType = :cipherType, keyType = :keyType, 
-            usedFrom = :usedFrom, usedTo = :usedTo, usedAround = :usedAround , 
-            placeOfCreation = :placeOfCreation, groupId = :groupId 
+        $query = "UPDATE nomenclatorkeys SET folder = :folder, `signature` = :signatureStr,
+        completeStructure = :completeStructure, `language` = :lang,
+            usedChars = :usedChars,  cipherType = :cipherType, keyType = :keyType,
+            usedFrom = :usedFrom, usedTo = :usedTo, usedAround = :usedAround ,
+            placeOfCreation = :placeOfCreation, groupId = :groupId
             WHERE id = :id";
-        
+
         $stm = $this->conn->prepare($query);
         $stm->bindParam(':folder',$nomenclator->folder);
         $stm->bindParam(':signatureStr',$nomenclator->signature);
@@ -659,7 +664,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
             ];
         }
 
-        
+
 
 
         $updateQuery = "UPDATE nomenclatorkeystate SET `state`=:stateString, updatedAt = :updatedAt WHERE id = :stateId";
@@ -836,7 +841,7 @@ class NomenclatorKeyServiceImpl implements NomenclatorKeyService
         }
 
         $keyUserService = new KeyUserServiceImpl($this->conn);
-       
+
         /** @var KeyUser $user */
         foreach ($users as $user) {
             $userId = null;

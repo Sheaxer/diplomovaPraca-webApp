@@ -31,7 +31,7 @@ function cipherCreatorController()
                 //var_dump($object);
                 $nomenclatorKey = new NomenclatorKey();
                 $nomenclatorKey->placeOfCreationId = null;
-                
+
                 $transcription = new DigitalizedTranscription();
                 $transcription->encryptionPairs = array();
                 $isSubstitution = false;
@@ -283,7 +283,7 @@ function cipherCreatorController()
 
                 $nomenclatorKeyService = POSTNomenclatorKeyService();
 
-               
+
                 $digitalizedTranscriptionService = POSTDigitalizedTranscriptionService();
                 /** @var EncryptionPair $pair */
                 $usedChars = [];
@@ -296,7 +296,7 @@ function cipherCreatorController()
                 /** use unique symbols only, ; sepparated */
                 $nomenclatorKey->usedChars = implode(';', array_unique($usedChars));
                 $nomenclatorKey->cipherType='ed';
-                $data = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey);
+                $data = $nomenclatorKeyService->createNomenclatorKey($userInfo['id'], $nomenclatorKey, $userInfo['isAdmin']);
                 if (! isset($data['id'])) {
                     throw new Exception($data['exception']);
                 }

@@ -81,7 +81,7 @@ class NomenclatorKey {
         $key->keyType = $data['keyType'] ?? null;
         $key->language = $data['language'] ?? null;
         $key->signature = $data['signature'] ?? '';
-       
+
         $key->usedAround = $data['usedAround'] ?? null;
         $key->usedChars = $data['usedChars'];
         $key->usedFrom = $data['usedFrom'] ?? null;
